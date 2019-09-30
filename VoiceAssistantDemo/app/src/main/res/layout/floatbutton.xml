@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/floating_toast"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_centerHorizontal="true"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/top_scrollview"
+        android:layout_width="wrap_content"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:layout_height="200dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/top_tv_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/black"
+                android:background="@android:color/holo_green_light"
+                android:textSize="15sp"
+                android:scrollbars="vertical"
+                />
+        </LinearLayout>
+    </ScrollView>
+
+    <ImageView
+        android:id="@+id/iv_voice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/audio_record_disable"
+        android:visibility="gone"
+        android:contentDescription="@string/app_name"
+        android:layout_gravity="end"
+     />
+
+    <ScrollView
+        android:id="@+id/bottom_scrollview"
+        android:layout_width="wrap_content"
+        android:fadeScrollbars="false"
+        android:scrollbars="vertical"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:layout_height="200dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/bottom_tv_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:background="@android:color/black"
+                android:textSize="15sp"
+                android:scrollbars="vertical"
+                />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>
