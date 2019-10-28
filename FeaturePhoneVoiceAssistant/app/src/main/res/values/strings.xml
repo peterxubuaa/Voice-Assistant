@@ -1,0 +1,72 @@
+<resources>
+    <string name="app_name">语音助手</string>
+    <string name="image_view_microphone">麦克风</string>
+    <string name="text_view_debug">调试信息</string>
+
+    <string name="setting_title">参数设置</string>
+    <string name="setting_cancel">取消</string>
+    <string name="setting_ok">确定</string>
+
+    <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了</string>
+    <string name="baidu_unit_question_help">你可以问我:\n1.今天(北京)天气怎么样?\n2.台湾有多大?\n3.翻译今天星期几?\n4.一公里等于几英里?\n5. 99的平方是多少?\n6.什么是叶公好龙\n7.写首关于春天的诗.\n8.写个关于过年的对联</string>
+    <string name="baidu_unit_quit_session">好的，我明白了。请继续提问！</string>
+    <string name="baidu_unit_fail_session">问的啥玩意？听不懂！</string>
+    <string name="baidu_unit_debug">输出调试信息</string>
+    <string name="baidu_unit_work_mode">工作模式</string>
+    <string name="baidu_unit_asr_bot">ASR</string>
+    <string name="baidu_unit_keyboard_bot">BOT</string>
+    <string name="baidu_unit_keyboard_robot">Robot</string>
+
+    <string name="baidu_unit_robot_type">机器人类别</string>
+    <string name="baidu_unit_robot_web">网络响应</string>
+    <string name="baidu_unit_robot_local">本地响应</string>
+    <string name="baidu_unit_robot_all">所有响应</string>
+
+    <string name="baidu_unit_bot_type">技能类别</string>
+    <string name="baidu_unit_bot_weather">天气</string>
+    <string name="baidu_unit_bot_ia">智能问答</string>
+    <string name="baidu_unit_bot_calculator">计算器</string>
+    <string name="baidu_unit_bot_definition">名词解释</string>
+    <string name="baidu_unit_bot_idiom">成语问答</string>
+    <string name="baidu_unit_bot_unit_conversion">单位换算</string>
+    <string name="baidu_unit_bot_greet">问候</string>
+    <string name="baidu_unit_bot_chat">闲聊</string>
+    <string name="baidu_unit_bot_poem">智能写诗</string>
+    <string name="baidu_unit_bot_couplet">智能对联</string>
+    <string name="baidu_unit_bot_translate">智能翻译</string>
+
+    <string name="baidu_unit_bot_phone">打电话</string>
+    <string name="baidu_unit_bot_message">发短信</string>
+    <string name="baidu_unit_bot_screen_control">屏幕控制</string>
+    <string name="baidu_unit_bot_story">故事</string>
+    <string name="baidu_unit_bot_music">音乐</string>
+    <string name="baidu_unit_bot_alarm">闹钟</string>
+    <string name="baidu_unit_bot_notify">提醒</string>
+    <string name="baidu_unit_bot_movie">电影</string>
+    <string name="baidu_unit_bot_train_ticket">火车票</string>
+    <string name="baidu_unit_bot_radio">电台控制</string>
+
+    <string name="baidu_unit_help">帮助\n暂时没有:(\n\n</string>
+
+    <string name="baidu_unit_hint_brightness_low">正在降低亮度到</string>
+    <string name="baidu_unit_hint_brightness_high">正在提高亮度到</string>
+
+    <string name="baidu_unit_hint_launch_app_high">正在启动</string>
+    <string name="baidu_unit_hint_exit_app_high">正退出当前应用</string>
+
+    <string name="baidu_unit_hint_launch_image">正在拍照</string>
+    <string name="baidu_unit_hint_launch_video">正在录像</string>
+    <string name="baidu_unit_hint_launch_camera_fail">启动相机失败</string>
+
+    <string name="baidu_unit_hint_playing_music">正在播放歌曲</string>
+    <string name="baidu_unit_hint_playing_music_list">歌曲列表\n</string>
+    <string name="baidu_unit_hint_play_music_fail">播放歌曲失败</string>
+
+    <string name="baidu_unit_hint_phone_dialing">正在拨打电话给</string>
+    <string name="baidu_unit_hint_phone_fail">没有该联系人或号码</string>
+
+    <string name="baidu_unit_hint_voice_down">正在降低音量</string>
+    <string name="baidu_unit_hint_voice_up">正在提高音量</string>
+
+    <string name="baidu_unit_web_search">正在上网搜索</string>
+</resources>
