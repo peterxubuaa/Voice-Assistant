@@ -1,26 +1,119 @@
 <resources>
     <string name="app_name">语音助手</string>
+<!--    baidu token for com.fih.featurephone.voiceassistant-->
+    <string name="APP_ID">17380810</string>
+    <string name="API_KEY">kA0qDiR7zLN5Pqf6zmt9uH7o</string>
+    <string name="SECRET_KEY">rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ</string>
+
     <string name="image_view_microphone">麦克风</string>
+    <string name="image_view_option">选项</string>
+    <string name="image_view_manage">菜单管理</string>
+    <string name="image_view_left_arrow">左箭头</string>
+    <string name="image_view_right_arrow">右箭头</string>
+    <string name="image_view_send_head">发送消息头像</string>
+    <string name="image_view_receive_head">接收消息头像</string>
     <string name="text_view_debug">调试信息</string>
 
-    <string name="setting_title">参数设置</string>
+    <string name="option_dialog_title">功能选择</string>
+    <string name="option_voice_output">语音播报</string>
+    <string name="option_query_again">重新提问</string>
+    <string name="option_copy_edit">拷贝编辑</string>
+    <string name="option_clear_item">清除显示</string>
+    <string name="option_web_query">上网搜索</string>
+    <string name="option_shortcut_translate_start">开始翻译</string>
+    <string name="option_shortcut_translate_stop">结束翻译</string>
+
+    <string name="option_shortcut_ocr">OCR文字识别</string>
+    <string name="option_shortcut_ocr_camera">拍照OCR</string>
+    <string name="option_shortcut_ocr_image">图片OCR</string>
+    <string name="option_text_input">文本输入</string>
+    <string name="option_show_setting">系统设置</string>
+    <string name="option_show_help">显示帮助</string>
+    <string name="option_clear_all_items">清除所有显示</string>
+
+    <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了。按*键显示帮助</string>
+    <string name="baidu_unit_welcome_support_touch">我是富士康手机小助手小康，现已准备好了。</string>
+    <string name="baidu_unit_question_help">
+        必须连接网络，按确认键开始一问一答。你可以问我:\n
+        1.今天[北京]天气怎么样?\n
+        2.台湾有多大?\n
+        3.[英语|法语|韩语]翻译今天星期几?\n
+        4.一公里等于几英里?\n
+        5. 99的平方是多少?\n
+        6.什么是叶公好龙?\n
+        7.写首关于春天的诗\n
+        8.写个关于过年的对联\n
+        9.上网搜索科幻小说\n
+        10.讲个笑话\n\n
+        你还可以命令我:\n
+        1.把[声音|亮度]调[最][高|低]\n
+        2.拍个照[录个相]\n
+        3.播首歌[双节棍]\n
+        4.打个电话给10086[老婆]\n
+        5.打开[图库|相机|设置]
+    </string>
+    <string name="baidu_unit_question_help_dialogue_translate_mode">
+        如何进入特殊对话模式?\n
+        1.翻译模式。\n
+        (1)按1键进入/退出中英互译。\n
+        (2)语音”开始翻译[英语/德语/..]“，”开始[英语/德语]翻译“。\n
+        (3)语音”结束“或“退出“。\n
+        2.诗词/对联模式。\n
+        (1)语音”开始写[诗|对联]”。\n
+        (2)语音”结束“或“退出“。</string>
+    <string name="baidu_unit_question_help_dialogue_translate_mode_support_touch">
+        如何进入特殊对话模式?\n
+        1.翻译模式。\n
+        (1)按右下功能键，选择【快捷翻译】进入或退出。\n
+        (2)语音”开始翻译[英语/德语/..]“，”开始[英语/德语]翻译“。\n
+        (3)语音”结束“或“退出“。\n
+        2.诗词/对联模式。\n
+        (1)语音”开始写[诗|对联]”。\n
+        (2)语音”结束“或“退出“。</string>
+    <string name="baidu_unit_question_help_ocr_mode">
+        如何进入OCR模式?\n
+        1.按3键快捷进入OCR拍照。\n
+        2.语音”扫描[英语/德语/..]“或”[英语/德语]扫描“。\n
+        3.进入后按确认键拍照识别后提问。\n
+        4.进入后按3键拍照只识别。\n
+        5.按回退键退出。</string>
+    <string name="baidu_unit_question_help_ocr_mode_support_touch">
+        如何进入OCR模式?\n
+        1.按右下功能键，选择【快捷OCR】进入\n
+        2.语音”扫描[英语/德语/..]“或”[英语/德语]扫描“。\n
+        3.进入后按识别键拍照识别，或长按识别后提问。\n
+        4.按回退键退出。</string>
+    <string name="baidu_unit_question_help_keyboard_input">
+        如何键盘文字输入?\n
+        1.按菜单键显示或隐藏文字输入框。\n
+        2.按确认键完成文字输入。</string>
+    <string name="baidu_unit_answer_fail">没有任何回复</string>
+    <string name="baidu_unit_quit_session">好的，我明白了。请继续提问！</string>
+    <string name="baidu_unit_fail_session">问的啥玩意？听不懂！</string>
+
+    <string name="setting_title">系统设置</string>
     <string name="setting_cancel">取消</string>
     <string name="setting_ok">确定</string>
 
-    <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了</string>
-    <string name="baidu_unit_question_help">你可以问我:\n1.今天(北京)天气怎么样?\n2.台湾有多大?\n3.翻译今天星期几?\n4.一公里等于几英里?\n5. 99的平方是多少?\n6.什么是叶公好龙\n7.写首关于春天的诗.\n8.写个关于过年的对联</string>
-    <string name="baidu_unit_quit_session">好的，我明白了。请继续提问！</string>
-    <string name="baidu_unit_fail_session">问的啥玩意？听不懂！</string>
     <string name="baidu_unit_debug">输出调试信息</string>
+    <string name="baidu_unit_tts">语音合成输出</string>
     <string name="baidu_unit_work_mode">工作模式</string>
     <string name="baidu_unit_asr_bot">ASR</string>
     <string name="baidu_unit_keyboard_bot">BOT</string>
     <string name="baidu_unit_keyboard_robot">Robot</string>
+    <string name="baidu_unit_working">努力工作中..</string>
+    <string name="baidu_unit_initializing">软件初始化过程中..</string>
 
     <string name="baidu_unit_robot_type">机器人类别</string>
     <string name="baidu_unit_robot_web">网络响应</string>
     <string name="baidu_unit_robot_local">本地响应</string>
     <string name="baidu_unit_robot_all">所有响应</string>
+
+    <string name="baidu_unit_speech_language_type">语音识别语言类别</string>
+    <string name="baidu_unit_speech_language_english">英语</string>
+    <string name="baidu_unit_speech_language_chinese">普通话</string>
+    <string name="baidu_unit_speech_language_sichuanese">四川话</string>
+    <string name="baidu_unit_speech_language_cantonese">粤语</string>
 
     <string name="baidu_unit_bot_type">技能类别</string>
     <string name="baidu_unit_bot_weather">天气</string>
@@ -34,6 +127,7 @@
     <string name="baidu_unit_bot_poem">智能写诗</string>
     <string name="baidu_unit_bot_couplet">智能对联</string>
     <string name="baidu_unit_bot_translate">智能翻译</string>
+    <string name="baidu_unit_bot_joke">笑话</string>
 
     <string name="baidu_unit_bot_phone">打电话</string>
     <string name="baidu_unit_bot_message">发短信</string>
@@ -67,6 +161,43 @@
 
     <string name="baidu_unit_hint_voice_down">正在降低音量</string>
     <string name="baidu_unit_hint_voice_up">正在提高音量</string>
+    <string name="baidu_unit_hint_voice_on">正在打开声音</string>
+    <string name="baidu_unit_hint_voice_off">正在关闭声音</string>
 
     <string name="baidu_unit_web_search">正在上网搜索</string>
+
+    <string name="baidu_unit_fix_translate_help">
+        1.按左键汉语译外语，右键外语译汉语。\n
+        2.按1键可退出，或语音”退出”。\n
+        3.按3键进入OCR识别翻译。\n
+        4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
+    <string name="baidu_unit_fix_translate_help_support_touch">
+        1.按左箭头汉语译外语，右箭头外语译汉语。\n
+        2.按右下功能键，选择【快捷翻译】可退出，或语音”退出”。\n
+        3.按右下功能键，选择【快捷OCR】进入OCR识别翻译。\n
+        4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
+    <string name="baidu_unit_fix_translate_start">进入%1$s对话翻译</string>
+    <string name="baidu_unit_fix_translate_stop">退出%1$s对话翻译</string>
+    <string name="baidu_unit_fix_translate_input">开始%1$s输入</string>
+    <string name="baidu_unit_fix_translate_language_error">当前不支持%1$s对话翻译</string>
+
+    <string name="baidu_unit_fix_poem_help">直接说出关键词，据此做诗一首</string>
+    <string name="baidu_unit_fix_poem_start">进入诗词模式</string>
+    <string name="baidu_unit_fix_poem_stop">退出诗词模式</string>
+
+    <string name="baidu_unit_fix_couplet_help">直接说出关键词，据此写对联</string>
+    <string name="baidu_unit_fix_couplet_start">进入对联模式</string>
+    <string name="baidu_unit_fix_couplet_stop">退出对联模式</string>
+
+    <string name="baidu_unit_ocr_token_error">初始化OCR token失败</string>
+    <string name="baidu_unit_ocr_fail">OCR识别失败</string>
+    <string name="baidu_unit_ocr_start">启动OCR识别%1$s中..</string>
+    <string name="baidu_unit_ocr_not_support">目前不支持%1$s识别</string>
+    <string name="baidu_unit_ocr_recognize">识别</string>
+    <string name="baidu_unit_ocr_recognize_hint">单击按钮仅识别，长按则识别后提问</string>
+
+    <string name="baidu_unit_keyboard_input">键盘输入文字</string>
+    <string name="baidu_unit_keyboard_input_send">发送</string>
+
+    <string name="network_error">网络错误，不能访问外网</string>
 </resources>

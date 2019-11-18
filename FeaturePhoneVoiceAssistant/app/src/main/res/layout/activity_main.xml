@@ -5,55 +5,100 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:id="@+id/result_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <ListView
+        android:id="@+id/msg_list_view"
+        android:focusable="true"
         android:layout_alignParentTop="true"
         android:layout_centerInParent="true"
-        android:orientation="vertical">
-        <ListView
-            android:id="@+id/msg_list_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:dividerHeight="0dp"
-            android:listSelector="@android:color/transparent"
-            android:divider="#0000"/>
-    </LinearLayout>
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:dividerHeight="0dp"
+        android:divider="#0000"
+        android:choiceMode="singleChoice"/>
+<!--    android:listSelector="@android:color/transparent"-->
 
-    <ScrollView
-        android:id="@+id/debug_scrollview"
+    <TextView
+        android:id="@+id/tv_debug_info"
+        android:focusable="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/result_layout"
+        android:layout_below="@+id/msg_list_view"
         android:layout_above="@+id/assistant_image_view"
-        android:scrollbars="vertical">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-            <TextView
-                android:id="@+id/tv_debug_info"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:background="@android:color/holo_green_light"
-                android:textSize="15sp"
-                android:text="@string/text_view_debug"
-                android:scrollbars="vertical"
-                />
-        </LinearLayout>
-    </ScrollView>
+        android:textColor="@android:color/black"
+        android:background="@android:color/holo_green_light"
+        android:textSize="15sp"
+        android:text="@string/text_view_debug"
+        android:scrollbars="vertical"
+        android:maxLines="500"
+        />
 
     <ImageView
         android:id="@+id/assistant_image_view"
         android:contentDescription="@string/image_view_microphone"
-        android:focusable="false"
         android:layout_width="80dp"
         android:layout_height="40dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/audio_record_disable"/>
+
+    <ImageView
+        android:id="@+id/manage_image_view"
+        android:contentDescription="@string/image_view_manage"
+        android:visibility="gone"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_manage"/>
+
+    <ImageView
+        android:id="@+id/left_arrow_image_view"
+        android:contentDescription="@string/image_view_left_arrow"
+        android:visibility="gone"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_toStartOf="@+id/assistant_image_view"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_left_arrow"/>
+
+    <ImageView
+        android:id="@+id/right_arrow_image_view"
+        android:contentDescription="@string/image_view_right_arrow"
+        android:visibility="gone"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        android:layout_toEndOf="@+id/assistant_image_view"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/ic_right_arrow"/>
+
+    <LinearLayout
+        android:id="@+id/input_text_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/input_text"
+            android:visibility="gone"
+            android:focusable="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_weight="20"
+            android:hint="@string/baidu_unit_keyboard_input"
+            android:inputType="text"
+            android:maxLines="2"/>
+
+        <Button
+            android:id="@+id/input_text_send"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:text="@string/baidu_unit_keyboard_input_send"/>
+
+    </LinearLayout>
 
 </RelativeLayout>

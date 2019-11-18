@@ -3,64 +3,51 @@
 
     <string-array name="brightness_keyword">
         <item>亮度</item>
+        <item>屏幕</item>
     </string-array>
-    <string-array name="brightness_keyword_down">
-        <item>低</item>
-        <item>小</item>
-        <item>暗</item>
+    <string-array name="brightness_down_regex">
+        <item>.*[调|降|减].*[低|小|暗].*</item>
     </string-array>
-    <string-array name="brightness_keyword_up">
-        <item>高</item>
-        <item>大</item>
-        <item>亮</item>
+    <string-array name="brightness_up_regex">
+        <item>.*[调|升|增|提].*[高|大|亮].*</item>
+    </string-array>
+    <string-array name="brightness_limit_keyword">
+        <item>最</item>
+        <item>极</item>
     </string-array>
 
-    <string-array name="launch_app_keyword">
-        <item>打开</item>
-        <item>运行</item>
-        <item>启动</item>
+    <string-array name="launch_app_regex">
+        <item>打开(.{2,})</item>
+        <item>运行(.{2,})</item>
+        <item>启动(.{2,})</item>
     </string-array>
     <string-array name="launch_exit_keyword">
-        <item>退出</item>
-        <item>关闭</item>
-        <item>主界面</item>
+        <item>退出当前应用</item>
+        <item>关闭当前应用</item>
+        <item>回到主界面</item>
     </string-array>
 
-    <string-array name="launch_camera_image_keyword">
-        <item>拍照</item>
-        <item>照相</item>
-        <item>拍个照</item>
-        <item>照个相</item>
+    <string-array name="launch_camera_image_regex">
+        <item>拍.?.?照</item>
+        <item>照.?.?相</item>
     </string-array>
-    <string-array name="launch_camera_video_keyword">
-        <item>录像</item>
-        <item>摄像</item>
-        <item>录个像</item>
-        <item>摄个像</item>
+    <string-array name="launch_camera_video_regex">
+        <item>[录|摄].?.?[像|影]</item>
     </string-array>
 
-    <string-array name="launch_music_keyword">
-        <item>播放音乐</item>
-        <item>音乐播放</item>
-        <item>播放歌曲</item>
-        <item>歌曲播放</item>
-        <item>播放一首歌</item>
-        <item>播一首歌</item>
-        <item>播首歌</item>
-        <item>唱首歌</item>
-        <item>唱个歌</item>
-        <item>唱歌</item>
+    <string-array name="launch_music_regex">
+        <item>[播|放|唱].*(?:音乐|歌曲|歌|曲)(.*)</item>
     </string-array>
 
-    <string-array name="phone_keyword">
-        <item>打个电话</item>
-        <item>打电话</item>
-        <item>回电话</item>
-        <item>拨电话</item>
-        <item>拨号</item>
-        <item>回电</item>
+    <string-array name="phone_regex">
+        <item>.*(?:打个|打|回个|回)电话.*</item>
+        <item>.*(?:拨|拨打|拨个)(?:号码|电话).*</item>
     </string-array>
 
+    <string-array name="voice_volume_keyword">
+        <item>声音</item>
+        <item>音量</item>
+    </string-array>
     <string-array name="voice_type_keyword">
         <item>系统</item>
         <item>音乐</item>
@@ -69,21 +56,25 @@
         <item>闹钟</item>
         <item>通知</item>
     </string-array>
-    <string-array name="voice_volume_keyword">
-        <item>音量</item>
-        <item>声音</item>
-        <item>铃声</item>
-        <item>闹钟</item>
+    <string-array name="voice_volume_down_regex">
+        <item>.*[调|降|减][低|小|轻].*(?:音量|声音).*</item>
+        <item>.*(?:音量|声音).*[调|降|减]?.*[低|小|轻].*</item>
     </string-array>
-    <string-array name="voice_volume_down_keyword">
-        <item>低</item>
-        <item>小</item>
-        <item>轻</item>
+    <string-array name="voice_volume_up_regex">
+        <item>.*[调|提|升|增][高|大|响].*(?:音量|声音).*</item>
+        <item>.*(?:音量|声音).*[调|提|升|增]?.*[高|大|响].*</item>
     </string-array>
-    <string-array name="voice_volume_up_keyword">
-        <item>高</item>
-        <item>大</item>
-        <item>重</item>
+    <string-array name="voice_volume_limit_keyword">
+        <item>最</item>
+        <item>极</item>
+    </string-array>
+    <string-array name="voice_volume_switch_on_keyword">
+        <item>打开</item>
+        <item>开启</item>
+    </string-array>
+    <string-array name="voice_volume_switch_off_keyword">
+        <item>关闭</item>
+        <item>静音</item>
     </string-array>
 
     <string-array name="web_search_keyword">
@@ -92,4 +83,132 @@
         <item>网络查找</item>
         <item>网络搜索</item>
     </string-array>
+
+    <string-array name="ocr_regex">
+        <item>(.*)(?:扫描|扫一扫)</item>
+        <item>(?:扫描|扫一扫)(.*)</item>
+    </string-array>
+    <string-array name="ocr_language_item">
+        <item>中英文</item>
+        <item>汉语</item>
+        <item>英语</item>
+        <item>法语</item>
+        <item>德语</item>
+        <item>俄语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>意大利语</item>
+        <item>西班牙语</item>
+        <item>葡萄牙语</item>
+    </string-array>
+
+    <string-array name="unit_conversion_regex">
+        <item>.+(?:等于|是)(?:多少|几).+</item>
+    </string-array>
+
+    <string-array name="calculator_regex">
+        <item>.*(?:\\+|-|×|÷|开方|平方|次方|根号).*(?:等于|是)(?:多少|几)</item>
+    </string-array>
+
+    <string-array name="translate_regex">
+        <item>(.{0,4})翻译.+</item>
+    </string-array>
+
+    <string-array name="weather_keyword">
+        <item>天气</item>
+        <item>气候</item>
+        <item>气温</item>
+        <item>温度</item>
+        <item>冷不冷</item>
+        <item>热不热</item>
+        <item>感冒指数</item>
+        <item>穿衣指数</item>
+        <item>紫外线强度</item>
+    </string-array>
+    <string-array name="weather_regex">
+        <item>.*(?:有|下|刮)(?:雨|雪|霜|风|雾|云|太阳).*</item>
+        <item>.*(?:热|冷|户外运动|容易感冒|洗车|旅游|外出|出门)[吗|么]</item>
+        <item>.*穿.+衣服.*</item>
+    </string-array>
+
+    <string-array name="couplet_keyword">
+        <item>对联</item>
+        <item>春联</item>
+        <item>门联</item>
+    </string-array>
+    <string-array name="couplet_regex">
+        <item>.*(?:根据|用)(.*)[写|做].*的?[对|春|门]联</item>
+        <item>.*[写|做].*关于(.*)的?[对|春|门]联</item>
+    </string-array>
+
+    <string-array name="poem_keyword">
+        <item>诗</item>
+    </string-array>
+    <string-array name="poem_regex">
+        <item>.*(?:根据|用)(.*)[写|做].*的?诗</item>
+        <item>.*[写|做].*关于(.*)的?诗</item>
+    </string-array>
+
+    <string-array name="joke_keyword">
+        <item>笑话</item>
+        <item>段子</item>
+    </string-array>
+    <string-array name="joke_regex">
+        <item>.*[讲|说|来].*(?:笑话|段子).*</item>
+    </string-array>
+
+    <string-array name="quit_session">
+        <item>不对</item>
+        <item>瞎说</item>
+        <item>瞎回答</item>
+        <item>瞎扯淡</item>
+        <item>回答错误</item>
+        <item>回答错了</item>
+        <item>换个回答</item>
+        <item>搞没搞错</item>
+        <item>说点别的</item>
+    </string-array>
+
+    <string-array name="translate_action_start_regex">
+        <item>开始翻译(.{0,4})</item>
+        <item>(?:进入|开始)(.{0,4})翻译</item>
+    </string-array>
+    <string-array name="translate_action_stop_keyword">
+        <item>结束</item>
+        <item>退出</item>
+    </string-array>
+    <string-array name="translate_action_language_keyword">
+        <item>中文</item>
+        <item>汉语</item>
+        <item>英文</item>
+        <item>英语</item>
+        <item>法语</item>
+        <item>德语</item>
+        <item>俄语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>泰语</item>
+        <item>意大利语</item>
+        <item>西班牙语</item>
+        <item>葡萄牙语</item>
+        <item>阿拉伯语</item>
+    </string-array>
+
+    <string-array name="poem_action_start_keyword">
+        <item>开始写诗</item>
+        <item>开始做诗</item>
+    </string-array>
+    <string-array name="poem_action_stop_keyword">
+        <item>退出</item>
+        <item>结束</item>
+    </string-array>
+
+    <string-array name="couplet_action_start_keyword">
+        <item>开始写对联</item>
+    </string-array>
+    <string-array name="couplet_action_stop_keyword">
+        <item>结束</item>
+        <item>退出</item>
+    </string-array>
+
 </resources>

@@ -8,7 +8,7 @@ import android.provider.ContactsContract;
 import android.text.TextUtils;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.unit.BaiduUnitAI;
+import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 import java.util.ArrayList;
@@ -17,15 +17,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PhoneAction extends BaseAction {
-    private String[] KEYWORD_CALL;
+public class PhoneAction implements BaseAction {
+    private String[] REGEX_CALL;
 
     static private Map<String, ArrayList<String>> mContactInfoMap;
     private Context mContext;
 
     public PhoneAction(Context context) {
         mContext = context;
-        KEYWORD_CALL = mContext.getResources().getStringArray(R.array.phone_keyword);
+        REGEX_CALL = mContext.getResources().getStringArray(R.array.phone_regex);
         if (null == mContactInfoMap) {
             getAllContactInfo(context);
         }
@@ -33,32 +33,30 @@ public class PhoneAction extends BaseAction {
 
     @Override
     public boolean checkAction(String query, BaiduUnitAI.BestResponse bestResponse) {
-        String keyword = CommonUtil.getContainKeyWord(query, KEYWORD_CALL);
-        if (!TextUtils.isEmpty(keyword)) {
-            String filterCmd = query.replaceAll(keyword, "");
-            String phoneNumber = haveTargetPhoneNumber(filterCmd);
-            if (!TextUtils.isEmpty(phoneNumber)) {
-                callTargetPhoneNumber(phoneNumber);
-                bestResponse.reset();
-                bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_dialing) + phoneNumber;
-            } else {
-                String[] result = seekTargetPhoneNumber(filterCmd);
-                if (null != result && result.length == 2) {
-                    phoneNumber = result[1];
-                    callTargetPhoneNumber(phoneNumber);
-                    bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_dialing) + result[0];
-                } else {
-                    bestResponse.reset();
-                    bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_fail);
-                }
-            }
-            return true;
-        }
+        query = CommonUtil.filterPunctuation(query);
+        if (!CommonUtil.checkRegexMatch(query, REGEX_CALL)) return false;
 
-        return false;
+        String phoneNumber = haveTargetPhoneNumber(query);
+        if (!TextUtils.isEmpty(phoneNumber)) {
+            callTargetPhoneNumber(phoneNumber);
+            bestResponse.reset();
+            bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_dialing) + phoneNumber;
+        } else {
+            String[] result = seekTargetPhoneNumber(query);
+            if (null != result && result.length == 2) {
+                phoneNumber = result[1];
+                callTargetPhoneNumber(phoneNumber);
+                bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_dialing) + result[0];
+            } else {
+                bestResponse.reset();
+                bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_phone_fail);
+            }
+        }
+        return true;
     }
 
     private String haveTargetPhoneNumber(String query) {
+//        return CommonUtil.getRegexMatch(query, new String[]{"[^\\d]*(\\d+)[^\\d]*"}, 1);
         Pattern pattern = Pattern.compile("\\d+");
         Matcher matcher = pattern.matcher(query);
         if (matcher.find()) {

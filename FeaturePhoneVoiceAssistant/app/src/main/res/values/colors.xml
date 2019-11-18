@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+    <color name="item_selected">#FF2FCEB5</color>
+    <color name="finder_mask">#80000000</color>
+    <color name="finder_frame">#FFFFFFFF</color>
+    <color name="finder_laser">#0db8f6</color>
 </resources>

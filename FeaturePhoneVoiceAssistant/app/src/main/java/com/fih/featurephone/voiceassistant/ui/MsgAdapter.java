@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,10 +17,15 @@ import java.util.List;
 
 public class MsgAdapter extends ArrayAdapter<Msg> {
     private int mResourceID;
+    private boolean mHideHeadPic = false;
 
     public MsgAdapter(Context context, int textViewResourceID, List<Msg> objects) {
         super(context, textViewResourceID, objects);
         mResourceID = textViewResourceID;
+    }
+
+    public void setHideHeadPic(boolean hide) {
+        mHideHeadPic = hide;
     }
 
     @Override
@@ -31,12 +37,16 @@ public class MsgAdapter extends ArrayAdapter<Msg> {
         if(convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(mResourceID, null);
             viewHolder = new ViewHolder();
-            viewHolder.sendLayout = (RelativeLayout)view.findViewById(R.id.send_layout);
-            viewHolder.receiveLayout = (RelativeLayout)view.findViewById(R.id.receive_layout);
-            viewHolder.sendMsg = (TextView)view.findViewById(R.id.send_msg);
-            viewHolder.receiveMsg = (TextView)view.findViewById(R.id.receive_msg);
-//            viewHolder.sendHead = (ImageView)view.findViewById(R.id.send_head);
-//            viewHolder.receiveHead = (ImageView)view.findViewById(R.id.receive_head);
+            viewHolder.mSendLayout = (RelativeLayout)view.findViewById(R.id.send_layout);
+            viewHolder.mReceiveLayout = (RelativeLayout)view.findViewById(R.id.receive_layout);
+            viewHolder.mSendMsg = (TextView)view.findViewById(R.id.send_msg);
+            viewHolder.mReceiveMsg = (TextView)view.findViewById(R.id.receive_msg);
+            viewHolder.mSendHead = (ImageView)view.findViewById(R.id.send_head);
+            viewHolder.mReceiveHead = (ImageView)view.findViewById(R.id.receive_head);
+            if (mHideHeadPic) {
+                viewHolder.mSendHead.setVisibility(View.GONE);
+                viewHolder.mReceiveHead.setVisibility(View.GONE);
+            }
             view.setTag(viewHolder);
         } else {
             view = convertView;
@@ -45,28 +55,24 @@ public class MsgAdapter extends ArrayAdapter<Msg> {
 
         if (null != msg) {
             if (msg.getType() == Msg.TYPE_SEND) {
-                viewHolder.sendLayout.setVisibility(View.VISIBLE);
-//            viewHolder.sendHead.setVisibility(View.VISIBLE);
-                viewHolder.receiveLayout.setVisibility(View.GONE);
-//            viewHolder.receiveHead.setVisibility(View.GONE);
-                viewHolder.sendMsg.setText(msg.getContent());
+                viewHolder.mSendMsg.setText(msg.getContent());
+                viewHolder.mSendLayout.setVisibility(View.VISIBLE);
+                viewHolder.mReceiveLayout.setVisibility(View.GONE);
             } else if (msg.getType() == Msg.TYPE_RECEIVED) {
-                viewHolder.receiveLayout.setVisibility(View.VISIBLE);
-//            viewHolder.receiveHead.setVisibility(View.VISIBLE);
-                viewHolder.sendLayout.setVisibility(View.GONE);
-//            viewHolder.sendHead.setVisibility(View.GONE);
-                viewHolder.receiveMsg.setText(msg.getContent());
+                viewHolder.mReceiveMsg.setText(msg.getContent());
+                viewHolder.mReceiveLayout.setVisibility(View.VISIBLE);
+                viewHolder.mSendLayout.setVisibility(View.GONE);
             }
         }
         return view;
     }
 
     class ViewHolder {
-        RelativeLayout sendLayout;
-        RelativeLayout receiveLayout;
-        TextView sendMsg;
-        TextView receiveMsg;
-//        ImageView sendHead;
-//        ImageView receiveHead;
+        RelativeLayout mSendLayout;
+        RelativeLayout mReceiveLayout;
+        TextView mSendMsg;
+        TextView mReceiveMsg;
+        ImageView mSendHead;
+        ImageView mReceiveHead;
     }
 }

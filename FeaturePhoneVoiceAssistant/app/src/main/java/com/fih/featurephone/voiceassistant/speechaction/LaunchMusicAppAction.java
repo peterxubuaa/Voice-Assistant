@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.unit.BaiduUnitAI;
+import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 import java.io.File;
@@ -17,34 +17,34 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LaunchMusicAppAction extends BaseAction {
+public class LaunchMusicAppAction implements BaseAction {
     private final String TAG = LaunchMusicAppAction.class.getSimpleName();
-    private final String[] KEYWORD_LAUNCH_MUSIC;
+    private final String[] REGEX_LAUNCH_MUSIC;
     private Context mContext;
     private List<MediaEntity> mMusicFileList;
 
-    LaunchMusicAppAction(Context context) {
+    public LaunchMusicAppAction(Context context) {
         mContext = context;
-        KEYWORD_LAUNCH_MUSIC = mContext.getResources().getStringArray(R.array.launch_music_keyword);
+        REGEX_LAUNCH_MUSIC = mContext.getResources().getStringArray(R.array.launch_music_regex);
         mMusicFileList = getAllMediaList(context);
     }
 
     @Override
     public boolean checkAction(String query, BaiduUnitAI.BestResponse bestResponse) {
-        String keyword = CommonUtil.getContainKeyWord(query, KEYWORD_LAUNCH_MUSIC);
-        if (TextUtils.isEmpty(keyword)) return false;
+        query = CommonUtil.filterPunctuation(query);
+        if (!CommonUtil.checkRegexMatch(query, REGEX_LAUNCH_MUSIC)) return false;
 
-        String filterCmd = query.substring(query.indexOf(keyword) + keyword.length());
-        filterCmd = CommonUtil.filterPunctuation(filterCmd);
+        String musicName = CommonUtil.getRegexMatch(query, REGEX_LAUNCH_MUSIC, 1);
+        if (TextUtils.isEmpty(musicName)) musicName = ""; //如果没有指定歌曲，设置为“”，则通过查询会获取第一首歌曲
         String musicFilePath = "";// = Environment.getExternalStorageDirectory() + "/Music/default.mp3";
         String musicTitle = "";// = "测试歌曲";
         for (MediaEntity mediaEntity : mMusicFileList){
-            if (filterCmd.contains(mediaEntity.title) || mediaEntity.title.contains(filterCmd)) {
+            if (musicName.contains(mediaEntity.title) || mediaEntity.title.contains(musicName)) {
                 musicFilePath = mediaEntity.path;
                 musicTitle = mediaEntity.title;
                 break;
             }
-            if (filterCmd.contains(mediaEntity.display_name) || mediaEntity.display_name.contains(filterCmd)) {
+            if (musicName.contains(mediaEntity.display_name) || mediaEntity.display_name.contains(musicName)) {
                 musicFilePath = mediaEntity.path;
                 musicTitle = mediaEntity.display_name;
                 break;
@@ -53,20 +53,19 @@ public class LaunchMusicAppAction extends BaseAction {
 
         if (TextUtils.isEmpty(musicFilePath)) {
             bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_play_music_fail);
-            return false;
+        } else {
+            playAudio(musicFilePath);
+
+            bestResponse.reset();
+            bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_playing_music) + musicTitle;
+            bestResponse.mHint = mContext.getString(R.string.baidu_unit_hint_playing_music_list) + getSongList();
         }
-
-        playAudio(musicFilePath);
-
-        bestResponse.reset();
-        bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_playing_music) + musicTitle;
-        bestResponse.mHint = mContext.getString(R.string.baidu_unit_hint_playing_music_list) + getSongList();
 
         return true;
     }
 
     private String getSongList() {
-        final int MAX_NUM_LIST = 20;
+        final int MAX_NUM_LIST = 20;//最多显示20首歌曲
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < mMusicFileList.size(); i++) {
             MediaEntity mediaEntity = mMusicFileList.get(i);

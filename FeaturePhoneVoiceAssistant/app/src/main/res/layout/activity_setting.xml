@@ -37,6 +37,15 @@
                 android:textColor="@android:color/holo_orange_dark"
                 android:checked="true"/>
 
+            <CheckBox
+                android:id="@+id/baidu_unit_tts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_unit_tts"
+                android:textColor="@android:color/holo_orange_dark"
+                android:checked="true"/>
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -59,6 +68,7 @@
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:text="@string/baidu_unit_keyboard_robot"
+                    android:enabled="false"
                     />
                 <RadioButton
                     android:id="@+id/baidu_unit_keyboard_bot"
@@ -77,10 +87,12 @@
                     android:textSize="15sp"
                     android:textStyle="bold"
                     android:text="@string/baidu_unit_asr_bot"
+                    android:enabled="false"
                     />
             </RadioGroup>
 
             <TextView
+                android:id="@+id/baidu_unit_robot_type_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/holo_blue_dark"
@@ -120,6 +132,53 @@
             </RadioGroup>
 
             <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/holo_blue_dark"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:text="@string/baidu_unit_speech_language_type"
+                />
+            <RadioGroup
+                android:id="@+id/baidu_unit_speech_language_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <RadioButton
+                    android:id="@+id/baidu_unit_speech_language_english"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:text="@string/baidu_unit_speech_language_english"
+                    android:enabled="false"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_unit_speech_language_chinese"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/holo_orange_dark"
+                    android:textSize="15sp"
+                    android:text="@string/baidu_unit_speech_language_chinese"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_unit_speech_language_sichuanese"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:text="@string/baidu_unit_speech_language_sichuanese"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_unit_speech_language_cantonese"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:text="@string/baidu_unit_speech_language_cantonese"
+                    />
+            </RadioGroup>
+
+            <TextView
+                android:id="@+id/baidu_unit_bot_type_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/holo_green_dark"
@@ -216,8 +275,16 @@
                 android:textColor="@android:color/holo_orange_dark"
                 android:text="@string/baidu_unit_bot_translate"
                 android:checked="false"/>
-<!--Local Bot ID-->
             <CheckBox
+                android:id="@+id/baidu_unit_bot_joke"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@android:color/holo_orange_dark"
+                android:text="@string/baidu_unit_bot_joke"
+                android:checked="false"/>
+<!--Local Bot ID-->
+ <!--           <CheckBox
                 android:id="@+id/baidu_unit_bot_phone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -286,7 +353,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:text="@string/baidu_unit_bot_radio"
-                android:checked="false"/>
+                android:checked="false"/>-->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

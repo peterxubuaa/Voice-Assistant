@@ -11,11 +11,11 @@ import java.net.URL;
  */
 public class HttpUtil {
 
-    public static String post(String requestUrl, String accessToken, String params)
+/*    public static String post(String requestUrl, String accessToken, String params)
             throws Exception {
         String contentType = "application/x-www-form-urlencoded";
         return HttpUtil.post(requestUrl, accessToken, contentType, params);
-    }
+    }*/
 
     public static String post(String requestUrl, String accessToken, String contentType, String params)
             throws Exception {

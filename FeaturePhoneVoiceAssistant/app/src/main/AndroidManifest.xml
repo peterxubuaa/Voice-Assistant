@@ -19,8 +19,8 @@
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-<!--    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>-->
-<!--    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>-->
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
 
     <application
         android:allowBackup="true"
@@ -39,8 +39,9 @@
         <meta-data
             android:name="com.baidu.speech.SECRET_KEY"
             android:value="rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ"/>
-
-        <activity android:name=".MainActivity">
+<!--显示软键盘        android:windowSoftInputMode="stateVisible|adjustResize"-->
+        <activity android:name=".MainActivity"
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.MAIN" />
@@ -48,7 +49,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".unit.SettingActivity" />
+        <activity android:name=".baidu.unit.SettingActivity" />
+        <activity android:name=".baidu.ocr.camera.CameraCaptureActivity" />
     </application>
 
 </manifest>

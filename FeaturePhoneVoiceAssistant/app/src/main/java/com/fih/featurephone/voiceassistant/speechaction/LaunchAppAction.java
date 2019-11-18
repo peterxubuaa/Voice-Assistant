@@ -8,10 +8,9 @@ import android.content.pm.PackageManager;
 import android.text.TextUtils;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.unit.BaiduUnitAI;
+import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,47 +18,39 @@ import java.util.Map;
 
 import static android.content.Context.ACTIVITY_SERVICE;
 
-public class LaunchAppAction  extends BaseAction {
-    private final String[] KEYWORD_LAUNCH_APP;
+public class LaunchAppAction  implements BaseAction {
+    private final String[] REGEX_LAUNCH_APP;
     private final String[] KEYWORD_EXIT_APP;
 
     static private Map<String, String> mInstalledAppMap;
-    static private ArrayList<BaseAction> mSubLaunchAppList;
     private Context mContext;
 
     public LaunchAppAction(Context context) {
         mContext = context;
-        KEYWORD_LAUNCH_APP = mContext.getResources().getStringArray(R.array.launch_app_keyword);
+        REGEX_LAUNCH_APP = mContext.getResources().getStringArray(R.array.launch_app_regex);
         KEYWORD_EXIT_APP = mContext.getResources().getStringArray(R.array.launch_exit_keyword);
 
         if (null == mInstalledAppMap) {
             getAllInstalledAppList(mContext);
         }
-        if (null == mSubLaunchAppList) {
-            mSubLaunchAppList = new ArrayList<BaseAction>();
-            mSubLaunchAppList.add(new LaunchMusicAppAction(context));
-            mSubLaunchAppList.add(new LaunchCameraAppAction(context));
-        }
     }
 
     @Override
     public boolean checkAction(String query, BaiduUnitAI.BestResponse bestResponse) {
-        for (BaseAction action : mSubLaunchAppList) {
-            if (action.checkAction(query, bestResponse)) {
+        query = CommonUtil.filterPunctuation(query);
+        String launchApp = CommonUtil.getRegexMatch(query, REGEX_LAUNCH_APP, 1);
+        if (!TextUtils.isEmpty(launchApp)) {
+            String appName = launchAppAction(launchApp);
+            if (!TextUtils.isEmpty(appName)) {
+                bestResponse.reset();
+                bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_launch_app_high) + appName;
                 return true;
+            } else {
+                return false;
             }
         }
 
-        String keyword = CommonUtil.getContainKeyWord(query, KEYWORD_LAUNCH_APP);
-        if (!TextUtils.isEmpty(keyword)) {
-            String appName = launchAppAction(query, keyword);
-            bestResponse.reset();
-            bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_launch_app_high) + appName;
-            return true;
-        }
-
-        keyword = CommonUtil.getContainKeyWord(query, KEYWORD_EXIT_APP);
-        if (!TextUtils.isEmpty(keyword)) {
+        if (CommonUtil.isEqualsKeyWord(query, KEYWORD_EXIT_APP)) {
             launchHomeUI();
             bestResponse.reset();
             bestResponse.mAnswer = mContext.getString(R.string.baidu_unit_hint_exit_app_high);
@@ -91,10 +82,7 @@ public class LaunchAppAction  extends BaseAction {
         }
     }
 
-    private String launchAppAction(String command, String keyword) {
-        String filterCmd = command.replaceAll(keyword, "");
-        filterCmd = CommonUtil.filterPunctuation(filterCmd);
-
+    private String launchAppAction(String filterCmd) {
         for (String key : mInstalledAppMap.keySet()) {
             if (filterCmd.contains(key)) {
                 String pkgName = mInstalledAppMap.get(key);
