@@ -34,32 +34,32 @@ import java.util.Map;
 public class BaiduUnitAI {
     private final static String TAG = BaiduUnitAI.class.getSimpleName();
 
-    static final int BAIDU_UNIT_TYPE_ASR_BOT = 1;
+    public static final int BAIDU_UNIT_TYPE_ASR_BOT = 1;
 //    public static final int BAIDU_UNIT_TYPE_ASR_ROBOT = 2;
     public static  final int BAIDU_UNIT_TYPE_KEYBOARD_BOT = 3;
     public static  final int BAIDU_UNIT_TYPE_KEYBOARD_ROBOT = 4;
 
-    static final int BAIDU_UNIT_ROBOT_TYPE_WEB = 1;
-    static final int BAIDU_UNIT_ROBOT_TYPE_LOCAL = 2;
-    static final int BAIDU_UNIT_ROBOT_TYPE_ALL = 3;
+    public static final int BAIDU_UNIT_ROBOT_TYPE_WEB = 1;
+    public static final int BAIDU_UNIT_ROBOT_TYPE_LOCAL = 2;
+    public static final int BAIDU_UNIT_ROBOT_TYPE_ALL = 3;
 
     public static final int BAIDU_UNIT_SPEECH_ENGLISH = 1;
     public static final int BAIDU_UNIT_SPEECH_CHINESE = 2;
     public static final int BAIDU_UNIT_SPEECH_SICHUANESE = 3;
     public static final int BAIDU_UNIT_SPEECH_CANTONESE = 4;
 
-    static final String BAIDU_UNIT_BOT_TYPE_WEATHER = "81459";
-    static final String BAIDU_UNIT_BOT_TYPE_IA = "81485";
-    static final String BAIDU_UNIT_BOT_TYPE_DEFINITION = "81482";
-    static final String BAIDU_UNIT_BOT_TYPE_IDIOM = "81469";
-    static final String BAIDU_UNIT_BOT_TYPE_CALCULATOR = "81467";
-    static final String BAIDU_UNIT_BOT_TYPE_UNIT_CONVERSION = "81465";
-    static final String BAIDU_UNIT_BOT_TYPE_GREETING = "81460";
-    static final String BAIDU_UNIT_BOT_TYPE_CHAT = "81461";
+    public static final String BAIDU_UNIT_BOT_TYPE_WEATHER = "81459";
+    public static final String BAIDU_UNIT_BOT_TYPE_IA = "81485";
+    public static final String BAIDU_UNIT_BOT_TYPE_DEFINITION = "81482";
+    public static final String BAIDU_UNIT_BOT_TYPE_IDIOM = "81469";
+    public static final String BAIDU_UNIT_BOT_TYPE_CALCULATOR = "81467";
+    public static final String BAIDU_UNIT_BOT_TYPE_UNIT_CONVERSION = "81465";
+    public static final String BAIDU_UNIT_BOT_TYPE_GREETING = "81460";
+    public static final String BAIDU_UNIT_BOT_TYPE_CHAT = "81461";
     public static final String BAIDU_UNIT_BOT_TYPE_POEM = "81481";
     public static final String BAIDU_UNIT_BOT_TYPE_COUPLET = "81476";
     public static final String BAIDU_UNIT_BOT_TYPE_TRANSLATE = "84536";
-    static final String BAIDU_UNIT_BOT_TYPE_JOKE = "87833";
+    public static final String BAIDU_UNIT_BOT_TYPE_JOKE = "87833";
 
 //    static final String BAIDU_UNIT_BOT_TYPE_PHONE = "81487";
 //    static final String BAIDU_UNIT_BOT_TYPE_MESSAGE = "81473";

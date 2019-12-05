@@ -5,17 +5,23 @@ import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Point;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,10 +93,17 @@ public class CommonUtil {
         }
         return false;
     }
+
+    public boolean isNumeric(String str) {
+        Pattern pattern = Pattern.compile("[0-9]");
+        Matcher isNum = pattern.matcher(str);
+        return isNum.matches();
+    }
 */
 
     private static boolean isEnglishByREG(char c) {
         return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'));
+//        return str.matches("[a-zA-Z]+");
     }
 
     private static boolean isChineseByREG(String str) {
@@ -327,5 +340,44 @@ public class CommonUtil {
         }
 
         return new String(data);
+    }
+
+    /**
+     *  获取版本号
+     */
+    public static String getVersionName(Context context) {
+        if (context != null) {
+            try {
+                return context.getPackageManager()
+                        .getPackageInfo(context.getPackageName(), 0)
+                        .versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return "3.0.0";
+    }
+
+    /**
+     * 时间格式转化
+     */
+    public static String formatTime(long timeStamp, String pattern) {
+        Date date = new Date(timeStamp);
+        DateFormat dateFormat = new SimpleDateFormat(pattern);
+        return dateFormat.format(date);
+    }
+
+    private static Handler sMainUIHandler = new Handler(Looper.getMainLooper());
+    public static void toast(final Context context, final String text) {
+        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+        } else {
+            sMainUIHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }

@@ -5,6 +5,7 @@
     <string name="API_KEY">kA0qDiR7zLN5Pqf6zmt9uH7o</string>
     <string name="SECRET_KEY">rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ</string>
 
+    <string name="image_view_assistant">帮助</string>
     <string name="image_view_microphone">麦克风</string>
     <string name="image_view_option">选项</string>
     <string name="image_view_manage">菜单管理</string>
@@ -20,21 +21,23 @@
     <string name="option_copy_edit">拷贝编辑</string>
     <string name="option_clear_item">清除显示</string>
     <string name="option_web_query">上网搜索</string>
-    <string name="option_shortcut_translate_start">开始翻译</string>
+    <string name="option_translate_start">开始翻译</string>
     <string name="option_shortcut_translate_stop">结束翻译</string>
 
-    <string name="option_shortcut_ocr">OCR文字识别</string>
+    <string name="option_ocr">OCR文字识别</string>
     <string name="option_shortcut_ocr_camera">拍照OCR</string>
     <string name="option_shortcut_ocr_image">图片OCR</string>
     <string name="option_text_input">文本输入</string>
     <string name="option_show_setting">系统设置</string>
     <string name="option_show_help">显示帮助</string>
     <string name="option_clear_all_items">清除所有显示</string>
+    <string name="option_show_face_detect">人脸识别</string>
+    <string name="option_show_face_manger">人脸库管理</string>
 
     <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了。按*键显示帮助</string>
     <string name="baidu_unit_welcome_support_touch">我是富士康手机小助手小康，现已准备好了。</string>
     <string name="baidu_unit_question_help">
-        必须连接网络，按确认键开始一问一答。你可以问我:\n
+        一、必须连接网络，按确认键开始一问一答。你可以问我:\n
         1.今天[北京]天气怎么样?\n
         2.台湾有多大?\n
         3.[英语|法语|韩语]翻译今天星期几?\n
@@ -53,7 +56,7 @@
         5.打开[图库|相机|设置]
     </string>
     <string name="baidu_unit_question_help_dialogue_translate_mode">
-        如何进入特殊对话模式?\n
+        二、如何进入特殊对话模式?\n
         1.翻译模式。\n
         (1)按1键进入/退出中英互译。\n
         (2)语音”开始翻译[英语/德语/..]“，”开始[英语/德语]翻译“。\n
@@ -62,38 +65,54 @@
         (1)语音”开始写[诗|对联]”。\n
         (2)语音”结束“或“退出“。</string>
     <string name="baidu_unit_question_help_dialogue_translate_mode_support_touch">
-        如何进入特殊对话模式?\n
+        二、如何进入特殊对话模式?\n
         1.翻译模式。\n
-        (1)按右下功能键，选择【快捷翻译】进入或退出。\n
+        (1)按右下菜单键，选择【快捷翻译】进入或退出。\n
         (2)语音”开始翻译[英语/德语/..]“，”开始[英语/德语]翻译“。\n
         (3)语音”结束“或“退出“。\n
         2.诗词/对联模式。\n
         (1)语音”开始写[诗|对联]”。\n
         (2)语音”结束“或“退出“。</string>
+    <string name="baidu_unit_question_help_face_mode">
+        三、如何进入人脸识别模式?\n
+        1.按2键快捷进入人脸识别。\n
+        2.进入后按住中间确认键开始扫描人脸。\n
+        3.如何扫描成功会自动退出该界面。\n
+        4.或按回退键退出。</string>
+    <string name="baidu_unit_question_help_face_mode_support_touch">
+        三、如何进入人脸识别模式?\n
+        (1)按右下菜单键，选择【人脸识别】进入。\n
+        2.进入后长按下方人脸开始扫描。\n
+        3.如何扫描成功会自动退出该界面。\n
+        4.或按回退键退出。</string>
+
     <string name="baidu_unit_question_help_ocr_mode">
-        如何进入OCR模式?\n
+        四、如何进入OCR模式?\n
         1.按3键快捷进入OCR拍照。\n
         2.语音”扫描[英语/德语/..]“或”[英语/德语]扫描“。\n
         3.进入后按确认键拍照识别后提问。\n
         4.进入后按3键拍照只识别。\n
         5.按回退键退出。</string>
     <string name="baidu_unit_question_help_ocr_mode_support_touch">
-        如何进入OCR模式?\n
-        1.按右下功能键，选择【快捷OCR】进入\n
+        四、如何进入OCR模式?\n
+        1.按右下菜单键，选择【快捷OCR】进入\n
         2.语音”扫描[英语/德语/..]“或”[英语/德语]扫描“。\n
         3.进入后按识别键拍照识别，或长按识别后提问。\n
         4.按回退键退出。</string>
     <string name="baidu_unit_question_help_keyboard_input">
-        如何键盘文字输入?\n
+        五、如何键盘文字输入?\n
         1.按菜单键显示或隐藏文字输入框。\n
         2.按确认键完成文字输入。</string>
+
     <string name="baidu_unit_answer_fail">没有任何回复</string>
     <string name="baidu_unit_quit_session">好的，我明白了。请继续提问！</string>
     <string name="baidu_unit_fail_session">问的啥玩意？听不懂！</string>
 
+    <string name="button_cancel">取消</string>
+    <string name="button_ok">确定</string>
+
+    <string name="helpInfo_title">帮助信息</string>
     <string name="setting_title">系统设置</string>
-    <string name="setting_cancel">取消</string>
-    <string name="setting_ok">确定</string>
 
     <string name="baidu_unit_debug">输出调试信息</string>
     <string name="baidu_unit_tts">语音合成输出</string>
@@ -173,8 +192,8 @@
         4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
     <string name="baidu_unit_fix_translate_help_support_touch">
         1.按左箭头汉语译外语，右箭头外语译汉语。\n
-        2.按右下功能键，选择【快捷翻译】可退出，或语音”退出”。\n
-        3.按右下功能键，选择【快捷OCR】进入OCR识别翻译。\n
+        2.按右下菜单键，选择【快捷翻译】可退出，或语音”退出”。\n
+        3.按右下菜单键，选择【快捷OCR】进入OCR识别翻译。\n
         4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
     <string name="baidu_unit_fix_translate_start">进入%1$s对话翻译</string>
     <string name="baidu_unit_fix_translate_stop">退出%1$s对话翻译</string>
@@ -200,4 +219,86 @@
     <string name="baidu_unit_keyboard_input_send">发送</string>
 
     <string name="network_error">网络错误，不能访问外网</string>
+
+<!--    Face-->
+<!--    https://console.bce.baidu.com/ai/?_=1575250056181#/ai/face/offline/index-->
+    <string name="baidu_face_authentic_key1">YAGV-BGF6-NXUX-QBGC</string>
+    <string name="baidu_face_authentic_key2">VR1M-QWI8-IACI-KGEX</string>
+    <string name="baidu_face_config_success">初始配置加载成功</string>
+    <string name="baidu_face_config_fail">初始配置失败,将重置文件内容为默认配置</string>
+    <string name="baidu_face_auth_success">初始化鉴权成功</string>
+    <string name="baidu_face_auth_fail">初始化鉴权失败：</string>
+    <string name="baidu_face_model_success">初始化模块成功</string>
+    <string name="baidu_face_model_fail">初始化模块失败：</string>
+
+    <string name="baidu_face_register_title">人脸注册</string>
+    <string name="baidu_face_register_name_input">请输入识别人物的名字</string>
+    <string name="baidu_face_register_start">人脸采集中..</string>
+    <string name="baidu_face_register_end">长按下面人脸开始采集</string>
+    <string name="baidu_face_register_delete_success">刚注册用户删除成功</string>
+    <string name="baidu_face_register_delete_fail">刚注册用户删除失败</string>
+    <string name="baidu_face_register_info_lack">注册信息缺失</string>
+    <string name="baidu_face_register_fail">注册失败，已有相似注册</string>
+    <string name="baidu_face_register_success">用户【%1$s】注册完毕</string>
+
+    <string name="baidu_face_auth_exit">返回</string>
+    <string name="baidu_face_auth_permission_active">授权激活</string>
+    <string name="baidu_face_auth_active_device">激活设备</string>
+    <string name="baidu_face_auth_device_fingerprint">设备硬件指纹</string>
+    <string name="baidu_face_auth_copy">复制</string>
+    <string name="baidu_face_auth_key_input">请输入序列码</string>
+    <string name="baidu_face_auth_active_hint">基于序列号自动联网激活, 适用于调试阶段</string>
+    <string name="baidu_face_auth_online_active">在线激活</string>
+    <string name="baidu_face_auth_detect_sdcard">点击检查是否可以读取到 License 文件</string>
+    <string name="baidu_face_auth_offline_active_hint">请将License.zip放到SD卡根目录下\n基于License文件手动激活，设备无需联网</string>
+    <string name="baidu_face_auth_offline_active">离线激活</string>
+
+    <string name="baidu_face_user_manager_title">人脸管理</string>
+    <string name="baidu_face_user_manager_delete">删除</string>
+    <string name="baidu_face_user_manager_add">添加</string>
+    <string name="baidu_face_user_manager_update">更新</string>
+
+    <string name="baidu_face_user_info_title">用户信息</string>
+    <string name="baidu_face_user_info_name">用户名:</string>
+    <string name="baidu_face_user_info_extra">额外信息:</string>
+    <string name="baidu_face_user_info_register_time">注册时间:</string>
+    <string name="baidu_face_user_info_register_image">注册图片，长按可修改</string>
+    <string name="baidu_face_user_info_image">图片</string>
+    <string name="baidu_face_user_info_camera">拍照</string>
+    <string name="baidu_face_user_info_update_ignore">没有信息改变，不需要更新</string>
+    <string name="baidu_face_user_info_update_image_success">更新人脸图片成功</string>
+    <string name="baidu_face_user_info_update_image_fail">更新人脸图片失败：</string>
+    <string name="baidu_face_user_info_update_success">更新信息成功</string>
+    <string name="baidu_face_user_info_update_fail">更新信息失败：</string>
+    <string name="baidu_face_user_info_delete_success">删除信息成功</string>
+    <string name="baidu_face_user_info_delete_fail">删除信息失败：</string>
+    <string name="baidu_face_user_info_query_success">信息查询成功</string>
+    <string name="baidu_face_user_info_query_fail">信息查询失败：</string>
+    <string name="baidu_face_user_info_update">更新</string>
+    <string name="baidu_face_user_info_cancel">取消</string>
+
+    <string name="baidu_face_camera_preview_hint">人脸采集实时信息</string>
+    <string name="baidu_face_camera_preview_detect_start">开始人脸采集</string>
+    <string name="baidu_face_camera_preview_detect_pause">暂停人脸采集</string>
+    <string name="baidu_face_camera_preview_feature_success">特征提取成功\n</string>
+    <string name="baidu_face_camera_preview_feature_fail">特征提取失败</string>
+    <string name="baidu_face_camera_preview_detect_close">人脸离屏幕太近</string>
+    <string name="baidu_face_camera_preview_detect_far">人脸离屏幕太远</string>
+    <string name="baidu_face_camera_preview_detect_right">人脸在屏幕中太靠右</string>
+    <string name="baidu_face_camera_preview_detect_left">人脸在屏幕中太靠左</string>
+    <string name="baidu_face_camera_preview_detect_down">人脸在屏幕中太靠下</string>
+    <string name="baidu_face_camera_preview_detect_up">人脸在屏幕中太靠上</string>
+
+    <string name="baidu_face_authentic_fail">授权码不存在，未授权设备，请完成授权激活</string>
+    <string name="baidu_face_model_init_start">模型初始化中，请稍后片刻</string>
+    <string name="baidu_face_model_init_fail">模型加载失败</string>
+    <string name="baidu_face_model_init_end">模型加载完毕，欢迎使用</string>
+    <string name="baidu_face_detect_fail">未检测到人脸</string>
+
+    <string name="baidu_face_identify_start">启动人脸识别中..</string>
+    <string name="baidu_face_identify_result">人脸识别结果</string>
+    <string name="baidu_face_identify_fail">很遗憾，还不认识此人</string>
+
+    <string name="baidu_face_manager_delete_msg">确认一定要删除选中的人脸数据？</string>
+
 </resources>

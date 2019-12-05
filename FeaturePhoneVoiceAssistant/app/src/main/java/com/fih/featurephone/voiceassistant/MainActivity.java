@@ -1,5 +1,6 @@
 package com.fih.featurephone.voiceassistant;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -8,18 +9,17 @@ import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
@@ -33,19 +33,27 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.fih.featurephone.voiceassistant.baidu.face.activity.FaceAuthActivity;
+import com.fih.featurephone.voiceassistant.baidu.face.activity.FaceRGBIdentifyActivity;
+import com.fih.featurephone.voiceassistant.baidu.face.activity.FaceRGBRegisterActivity;
+import com.fih.featurephone.voiceassistant.baidu.face.activity.FaceUserManagerActivity;
+import com.fih.featurephone.voiceassistant.baidu.face.listener.SdkInitListener;
+import com.fih.featurephone.voiceassistant.baidu.face.manager.FaceSDKManager;
+import com.fih.featurephone.voiceassistant.baidu.face.utils.ConfigUtils;
 import com.fih.featurephone.voiceassistant.baidu.ocr.BaiduOcrAI;
 import com.fih.featurephone.voiceassistant.baidu.ocr.camera.CameraCaptureActivity;
-import com.fih.featurephone.voiceassistant.baidu.unit.SettingActivity;
 import com.fih.featurephone.voiceassistant.baidu.speech.BaiduSpeechAI;
+import com.fih.featurephone.voiceassistant.baidu.tts.BaiduTTSAI;
+import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.speechaction.FixBaseAction;
 import com.fih.featurephone.voiceassistant.speechaction.TranslateFixAction;
-import com.fih.featurephone.voiceassistant.baidu.tts.BaiduTTSAI;
 import com.fih.featurephone.voiceassistant.speechaction.WebSearchAction;
 import com.fih.featurephone.voiceassistant.ui.Msg;
 import com.fih.featurephone.voiceassistant.ui.MsgAdapter;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
-import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
+import com.fih.featurephone.voiceassistant.utils.SystemUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,6 +65,8 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     private final int SETTING_REQUEST_CODE = 1;
     private final int OCR_CAMERA_REQUEST_CODE = 2;
     private final int OCR_IMAGE_REQUEST_CODE = 3;
+    private final int FACE_REQUEST_CODE = 4;
+    private final int REQUEST_MULTIPLE_PERMISSION = 100;
 
     private final int MAIN_UI_LEVER = 0x1;
     private final int TRANSLATE_SUB_UI_LEVER = 0x2;
@@ -72,7 +82,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     private SettingActivity.SettingResult mSettingResult;
     private Handler mActionHandler;
 
-    private List<Msg> mResultMsgList = new ArrayList<Msg>();
+    private List<Msg> mResultMsgList = new ArrayList<>();
     private ListView mResultMsgListView;
     private boolean mSupportTouch = false;
     private int mCurUILever = MAIN_UI_LEVER;
@@ -87,12 +97,15 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        applyApkPermissions();
+
         mSupportTouch = CommonUtil.isSupportMultiTouch(this);
         mSettingResult = SettingActivity.getSavedSettingResults(this);
         mActionHandler = new Handler();
 
         initView();
         initAssistant();
+        initFace();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalBroadCastReceiver,
                         new IntentFilter(LOCAL_BROADCAST_LAUNCH_CAMERA));
@@ -109,9 +122,9 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
 
     @Override
     public void onGlobalLayout() {
-        TextView debugTextView = (TextView)findViewById(R.id.tv_debug_info);
+        TextView debugTextView = findViewById(R.id.tv_debug_info);
         int displayHeight = CommonUtil.getDisplaySize(this).y - CommonUtil.getStatusBarHeight(this);
-        int imageViewButtonHeight = findViewById(R.id.assistant_image_view).getLayoutParams().height;
+        int imageViewButtonHeight = findViewById(R.id.microphone_image_view).getLayoutParams().height;
         if (mSettingResult.mDebug) {
             debugTextView.getLayoutParams().height = displayHeight / 4;
             mResultMsgListView.getLayoutParams().height = displayHeight * 3/4 - imageViewButtonHeight;
@@ -123,7 +136,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     }
 
     private void initView() {
-        mResultMsgListView = (ListView)findViewById(R.id.msg_list_view);
+        mResultMsgListView = findViewById(R.id.msg_list_view);
         mResultMsgListView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
         if (!mSettingResult.mDebug) {
@@ -133,7 +146,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             ((TextView)findViewById(R.id.tv_debug_info)).setMovementMethod(ScrollingMovementMethod.getInstance());
         }
 
-        MsgAdapter resultMsgAdapter = new MsgAdapter(MainActivity.this, R.layout.floatresult_msgitem, mResultMsgList);
+        MsgAdapter resultMsgAdapter = new MsgAdapter(MainActivity.this, R.layout.result_msglist_item, mResultMsgList);
         resultMsgAdapter.setHideHeadPic(true); //设置头像
         mResultMsgListView.setAdapter(resultMsgAdapter);
 //        mResultMsgListView.setSelector(R.color.transparent);//设置条目没有选中背景@android:color/transparent
@@ -146,6 +159,14 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     }
 
     private void initTouchScreenView() {
+        findViewById(R.id.assistant_image_view).setVisibility(View.VISIBLE);
+        findViewById(R.id.assistant_image_view).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onShowAssistantDialog();
+            }
+        });
+
         findViewById(R.id.manage_image_view).setVisibility(View.VISIBLE);
         findViewById(R.id.manage_image_view).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,7 +175,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             }
         });
 
-        findViewById(R.id.assistant_image_view).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.microphone_image_view).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onSwitchVoiceAssistant();
@@ -240,29 +261,70 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (Activity.RESULT_OK != resultCode) return;
+
         switch (requestCode) {
             case SETTING_REQUEST_CODE:
-                if (Activity.RESULT_OK == resultCode) {
-                    relaunchApp();
-                }
+                relaunchApp();
                 break;
             case OCR_CAMERA_REQUEST_CODE:
             case OCR_IMAGE_REQUEST_CODE:
-                if (Activity.RESULT_OK == resultCode) {
-                    final boolean ocrQuestion = data.getBooleanExtra("OCR_QUESTION", false);
-                    final String ocrImagePath = OCR_CAMERA_REQUEST_CODE == requestCode?
-                                    data.getStringExtra("OCR_FILEPATH") : getImagePath(data);
-                    String language = data.getStringExtra("OCR_LANGUAGE");
-                    final String ocrLanguage = TextUtils.isEmpty(language)? mLastOCRLanguage : language;
+                final boolean ocrQuestion = data.getBooleanExtra("OCR_QUESTION", false);
+                final String ocrImagePath = OCR_CAMERA_REQUEST_CODE == requestCode?
+                                data.getStringExtra("OCR_FILEPATH") :
+                                SystemUtil.getAlbumImagePath(this, data.getData());
+                String language = data.getStringExtra("OCR_LANGUAGE");
+                final String ocrLanguage = TextUtils.isEmpty(language)? mLastOCRLanguage : language;
 
-                    if (!TextUtils.isEmpty(ocrImagePath)) {
-                        showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                        mBaiduOcrAI.setLanguageType(ocrLanguage);
-                        mBaiduOcrAI.setDetectDirection(true);
-                        mBaiduOcrAI.baiduOCRText(ocrImagePath, ocrQuestion);
-                    }
+                if (!TextUtils.isEmpty(ocrImagePath)) {
+                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
+                    mBaiduOcrAI.setLanguageType(ocrLanguage);
+                    mBaiduOcrAI.setDetectDirection(true);
+                    mBaiduOcrAI.baiduOCRText(ocrImagePath, ocrQuestion);
                 }
                 break;
+            case FACE_REQUEST_CODE:
+                String faceUserName = data.getStringExtra("FACE_USER_NAME");
+                triggerQuery("谁是" + faceUserName);
+                break;
+        }
+    }
+
+    // 请求权限
+    public void applyApkPermissions() {
+        if (Build.VERSION.SDK_INT >= 23) {
+            final String[] requiredPermissions = new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.CALL_PHONE,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.READ_CONTACTS};
+            ArrayList<String> denyPermissions = new ArrayList<>();
+            for (String permission : requiredPermissions) {
+                if (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
+                    continue;
+                denyPermissions.add(permission);
+            }
+            if (denyPermissions.size() > 0) {
+                requestPermissions(denyPermissions.toArray(new String[0]), REQUEST_MULTIPLE_PERMISSION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull  int[] grantResults) {
+        if (REQUEST_MULTIPLE_PERMISSION == requestCode) {
+            for (int grantResult : grantResults) {
+                if (PackageManager.PERMISSION_GRANTED != grantResult) {
+                    CommonUtil.toast(this, "必须允许所有权限，否则功能会异常");
+                    SystemClock.sleep(2000);
+                    applyApkPermissions();
+                    return;
+                }
+            }
         }
     }
 
@@ -322,7 +384,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         public void onExit() {
             mSpeechEnable = false;
             if (!mBaiduTTSAI.isTTSRunning()) {
-                ((ImageView) findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_record_disable);
+                ((ImageView) findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
             }
         }
 
@@ -362,7 +424,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         @Override
         public void onExit() {
             mSpeechEnable = false;
-            ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_record_disable);
+            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
         }
 
         @Override
@@ -384,7 +446,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                     }
                 });
             }
-//            Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
             startTTS(answer);
         }
 
@@ -428,17 +489,17 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     private BaiduTTSAI.onTTSListener mTTSListener = new BaiduTTSAI.onTTSListener() {
         @Override
         public void onStart() {
-            ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_speaking);
+            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_speaking_white_48dp);
         }
 
         @Override
         public void onEnd() {
-            ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_record_disable);
+            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
         }
 
         @Override
         public void onError(String msg) {
-            ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_record_disable);
+            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
             if (msg.contains("TimeoutException")) {
                 showErrorMsg(getString(R.string.network_error));
             } else {
@@ -506,7 +567,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         if (null != mBaiduTTSAI && mBaiduTTSAI.isTTSRunning()) {
             mBaiduTTSAI.stopTTSSpeak();
             mSpeechEnable = false;
-            ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(R.drawable.audio_record_disable);
+            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
             return;
         }
 
@@ -533,8 +594,8 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             }
         }
         mSpeechEnable = !mSpeechEnable;
-        ((ImageView)findViewById(R.id.assistant_image_view)).setImageResource(
-                mSpeechEnable? R.drawable.audio_record_enable : R.drawable.audio_record_disable);
+        ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(
+                mSpeechEnable? R.drawable.baseline_mic_black_48dp : R.drawable.baseline_mic_none_white_48dp);
     }
 
 //    public void onExitVoiceAssistant(View v) {
@@ -543,8 +604,16 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
 //    }
 
     public void onStartSettingActivity() {
-        Intent intent = new Intent(MainActivity.this, SettingActivity.class);
-        startActivityForResult(intent, SETTING_REQUEST_CODE);
+        startActivityForResult(new Intent(MainActivity.this, SettingActivity.class), SETTING_REQUEST_CODE);
+    }
+
+    public void onStartFaceDetectActivity() {
+        showFinalResponse(getString(R.string.baidu_face_identify_start), false);
+        startActivityForResult(new Intent(MainActivity.this, FaceRGBIdentifyActivity.class), FACE_REQUEST_CODE);
+    }
+
+    public void onStartFaceManagerActivity() {
+        startActivity(new Intent(MainActivity.this, FaceUserManagerActivity.class));
     }
 
     private void showDebugInfo(String info, boolean reset) {
@@ -552,7 +621,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             findViewById(R.id.tv_debug_info).setVisibility(View.VISIBLE);
         }
 
-        TextView tv = (TextView)findViewById(R.id.tv_debug_info);
+        TextView tv = findViewById(R.id.tv_debug_info);
         if (reset) tv.setText("");
         tv.append(info);
 
@@ -616,15 +685,18 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     private void onShowHelp() {
         switch (mCurUILever) {
             case MAIN_UI_LEVER:
-                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help), Msg.TYPE_SEND));
-                if (!mSupportTouch) {
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_keyboard_input), Msg.TYPE_SEND));
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_dialogue_translate_mode), Msg.TYPE_SEND));
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_ocr_mode), Msg.TYPE_SEND));
-                } else {
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_dialogue_translate_mode_support_touch), Msg.TYPE_SEND));
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_ocr_mode_support_touch), Msg.TYPE_SEND));
-                }
+                startActivity(new Intent(MainActivity.this, HelpInfoActivity.class));
+//                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help), Msg.TYPE_SEND));
+//                if (!mSupportTouch) {
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_keyboard_input), Msg.TYPE_SEND));
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_dialogue_translate_mode), Msg.TYPE_SEND));
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_face_mode), Msg.TYPE_SEND));
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_ocr_mode), Msg.TYPE_SEND));
+//                } else {
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_dialogue_translate_mode_support_touch), Msg.TYPE_SEND));
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_face_mode_support_touch), Msg.TYPE_SEND));
+//                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_question_help_ocr_mode_support_touch), Msg.TYPE_SEND));
+//                }
                 break;
             case TRANSLATE_SUB_UI_LEVER:
                 if (!mSupportTouch) {
@@ -634,7 +706,10 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 }
                 break;
             case POEM_SUB_UI_LEVER:
+                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_poem_help), Msg.TYPE_SEND));
+                break;
             case COUPLET_SUB_UI_LEVER:
+                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_couplet_help), Msg.TYPE_SEND));
                 break;
         }
         ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
@@ -704,6 +779,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                     switchTranslateLanguage(false);
                     break;
                 case KeyEvent.KEYCODE_1:
+                case KeyEvent.KEYCODE_2:
                 case KeyEvent.KEYCODE_3:
                 case KeyEvent.KEYCODE_5:
                     event.startTracking();
@@ -711,12 +787,12 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                         mShortPress = true;
                     }
                     return true;
-                case KeyEvent.KEYCODE_2:
-                    scrollDebugView(true);
-                    break;
-                case KeyEvent.KEYCODE_8:
-                    scrollDebugView(false);
-                    break;
+//                case KeyEvent.KEYCODE_2:
+//                    scrollDebugView(true);
+//                    break;
+//                case KeyEvent.KEYCODE_8:
+//                    scrollDebugView(false);
+//                    break;
                 case KeyEvent.KEYCODE_STAR:
                     onShowHelp();
                     break;
@@ -750,8 +826,14 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 }
                 mShortPress = false;
                 return true;
+            case KeyEvent.KEYCODE_2:
+                if(mShortPress) {
+                    onStartFaceDetectActivity();
+                }
+                mShortPress = false;
+                return true;
             case KeyEvent.KEYCODE_1:
-                if(mShortPress) switchTranslateShortcut(mLastTranslateLanguage);
+                if(mShortPress) onSwitchTranslateShortcut(mLastTranslateLanguage);
                 mShortPress = false;
                 return true;
             default:
@@ -780,10 +862,14 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                     onShowOCRLanguageDialog();
                 }
                 return true;
+            case KeyEvent.KEYCODE_2:
+                mShortPress = false;
+                onStartFaceManagerActivity();
+                return true;
             case KeyEvent.KEYCODE_1:
                 mShortPress = false;
                 if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-                    switchTranslateShortcut(mLastTranslateLanguage);
+                    onSwitchTranslateShortcut(mLastTranslateLanguage);
                 } else {
                     onShowTranslateLanguageDialog();
                 }
@@ -795,7 +881,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         return false;
     }
 
-    private void switchTranslateShortcut(String language) {
+    private void onSwitchTranslateShortcut(String language) {
         if (null == mBaiduUnitAI) return;
 
         if (null != mBaiduSpeechAI) mBaiduSpeechAI.initBaiduSpeechSettings(BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE);
@@ -856,8 +942,8 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         mResultMsgListView.requestFocus();
     }
 
-    private void scrollDebugView(boolean up) {
-        TextView tv = (TextView)findViewById(R.id.tv_debug_info);
+/*    private void scrollDebugView(boolean up) {
+        TextView tv = findViewById(R.id.tv_debug_info);
         if (tv.getVisibility() != View.VISIBLE) return;
 
         int offset = tv.getLineHeight() * 5;
@@ -866,7 +952,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         } else {
             if (tv.getScrollY() + tv.getHeight() < tv.getLineCount() * tv.getLineHeight()) tv.scrollBy(0, offset);
         }
-    }
+    }*/
 
     private void onOCRCameraActivity(String language) {
         mLastOCRLanguage = getAndShowMatchedOCRLanguage(language);
@@ -879,10 +965,12 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     private void onOCRSelectImage(String language) {
         mLastOCRLanguage = getAndShowMatchedOCRLanguage(language);
 
-        //通过intent打开相册，使用startactivityForResult方法启动actvity，会返回到onActivityResult方法，所以我们还得复写onActivityResult方法
-        Intent intent = new Intent(Intent.ACTION_PICK);//"android.intent.action.GET_CONTENT");
-        intent.setType("image/*");
-        startActivityForResult(intent, OCR_IMAGE_REQUEST_CODE);
+        SystemUtil.startSysAlbumActivity(this, OCR_IMAGE_REQUEST_CODE);
+//
+//        //通过intent打开相册，使用startactivityForResult方法启动actvity，会返回到onActivityResult方法，所以我们还得复写onActivityResult方法
+//        Intent intent = new Intent(Intent.ACTION_PICK);//"android.intent.action.GET_CONTENT");
+//        intent.setType("image/*");
+//        startActivityForResult(intent, OCR_IMAGE_REQUEST_CODE);
     }
 
     private String getAndShowMatchedOCRLanguage(String language) {
@@ -902,7 +990,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     }
 
     private void onSwitchInputText() {
-        EditText inputText = (EditText)findViewById(R.id.input_text);
+        EditText inputText = findViewById(R.id.input_text);
         if (inputText.getVisibility() == View.VISIBLE) {
             findViewById(R.id.input_text).setVisibility(View.GONE);
             if (mSupportTouch) findViewById(R.id.input_text_send).setVisibility(View.GONE);
@@ -915,8 +1003,13 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
+    private void onClearAllItems() {
+        mResultMsgList.clear();
+        ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
+    }
+
     private void onInputTextOver() {
-        EditText inputText = (EditText)findViewById(R.id.input_text);
+        EditText inputText = findViewById(R.id.input_text);
         final String input = inputText.getText().toString();
         if (!TextUtils.isEmpty(input)) {
             triggerQuery(input);
@@ -996,14 +1089,46 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
-    private void onShowManageDialog() {
+    private void onShowAssistantDialog() {
         final String[] items = {
-                getString(R.string.option_shortcut_translate_start),
-                getString(R.string.option_shortcut_ocr),
-                getString(R.string.option_text_input),
-                getString(R.string.option_clear_all_items),
+                getString(R.string.option_show_face_manger),
                 getString(R.string.option_show_setting),
                 getString(R.string.option_show_help),
+        };
+
+        AlertDialog.Builder listDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        listDialog.setTitle(getString(R.string.option_dialog_title));
+        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0: // 人脸库管理
+                        onStartFaceManagerActivity();
+                        break;
+                    case 1: // 系统设置
+                        onStartSettingActivity();
+                        break;
+                    case 2: // 显示帮助
+                        onShowHelp();
+                        break;
+                    case 3: //人脸注册
+                        startActivity(new Intent(MainActivity.this, FaceRGBRegisterActivity.class));
+                        break;
+                }
+            }
+        });
+        listDialog.show();
+    }
+
+    private void onShowManageDialog() {
+        final String[] items = {
+                getString(R.string.option_translate_start),
+                getString(R.string.option_ocr),
+                getString(R.string.option_show_face_detect),
+                getString(R.string.option_text_input),
+                getString(R.string.option_clear_all_items),
         };
 
         if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
@@ -1020,7 +1145,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 switch (which) {
                     case 0: //快捷翻译
                         if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-                            switchTranslateShortcut("");//exit translate
+                            onSwitchTranslateShortcut("");//exit translate
                         } else {
                             onShowTranslateLanguageDialog();
                         }
@@ -1032,18 +1157,14 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                             onShowOCRLanguageDialog();
                         }
                         break;
-                    case 2: //输入文本框
+                    case 2: //人脸识别
+                        onStartFaceDetectActivity();
+                        break;
+                    case 3: //输入文本框
                         onSwitchInputText();
                         break;
-                    case 3: //清除列表中所有显示
-                        mResultMsgList.clear();
-                        ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
-                        break;
-                    case 4: //显示系统设置
-                        onStartSettingActivity();
-                        break;
-                    case 5: //显示帮助
-                        onShowHelp();
+                    case 4: //清除列表中所有显示
+                        onClearAllItems();
                         break;
                 }
             }
@@ -1063,7 +1184,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
                 mLastTranslateLanguage = items[which];
-                switchTranslateShortcut(items[which]);
+                onSwitchTranslateShortcut(items[which]);
             }
         });
         listDialog.show();
@@ -1120,49 +1241,13 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             clipboardManager.setPrimaryClip(clipData);
         }
 
-        EditText inputText = (EditText)findViewById(R.id.input_text);
+        EditText inputText = findViewById(R.id.input_text);
         inputText.setVisibility(View.VISIBLE);
         findViewById(R.id.input_text_send).setVisibility(View.VISIBLE);
         inputText.setText(text);
         inputText.requestFocus();
 
         mCurUILever |= TEXT_INPUT_SUB_UI_LEVER;
-    }
-
-    private String getImagePath(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-        if (null == uri) return null;
-
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            //如果是document类型的uri，则通过document id处理
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                String id = docId.split(":")[1];//解析出数字格式的id
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
-            }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            imagePath = getImagePath(uri, null);
-        }
-
-        return imagePath;
-    }
-
-    //获得图片路径
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);   //内容提供器
-        if (null != cursor) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));   //获取路径
-            }
-            cursor.close();
-        }
-        return path;
     }
 
     private BroadcastReceiver mLocalBroadCastReceiver = new BroadcastReceiver() {
@@ -1175,52 +1260,49 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     };
 
-
-//    private String getOCRLanguageType(String language) {
-//        if (TextUtils.isEmpty(language)) language = BaiduOcrAI.OCR_DEFAULT_LANGUAGE;
-//        if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-//            if (mBaiduUnitAI.getTranslateFixAction().getTranslateType() == TranslateFixAction.TRANSLATE) {
-//                language = mBaiduUnitAI.getTranslateFixAction().getOriginalLanguage();
-//                showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), false);
-//            } else {
-//                language = mBaiduUnitAI.getTranslateFixAction().getTargetLanguage();
-//                showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), true);
-//            }
-//        } else {
-//            showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), false);
-//        }
-//        return language;
-//    }
-
-
-/*
-    private void focusDebugView(){
-        if (mSettingResult.mDebug) {
-//            findViewById(R.id.tv_debug_info).setFocusable(true);
-            findViewById(R.id.tv_debug_info).requestFocus();
-        }
-    }
-
-
-    private void selListViewItem(boolean up) {
-        int pos = mResultMsgListView.getSelectedItemPosition();
-        if (up) {
-//            int pos = mResultMsgListView.getFirstVisiblePosition();
-            mResultMsgListView.setSelection(pos - 1);
+    //Face engine
+    private void initFace() {
+        final String configFilePath = getFilesDir() + File.separator + "faceConfig.txt";
+        boolean isConfigExit = ConfigUtils.isConfigExit(configFilePath);
+        boolean isInitConfig = ConfigUtils.initConfig(configFilePath);
+        if (isInitConfig && isConfigExit) {
+            CommonUtil.toast(this, getString(R.string.baidu_face_config_success));
         } else {
-//            int pos = mResultMsgListView.getLastVisiblePosition();
-            mResultMsgListView.setSelection(pos + 1);
+            CommonUtil.toast(this, getString(R.string.baidu_face_config_fail));
+            ConfigUtils.modifyJson(configFilePath);
+        }
+        initFaceLicense();
+    }
+    /**
+     * 启动应用程序，如果之前初始过，自动初始化鉴权和模型（可以添加到Application 中）
+     */
+    private void initFaceLicense() {
+        if (FaceSDKManager.sInitStatus != FaceSDKManager.SDK_MODEL_LOAD_SUCCESS) {
+            FaceSDKManager.getInstance().init(this, new SdkInitListener() {
+                @Override
+                public void initStart() {}
+                @Override
+                public void initLicenseSuccess() {
+                    CommonUtil.toast(MainActivity.this,
+                            getString(R.string.baidu_face_auth_success));
+                }
+                @Override
+                public void initLicenseFail(int errorCode, String msg) {
+                    // 如果授权失败，跳转授权页面
+                    CommonUtil.toast(MainActivity.this,
+                            getString(R.string.baidu_face_auth_fail) + msg + " (" + errorCode + ")");
+                    startActivity(new Intent(MainActivity.this, FaceAuthActivity.class));
+                }
+                @Override
+                public void initModelSuccess() {
+                    CommonUtil.toast(MainActivity.this, getString(R.string.baidu_face_model_success));
+                }
+                @Override
+                public void initModelFail(int errorCode, String msg) {
+                    CommonUtil.toast(MainActivity.this,
+                            getString(R.string.baidu_face_model_fail) + msg + " (" + errorCode + ")");
+                }
+            });
         }
     }
-
-    private void ttsListViewSelItem() {
-        if (mSpeechEnable || mBaiduTTSAI.isTTSRunning()) return;
-
-        Msg msg = (Msg)mResultMsgListView.getSelectedItem();
-        if (null != msg) {
-            String text = msg.getContent();
-            startTTS(text);
-        }
-    }
-*/
 }

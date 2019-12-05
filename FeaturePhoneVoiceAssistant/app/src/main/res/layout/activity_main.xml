@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/msg_list_view"
-        android:layout_above="@+id/assistant_image_view"
+        android:layout_above="@+id/microphone_image_view"
         android:textColor="@android:color/black"
         android:background="@android:color/holo_green_light"
         android:textSize="15sp"
@@ -35,42 +35,52 @@
 
     <ImageView
         android:id="@+id/assistant_image_view"
+        android:contentDescription="@string/image_view_assistant"
+        android:visibility="gone"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/outline_help_outline_white_48dp"/>
+
+    <ImageView
+        android:id="@+id/microphone_image_view"
         android:contentDescription="@string/image_view_microphone"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/audio_record_disable"/>
+        android:src="@drawable/baseline_mic_white_48dp"/>
 
     <ImageView
         android:id="@+id/manage_image_view"
         android:contentDescription="@string/image_view_manage"
         android:visibility="gone"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/ic_manage"/>
+        android:src="@drawable/baseline_menu_white_48dp"/>
 
     <ImageView
         android:id="@+id/left_arrow_image_view"
         android:contentDescription="@string/image_view_left_arrow"
         android:visibility="gone"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_toStartOf="@+id/assistant_image_view"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_toStartOf="@+id/microphone_image_view"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/ic_left_arrow"/>
+        android:src="@drawable/baseline_arrow_back_white_48dp"/>
 
     <ImageView
         android:id="@+id/right_arrow_image_view"
         android:contentDescription="@string/image_view_right_arrow"
         android:visibility="gone"
-        android:layout_width="80dp"
-        android:layout_height="40dp"
-        android:layout_toEndOf="@+id/assistant_image_view"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_toEndOf="@+id/microphone_image_view"
         android:layout_alignParentBottom="true"
-        android:src="@drawable/ic_right_arrow"/>
+        android:src="@drawable/baseline_arrow_forward_white_48dp"/>
 
     <LinearLayout
         android:id="@+id/input_text_layout"
@@ -88,7 +98,8 @@
             android:layout_weight="20"
             android:hint="@string/baidu_unit_keyboard_input"
             android:inputType="text"
-            android:maxLines="2"/>
+            android:maxLines="2"
+            tools:ignore="Autofill" />
 
         <Button
             android:id="@+id/input_text_send"
@@ -98,7 +109,5 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:text="@string/baidu_unit_keyboard_input_send"/>
-
     </LinearLayout>
-
 </RelativeLayout>

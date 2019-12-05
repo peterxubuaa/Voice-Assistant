@@ -37,7 +37,7 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.activity_ocr_scanner);
 
         mSupportTouch = CommonUtil.isSupportMultiTouch(this);
         mFlash = getIntent().getBooleanExtra("OCR_CAMERA_FLASH", false);
@@ -94,9 +94,9 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
         }
 
         if (mSupportTouch) {
-            mFinderView = (ScannerFinderView)findViewById(R.id.view_finder);
+            mFinderView = findViewById(R.id.view_finder);
             findViewById(R.id.recognize_hint).setVisibility(View.VISIBLE);
-            final Button recognizeButton = (Button)findViewById(R.id.recognize_bt);
+            final Button recognizeButton = findViewById(R.id.recognize_bt);
             recognizeButton.setVisibility(View.VISIBLE);
             recognizeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,7 +173,7 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
 
     private void initCamera() {
         if (null == mSurfaceView) {
-            ViewStub viewStub = (ViewStub) findViewById(R.id.view_stub);
+            ViewStub viewStub = findViewById(R.id.view_stub);
             viewStub.setLayoutResource(R.layout.layout_surface_view);
             mSurfaceView = (SurfaceView) viewStub.inflate();
         }

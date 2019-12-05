@@ -211,4 +211,40 @@
         <item>退出</item>
     </string-array>
 
+<!--    face detect-->
+<!--    <string-array name="face_detect_emotion_enum">-->
+<!--        <item>生气</item>-->
+<!--        <item>恶心</item>-->
+<!--        <item>害怕</item>-->
+<!--        <item>高兴</item>-->
+<!--        <item>悲伤</item>-->
+<!--        <item>吃惊</item>-->
+<!--        <item>中性</item>-->
+<!--    </string-array>-->
+
+    <string-array name="face_detect_emotion">
+        <item>中性</item>
+        <item>微笑</item>
+        <item>大笑</item>
+    </string-array>
+
+    <string-array name="face_detect_race">
+        <item>黄种人</item>
+        <item>白种人</item>
+        <item>黑种人</item>
+        <item>印度人</item>
+    </string-array>
+
+    <string-array name="face_detect_glass">
+        <item>无眼镜</item>
+        <item>有眼镜</item>
+        <item>太阳镜</item>
+    </string-array>
+
+    <string-array name="face_detect_gender">
+        <item>女性</item>
+        <item>男性</item>
+        <item>小孩</item>
+    </string-array>
+
 </resources>

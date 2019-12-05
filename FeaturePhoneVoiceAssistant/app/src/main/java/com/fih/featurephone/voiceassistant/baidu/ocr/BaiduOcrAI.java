@@ -103,7 +103,6 @@ public class BaiduOcrAI {
 
     private boolean checkTokenStatus() {
         if (!mBaiduOCR_HasToken) {
-//            Toast.makeText(mContext, mContext.getResources().getString(R.string.baidu_unit_ocr_token_error), Toast.LENGTH_LONG).show();
             if (null != mListener) {
                 mListener.onError(mContext.getResources().getString(R.string.baidu_unit_ocr_token_error));
             }
