@@ -1,9 +1,6 @@
 <resources>
-    <string name="app_name">语音助手</string>
+    <string name="app_name">AI助手</string>
 <!--    baidu token for com.fih.featurephone.voiceassistant-->
-    <string name="APP_ID">17380810</string>
-    <string name="API_KEY">kA0qDiR7zLN5Pqf6zmt9uH7o</string>
-    <string name="SECRET_KEY">rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ</string>
 
     <string name="image_view_assistant">帮助</string>
     <string name="image_view_microphone">麦克风</string>
@@ -25,17 +22,24 @@
     <string name="option_shortcut_translate_stop">结束翻译</string>
 
     <string name="option_ocr">OCR文字识别</string>
-    <string name="option_shortcut_ocr_camera">拍照OCR</string>
-    <string name="option_shortcut_ocr_image">图片OCR</string>
+    <string name="option_ocr_camera">拍照OCR</string>
+    <string name="option_ocr_image">图片OCR</string>
     <string name="option_text_input">文本输入</string>
     <string name="option_show_setting">系统设置</string>
     <string name="option_show_help">显示帮助</string>
     <string name="option_clear_all_items">清除所有显示</string>
-    <string name="option_show_face_detect">人脸识别</string>
+    <string name="option_face_identify">人脸识别</string>
+    <string name="option_face_detect">人脸检测</string>
+    <string name="option_face_merge">人脸融合</string>
+    <string name="option_face_compare">人脸比较</string>
     <string name="option_show_face_manger">人脸库管理</string>
+    <string name="option_image_classify">物体识别</string>
+    <string name="option_image_classify_camera">拍照识别</string>
+    <string name="option_image_classify_image">图片识别</string>
 
     <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了。按*键显示帮助</string>
     <string name="baidu_unit_welcome_support_touch">我是富士康手机小助手小康，现已准备好了。</string>
+    <string name="baidu_unit_about">当前版本是：</string>
     <string name="baidu_unit_question_help">
         一、必须连接网络，按确认键开始一问一答。你可以问我:\n
         1.今天[北京]天气怎么样?\n
@@ -67,7 +71,7 @@
     <string name="baidu_unit_question_help_dialogue_translate_mode_support_touch">
         二、如何进入特殊对话模式?\n
         1.翻译模式。\n
-        (1)按右下菜单键，选择【快捷翻译】进入或退出。\n
+        (1)按右下菜单键，选择【开始翻译】进入或退出。\n
         (2)语音”开始翻译[英语/德语/..]“，”开始[英语/德语]翻译“。\n
         (3)语音”结束“或“退出“。\n
         2.诗词/对联模式。\n
@@ -81,7 +85,8 @@
         4.或按回退键退出。</string>
     <string name="baidu_unit_question_help_face_mode_support_touch">
         三、如何进入人脸识别模式?\n
-        (1)按右下菜单键，选择【人脸识别】进入。\n
+        1.按右下菜单键，选择【人脸识别】进入。\n
+        2.语音”人脸识别“。\n
         2.进入后长按下方人脸开始扫描。\n
         3.如何扫描成功会自动退出该界面。\n
         4.或按回退键退出。</string>
@@ -95,12 +100,18 @@
         5.按回退键退出。</string>
     <string name="baidu_unit_question_help_ocr_mode_support_touch">
         四、如何进入OCR模式?\n
-        1.按右下菜单键，选择【快捷OCR】进入\n
+        1.按右下菜单键，选择【OCR文字识别】进入\n
         2.语音”扫描[英语/德语/..]“或”[英语/德语]扫描“。\n
         3.进入后按识别键拍照识别，或长按识别后提问。\n
         4.按回退键退出。</string>
+    <string name="baidu_unit_question_help_classify_mode_support_touch">
+        五、如何进入物体识别模式?\n
+        1.按右下菜单键，选择【物体识别】进入\n
+        2.语音”通用识别“，”植物识别“，”车型识别“等。\n
+        3.进入后按识别键拍照识别，或长按识别后提问。\n
+        4.按回退键退出。</string>
     <string name="baidu_unit_question_help_keyboard_input">
-        五、如何键盘文字输入?\n
+        六、如何键盘文字输入?\n
         1.按菜单键显示或隐藏文字输入框。\n
         2.按确认键完成文字输入。</string>
 
@@ -113,9 +124,11 @@
 
     <string name="helpInfo_title">帮助信息</string>
     <string name="setting_title">系统设置</string>
+    <string name="baidu_debug">输出调试信息</string>
+    <string name="baidu_tts">语音合成输出</string>
+    <string name="baidu_offline_face">启用离线人脸模块</string>
+    <string name="baidu_extra_fun">启用额外功能</string>
 
-    <string name="baidu_unit_debug">输出调试信息</string>
-    <string name="baidu_unit_tts">语音合成输出</string>
     <string name="baidu_unit_work_mode">工作模式</string>
     <string name="baidu_unit_asr_bot">ASR</string>
     <string name="baidu_unit_keyboard_bot">BOT</string>
@@ -192,8 +205,8 @@
         4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
     <string name="baidu_unit_fix_translate_help_support_touch">
         1.按左箭头汉语译外语，右箭头外语译汉语。\n
-        2.按右下菜单键，选择【快捷翻译】可退出，或语音”退出”。\n
-        3.按右下菜单键，选择【快捷OCR】进入OCR识别翻译。\n
+        2.按右下菜单键，选择【退出翻译】可退出，或语音”退出”。\n
+        3.按右下菜单键，选择【OCR文字识别】进入OCR识别翻译。\n
         4.目前支持中英文的双向语音输入和翻译，还只支持单向中文翻译成 法语,德语,俄语,日语,韩语,泰语,意大利语,西班牙语,葡萄牙语,阿拉伯语。</string>
     <string name="baidu_unit_fix_translate_start">进入%1$s对话翻译</string>
     <string name="baidu_unit_fix_translate_stop">退出%1$s对话翻译</string>
@@ -213,15 +226,18 @@
     <string name="baidu_unit_ocr_start">启动OCR识别%1$s中..</string>
     <string name="baidu_unit_ocr_not_support">目前不支持%1$s识别</string>
     <string name="baidu_unit_ocr_recognize">识别</string>
-    <string name="baidu_unit_ocr_recognize_hint">单击按钮仅识别，长按则识别后提问</string>
 
     <string name="baidu_unit_keyboard_input">键盘输入文字</string>
     <string name="baidu_unit_keyboard_input_send">发送</string>
 
     <string name="network_error">网络错误，不能访问外网</string>
+    <string name="baidu_unit_token_fail">智能问答Unit模块获取token失败</string>
 
 <!--    Face-->
 <!--    https://console.bce.baidu.com/ai/?_=1575250056181#/ai/face/offline/index-->
+    <string name="option_face_camera">拍照识别</string>
+    <string name="option_face_image">图片识别</string>
+    <string name="baidu_face_token_fail">在线人脸识别模块获取token失败</string>
     <string name="baidu_face_authentic_key1">YAGV-BGF6-NXUX-QBGC</string>
     <string name="baidu_face_authentic_key2">VR1M-QWI8-IACI-KGEX</string>
     <string name="baidu_face_config_success">初始配置加载成功</string>
@@ -260,7 +276,7 @@
 
     <string name="baidu_face_user_info_title">用户信息</string>
     <string name="baidu_face_user_info_name">用户名:</string>
-    <string name="baidu_face_user_info_extra">额外信息:</string>
+    <string name="baidu_face_user_info_extra">用户信息:</string>
     <string name="baidu_face_user_info_register_time">注册时间:</string>
     <string name="baidu_face_user_info_register_image">注册图片，长按可修改</string>
     <string name="baidu_face_user_info_image">图片</string>
@@ -300,5 +316,40 @@
     <string name="baidu_face_identify_fail">很遗憾，还不认识此人</string>
 
     <string name="baidu_face_manager_delete_msg">确认一定要删除选中的人脸数据？</string>
+    <string name="baidu_face_manager_querying">努力查询人脸数据中..</string>
+
+    <string name="baidu_face_merge_title">人脸融合</string>
+    <string name="baidu_face_merge_start">开始融合</string>
+    <string name="baidu_face_merge_select_template_image">长按选择人脸模板</string>
+    <string name="baidu_face_merge_select_target_image">长按选择需融合人脸</string>
+    <string name="baidu_face_merge_save_image">长按保存图片</string>
+    <string name="baidu_face_merge_select_album">相册选择</string>
+    <string name="baidu_face_merge_camera_capture">相机拍照</string>
+    <string name="baidu_face_merge_save_image_file">是否保存融合的人脸图片</string>
+
+    <string name="baidu_face_compare_title">人脸比较</string>
+    <string name="baidu_face_compare_select_image">长按选择人脸</string>
+    <string name="baidu_face_compare_score">人脸相似度得分[0~100]</string>
+    <string name="baidu_face_compare_start">开始比较</string>
+
+<!--    Classify Image-->
+    <string name="baidu_classify_image_token_fail">图像识别模块获取token失败</string>
+    <string name="baidu_classify_image_fail">获取识别结果失败！</string>
+    <string name="baidu_classify_image_score_fail">识别结果置信度过低！</string>
+    <string name="baidu_classify_image_json_fail">分析识别结果Json失败！</string>
+    <string name="baidu_classify_image_general_fail">识别物体失败！</string>
+    <string name="baidu_classify_image_animal_fail">识别动物失败！</string>
+    <string name="baidu_classify_image_car_fail">识别车型失败！</string>
+    <string name="baidu_classify_image_currency_fail">识别货币失败！</string>
+    <string name="baidu_classify_image_dish_fail">识别菜品失败！</string>
+    <string name="baidu_classify_image_dish_calorie">卡里路：%1$d。</string>
+    <string name="baidu_classify_image_ingredient_fail">识别果蔬类食材失败！</string>
+    <string name="baidu_classify_image_landmark_fail">识别地标失败！</string>
+    <string name="baidu_classify_image_logo_fail">识别Logo失败！</string>
+    <string name="baidu_classify_image_redwine_fail">识别红酒失败！</string>
+
+<!--    Common Camera-->
+    <string name="camera_recognize_hint">单击识别,长按识别后提问</string>
+    <string name="camera_recognize_input_info">请输入相关信息</string>
 
 </resources>

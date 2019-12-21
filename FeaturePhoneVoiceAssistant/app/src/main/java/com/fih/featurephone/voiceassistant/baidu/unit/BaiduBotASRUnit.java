@@ -24,12 +24,12 @@ public class BaiduBotASRUnit implements EventListener {
     private final BaiduUnitAI mBaiduUnitAI;
     private EventManager mASR;
     private Context mContext;
-    private BaiduUnitAI.onUnitListener mListener;
+    private BaiduUnitAI.OnUnitListener mListener;
     private BaiduUnitAI.BestResponse mBestResponse;
     private ArrayList<String> mBotTypeList;
 
     BaiduBotASRUnit(BaiduUnitAI baiduUnitAI, BaiduUnitAI.BestResponse bestResponse,
-                    ArrayList<String> botTypeList, Context context, BaiduUnitAI.onUnitListener listener) {
+                    ArrayList<String> botTypeList, Context context, BaiduUnitAI.OnUnitListener listener) {
         mBaiduUnitAI = baiduUnitAI;
         mBestResponse = bestResponse;
         mBotTypeList = botTypeList;

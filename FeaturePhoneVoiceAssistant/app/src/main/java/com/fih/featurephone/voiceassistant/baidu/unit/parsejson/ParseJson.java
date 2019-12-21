@@ -52,7 +52,7 @@ public class ParseJson {
     static private ArrayList<Base_Response_Schema_Slots> parseSlots(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
-        ArrayList<Base_Response_Schema_Slots> slotList = new ArrayList<Base_Response_Schema_Slots>();
+        ArrayList<Base_Response_Schema_Slots> slotList = new ArrayList<>();
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
                 Base_Response_Schema_Slots slot = new Base_Response_Schema_Slots();
@@ -189,7 +189,7 @@ public class ParseJson {
 
     static private ArrayList<Base_Response_QuRes_LexicalAnalysis> parseLexicalAnalysis(JSONArray jsonArray) {
         if (null == jsonArray) return null;
-        ArrayList<Base_Response_QuRes_LexicalAnalysis> lexicalAnalysesList = new ArrayList<Base_Response_QuRes_LexicalAnalysis>();
+        ArrayList<Base_Response_QuRes_LexicalAnalysis> lexicalAnalysesList = new ArrayList<>();
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -220,7 +220,7 @@ public class ParseJson {
     static ArrayList<Base_Response_Action> parseActionList(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
-        ArrayList<Base_Response_Action> actionList = new ArrayList<Base_Response_Action>();
+        ArrayList<Base_Response_Action> actionList = new ArrayList<>();
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -250,5 +250,4 @@ public class ParseJson {
         }
         return actionList;
     }
-
 }

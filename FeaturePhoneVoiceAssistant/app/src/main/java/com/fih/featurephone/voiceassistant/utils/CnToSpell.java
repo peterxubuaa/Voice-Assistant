@@ -93,7 +93,7 @@ public class CnToSpell {
     }
 
     // 词组解析
-    public String getSelling(String chs) {
+    public String getSpelling(String chs) {
         String key, value;
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < chs.length(); i++) {

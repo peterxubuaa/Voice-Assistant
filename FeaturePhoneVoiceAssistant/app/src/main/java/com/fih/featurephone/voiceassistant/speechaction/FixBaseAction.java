@@ -30,8 +30,4 @@ public class FixBaseAction {
     public void forceAction(boolean active) {
         mActive = active;
     }
-
-    public boolean isActive() {
-        return mActive;
-    }
 }

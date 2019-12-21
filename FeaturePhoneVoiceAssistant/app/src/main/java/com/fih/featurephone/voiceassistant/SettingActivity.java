@@ -20,6 +20,8 @@ public class SettingActivity extends Activity {
     static final String PREF_SETTINGS = "pref_settings";
     static final String PREF_DEBUG = "pref_debug";
     static final String PREF_TTS =  "pref_tts";
+    static final String PREF_OFFLINEFACE = "pref_offlineface";
+    static final String PREF_ENABLE_EXTRAFUN = "PREF_ENABLE_EXTRAFUN";
     static final String PREF_WORK_MODE = "pref_work_mode";
     static final String PREF_ROBOT_TYPE = "pref_robot_type";
     static final String PREF_BOT_TYPE = "pref_bot_type";
@@ -32,6 +34,8 @@ public class SettingActivity extends Activity {
     public static class SettingResult implements Cloneable {
         boolean mDebug;
         boolean mTTS;
+        boolean mOfflineFace;
+        boolean mEnableExtraFun;
         int mUnitType;
         int mRobotType;
         int mSpeechType;
@@ -40,6 +44,8 @@ public class SettingActivity extends Activity {
         SettingResult() {
             mDebug = false;
             mTTS = true;
+            mOfflineFace = false;
+            mEnableExtraFun = false;
             mUnitType = NONE;
             mRobotType = NONE;
             mSpeechType = NONE;
@@ -64,6 +70,8 @@ public class SettingActivity extends Activity {
             SettingResult that = (SettingResult) o;
             return mDebug == that.mDebug &&
                     mTTS == that.mTTS &&
+                    mOfflineFace == that.mOfflineFace &&
+                    mEnableExtraFun == that.mEnableExtraFun &&
                     mUnitType == that.mUnitType &&
                     mRobotType == that.mRobotType &&
                     mSpeechType == that.mRobotType &&
@@ -166,6 +174,8 @@ public class SettingActivity extends Activity {
         SharedPreferences settingPrefs = context.getSharedPreferences(PREF_SETTINGS, Context.MODE_PRIVATE);
         settingResult.mDebug = settingPrefs.getBoolean(PREF_DEBUG, false);
         settingResult.mTTS = settingPrefs.getBoolean(PREF_TTS, true);
+        settingResult.mOfflineFace = settingPrefs.getBoolean(PREF_OFFLINEFACE, false);
+        settingResult.mEnableExtraFun = settingPrefs.getBoolean(PREF_ENABLE_EXTRAFUN, false);
         settingResult.mUnitType = settingPrefs.getInt(PREF_WORK_MODE, BaiduUnitAI.BAIDU_UNIT_TYPE_KEYBOARD_BOT);
         settingResult.mRobotType = settingPrefs.getInt(PREF_ROBOT_TYPE, BaiduUnitAI.BAIDU_UNIT_ROBOT_TYPE_LOCAL);
         settingResult.mSpeechType = settingPrefs.getInt(PREF_SPEECH_TYPE, BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE);
@@ -209,6 +219,8 @@ public class SettingActivity extends Activity {
 
         settingEditor.putBoolean(PREF_DEBUG, settingResult.mDebug);
         settingEditor.putBoolean(PREF_TTS, settingResult.mTTS);
+        settingEditor.putBoolean(PREF_OFFLINEFACE, settingResult.mOfflineFace);
+        settingEditor.putBoolean(PREF_ENABLE_EXTRAFUN, settingResult.mEnableExtraFun);
         settingEditor.putInt(PREF_WORK_MODE, settingResult.mUnitType);
         settingEditor.putInt(PREF_ROBOT_TYPE, settingResult.mRobotType);
         settingEditor.putInt(PREF_SPEECH_TYPE, settingResult.mSpeechType);
@@ -218,8 +230,10 @@ public class SettingActivity extends Activity {
     }
 
     private void setUIValue(SettingResult settingResult) {
-        ((CheckBox)findViewById(R.id.baidu_unit_debug)).setChecked(settingResult.mDebug);
-        ((CheckBox)findViewById(R.id.baidu_unit_tts)).setChecked(settingResult.mTTS);
+        ((CheckBox)findViewById(R.id.baidu_debug)).setChecked(settingResult.mDebug);
+        ((CheckBox)findViewById(R.id.baidu_tts)).setChecked(settingResult.mTTS);
+        ((CheckBox)findViewById(R.id.baidu_offline_face)).setChecked(settingResult.mOfflineFace);
+        ((CheckBox)findViewById(R.id.baidu_enable_extra_fun)).setChecked(settingResult.mEnableExtraFun);
         setUnitWorkMode(settingResult.mUnitType);
         setUnitRobotType(settingResult.mRobotType);
         setUnitSpeechType(settingResult.mSpeechType);
@@ -240,8 +254,10 @@ public class SettingActivity extends Activity {
 
     private SettingResult getUIValue() {
         SettingResult settingResult = new SettingResult();
-        settingResult.mDebug = ((CheckBox)findViewById(R.id.baidu_unit_debug)).isChecked();
-        settingResult.mTTS = ((CheckBox)findViewById(R.id.baidu_unit_tts)).isChecked();
+        settingResult.mDebug = ((CheckBox)findViewById(R.id.baidu_debug)).isChecked();
+        settingResult.mTTS = ((CheckBox)findViewById(R.id.baidu_tts)).isChecked();
+        settingResult.mOfflineFace = ((CheckBox)findViewById(R.id.baidu_offline_face)).isChecked();
+        settingResult.mEnableExtraFun = ((CheckBox)findViewById(R.id.baidu_enable_extra_fun)).isChecked();
         settingResult.mUnitType = getUnitWorkMode();
         settingResult.mRobotType = getUnitRobotType();
         settingResult.mSpeechType = getUnitSpeechType();

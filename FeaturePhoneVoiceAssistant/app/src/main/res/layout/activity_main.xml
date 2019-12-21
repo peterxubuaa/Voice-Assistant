@@ -31,7 +31,7 @@
         android:text="@string/text_view_debug"
         android:scrollbars="vertical"
         android:maxLines="500"
-        />
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/assistant_image_view"

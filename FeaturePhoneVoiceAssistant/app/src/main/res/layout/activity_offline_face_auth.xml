@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="@string/baidu_face_auth_permission_active"
+        android:textColor="#363636"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/v_top_underline"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_title"
+        android:background="#898989" />
+
+    <ScrollView
+        android:id="@+id/center_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/v_top_underline"
+        android:fadeScrollbars="false">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_active_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/baidu_face_auth_active_device"
+                android:textColor="#036838"
+                android:textSize="30sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_device_fingerprint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tv_active_device"
+                android:layout_alignParentStart="true"
+                android:text="@string/baidu_face_auth_device_fingerprint"
+                android:textColor="#363636"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_copy_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/tv_device_fingerprint"
+                android:layout_alignBottom="@+id/tv_device_fingerprint"
+                android:layout_toEndOf="@+id/tv_device_fingerprint"
+                android:focusable="true"
+                android:text="@string/baidu_face_auth_copy"
+                android:textColor="#3939ee"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_device_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/tv_device_fingerprint"
+                android:layout_below="@+id/tv_device_fingerprint"
+                android:textColor="#000" />
+
+            <View
+                android:id="@+id/v_middle_underline"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/tv_device_id"
+                android:background="#898989" />
+
+            <EditText
+                android:id="@+id/et_key"
+                android:layout_width="290dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:gravity="center"
+                android:layout_below="@id/v_middle_underline"
+                android:hint="@string/baidu_face_auth_key_input"
+                android:textSize="15sp"
+                android:importantForAutofill="no"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/tv_active_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/et_key"
+                android:gravity="center_horizontal"
+                android:text="@string/baidu_face_auth_active_hint"/>
+
+            <Button
+                android:id="@+id/bt_online_active"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_below="@+id/tv_active_hint"
+                android:layout_centerHorizontal="true"
+                android:text="@string/baidu_face_auth_online_active"/>
+
+            <Button
+                android:id="@+id/bt_detect_sdcard"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bt_online_active"
+                android:layout_centerHorizontal="true"
+                android:text="@string/baidu_face_auth_detect_sdcard"
+                android:textColor="#000"
+                android:textAllCaps="false" />
+
+            <TextView
+                android:id="@+id/tv_offline_active_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/bt_detect_sdcard"
+                android:textColor="#666"
+                android:gravity="center_horizontal"
+                android:text="@string/baidu_face_auth_offline_active_hint" />
+
+            <Button
+                android:id="@+id/bt_off_line_active"
+                android:layout_width="100dp"
+                android:layout_height="40dp"
+                android:layout_alignStart="@+id/bt_online_active"
+                android:layout_below="@+id/tv_offline_active_hint"
+                android:text="@string/baidu_face_auth_offline_active"/>
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/bt_off_line_active"
+                android:src="@drawable/ic_baidu_logo"
+                tools:ignore="ContentDescription" />
+        </RelativeLayout>
+    </ScrollView>
+
+</RelativeLayout>

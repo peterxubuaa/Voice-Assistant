@@ -83,7 +83,7 @@ public class PhoneAction implements BaseAction {
                 null, null, null, null);
         if (null == cursor) return;
 
-        mContactInfoMap = new HashMap<String, ArrayList<String>>();
+        mContactInfoMap = new HashMap<>();
         //moveToNext方法返回的是一个boolean类型的数据
         while (cursor.moveToNext()) {
             //读取通讯录的姓名
@@ -97,7 +97,7 @@ public class PhoneAction implements BaseAction {
 
             ArrayList<String> phoneNumList = mContactInfoMap.get(name);
             if (null == phoneNumList) {
-                phoneNumList = new ArrayList<String>();
+                phoneNumList = new ArrayList<>();
             }
             phoneNumList.add(number);
             mContactInfoMap.put(name, phoneNumList);

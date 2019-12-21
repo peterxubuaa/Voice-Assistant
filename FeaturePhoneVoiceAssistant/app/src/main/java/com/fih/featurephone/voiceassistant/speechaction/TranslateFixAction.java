@@ -22,12 +22,10 @@ public class TranslateFixAction extends FixBaseAction {
     final private String mOriginalLanguage = DEFAULT_TRANSLATE_ORIGINAL_LANGUAGE;
     private String mTargetLanguage = DEFAULT_TRANSLATE_TARGET_LANGUAGE;
     private int mCurTranslateType = TRANSLATE;
-    private boolean mSupportTouch;
 
     public TranslateFixAction(Context context) {
         mBotID = BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_TRANSLATE;
         mContext = context;
-        mSupportTouch = CommonUtil.isSupportMultiTouch(mContext);
         REGEX_TRANSLATE_START = mContext.getResources().getStringArray(R.array.translate_action_start_regex);
         KEYWORD_TRANSLATE_STOP = mContext.getResources().getStringArray(R.array.translate_action_stop_keyword);
         KEYWORD_TRANSLATE_LANGUAGE_TYPE = mContext.getResources().getStringArray(R.array.translate_action_language_keyword);
@@ -54,8 +52,6 @@ public class TranslateFixAction extends FixBaseAction {
             mTargetLanguage = language;
             bestResponse.reset();
             bestResponse.mAnswer = String.format(mContext.getString(R.string.baidu_unit_fix_translate_start), mTargetLanguage);
-//            bestResponse.mHint = mSupportTouch? mContext.getString(R.string.baidu_unit_fix_translate_help_support_touch) :
-//                    mContext.getString(R.string.baidu_unit_fix_translate_help);
             return START_FIX_ACTION;
         }
 
@@ -88,7 +84,7 @@ public class TranslateFixAction extends FixBaseAction {
     public String[] getAllQuestions(String query) {
         String[] PUNCS = new String[] {",", ".", "?", "!", ";", ":", "，", "。", "？", "！", "；", "："};
 //        return query.split("\\,|\\.|\\?|\\!|\\;|\\，|\\。|\\？|\\！|\\；");
-        ArrayList<String> queryList = new ArrayList<String>();
+        ArrayList<String> queryList = new ArrayList<>();
         int startPos = 0;
         for (int i = 0; i < query.length(); i++) {
             if (CommonUtil.isContainKeyWord(query.substring(i, i+1), PUNCS)) {

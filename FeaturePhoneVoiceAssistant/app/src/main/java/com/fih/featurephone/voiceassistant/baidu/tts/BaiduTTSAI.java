@@ -9,7 +9,7 @@ import android.util.Log;
 import com.baidu.tts.client.SpeechSynthesizer;
 import com.baidu.tts.client.SpeechSynthesizerListener;
 import com.baidu.tts.client.TtsMode;
-import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduUtil;
 import com.fih.featurephone.voiceassistant.baidu.tts.control.InitConfig;
 import com.fih.featurephone.voiceassistant.baidu.tts.control.MySyntherizer;
 import com.fih.featurephone.voiceassistant.baidu.tts.control.NonBlockSyntherizer;
@@ -29,9 +29,9 @@ public class BaiduTTSAI {
     private MySyntherizer mBaiduTTS_Synthesizer = null;
     private Context mContext;
     private int mWorkState = 0;
-    private onTTSListener mListener;
+    private OnTTSListener mListener;
 
-    public interface onTTSListener {
+    public interface OnTTSListener {
         void onStart();
         void onEnd();
         void onError(String msg);
@@ -77,7 +77,7 @@ public class BaiduTTSAI {
         }
     }
 
-    public BaiduTTSAI(Context context, onTTSListener listener) {
+    public BaiduTTSAI(Context context, OnTTSListener listener) {
         mContext = context;
         mListener = listener;
     }
@@ -90,10 +90,7 @@ public class BaiduTTSAI {
         Map<String, String> params = getParams();
 
         // appId appKey secretKey 网站上您申请的应用获取。注意使用离线合成功能的话，需要应用中填写您app的包名。包名在build.gradle中获取。
-        InitConfig initConfig = new InitConfig(
-                        mContext.getString(R.string.APP_ID),
-                        mContext.getString(R.string.API_KEY),
-                        mContext.getString(R.string.SECRET_KEY),
+        InitConfig initConfig = new InitConfig(BaiduUtil.OCRTTS_APP_ID, BaiduUtil.OCRTTS_API_KEY, BaiduUtil.OCRTTS_SECRET_KEY,
                         TtsMode.ONLINE , params, listener);//TtsMode.ONLINE 纯在线。断网即不可使用, TtsMode.MIX 离在线混合。 断网或者网络请求超时使用离线
 
         mBaiduTTS_Synthesizer = new NonBlockSyntherizer(mContext, initConfig, handler); // 此处可以改为MySyntherizer 了解调用过程

@@ -9,7 +9,7 @@ import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 public class VoiceVolumeAction implements BaseAction {
-    private String[] KEYWORD_VOICE_VOLUME;;
+    private String[] KEYWORD_VOICE_VOLUME;
     private String[] KEYWORD_VOICE_TYPE;
     private String[] REGEX_VOLUME_DOWN;
     private String[] REGEX_VOLUME_UP;

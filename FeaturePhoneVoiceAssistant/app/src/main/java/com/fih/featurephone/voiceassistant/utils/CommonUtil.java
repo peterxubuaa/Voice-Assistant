@@ -1,5 +1,6 @@
 package com.fih.featurephone.voiceassistant.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
@@ -263,7 +264,7 @@ public class CommonUtil {
         if (TextUtils.isEmpty(str)) return null;
 
         String[] strArray = str.split(",");
-        return new ArrayList<String>(Arrays.asList(strArray));
+        return new ArrayList<>(Arrays.asList(strArray));
     }
 
     public static String getStringFromList(ArrayList<String> strList) {
@@ -304,12 +305,12 @@ public class CommonUtil {
         return pm.hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN_MULTITOUCH);
     }
 
-    public static void showSoftKeyboard(Context context) {
+/*    public static void showSoftKeyboard(Context context) {
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (null != imm && !imm.isActive()) {
             imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
         }
-    }
+    }*/
 
     public static void hideSoftKeyboard(Context context) {
         InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -342,7 +343,7 @@ public class CommonUtil {
         return new String(data);
     }
 
-    /**
+    /*
      *  获取版本号
      */
     public static String getVersionName(Context context) {
@@ -363,21 +364,32 @@ public class CommonUtil {
      */
     public static String formatTime(long timeStamp, String pattern) {
         Date date = new Date(timeStamp);
-        DateFormat dateFormat = new SimpleDateFormat(pattern);
+        @SuppressLint("SimpleDateFormat") DateFormat dateFormat = new SimpleDateFormat(pattern);
         return dateFormat.format(date);
     }
 
     private static Handler sMainUIHandler = new Handler(Looper.getMainLooper());
     public static void toast(final Context context, final String text) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
         } else {
             sMainUIHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                 }
             });
         }
+    }
+
+    //求最大公约数greatest common divisor(gcd)
+    static int getGCD(int x, int y) {// x接受第一个整数,y接受第二个整数
+        int num = 1;// 定义一个变量num,来保存最大公约数
+        for (int i = 1; i <= x; i++) {// 遍历1到x的所有整数 
+            if (x % i == 0 && y % i == 0) {//  如果有一个数同时满足被x,y整除
+                num = i;//  将这个数保存到num变量
+            }
+        }
+        return num;
     }
 }

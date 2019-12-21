@@ -17,10 +17,10 @@ class BaiduRobotKeyboardUnit {
     private final BaiduUnitAI.BestResponse mBestResponse;
     private String mAuthentication;
     private int mRobotType;
-    private BaiduUnitAI.onUnitListener mUnitListener;
+    private BaiduUnitAI.OnUnitListener mUnitListener;
 
     BaiduRobotKeyboardUnit(BaiduUnitAI baiduUnitAI, BaiduUnitAI.BestResponse bestResponse,
-                           int robotType, BaiduUnitAI.onUnitListener unitListener) {
+                           int robotType, BaiduUnitAI.OnUnitListener unitListener) {
         mBaiduUnitAI = baiduUnitAI;
         mBestResponse = bestResponse;
         mRobotType = robotType;
@@ -82,7 +82,7 @@ class BaiduRobotKeyboardUnit {
             String json = new JSONObject(map).toString();
             if (null != mUnitListener) mUnitListener.onShowDebugInfo("上次最佳回应 -> " + mBestResponse.toString() + "\n\n", true);
             if (null != mUnitListener) mUnitListener.onShowDebugInfo("请求参数 -> " + json + "\n\n", false);
-            if (TextUtils.isEmpty(mAuthentication)) mAuthentication = mBaiduUnitAI.getAuth();//for keyboard unit
+            if (TextUtils.isEmpty(mAuthentication)) mAuthentication = mBaiduUnitAI.getAuthToken();//for keyboard unit
             String result = HttpUtil.post(talkUrl, mAuthentication, "application/json", json);
             if (null != mUnitListener) mUnitListener.onShowDebugInfo("返回结果 -> " + result + "\n\n", false);
             ParseKeyBoardRobotJson.RobotKeyBoardUnit robotKeyBoardUnit = ParseKeyBoardRobotJson.parseRobotKeyBoardUnit(result);

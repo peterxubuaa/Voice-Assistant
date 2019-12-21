@@ -24,13 +24,13 @@
 
     <application
         android:allowBackup="false"
-        android:icon="@drawable/lc_launch_0"
+        android:icon="@drawable/launch_ai"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:allowBackup">
 
-        <!--baidu unit token-->
+        <!--baidu speech token-->
         <meta-data
             android:name="com.baidu.speech.APP_ID"
             android:value="17380810"/>
@@ -52,12 +52,17 @@
 
         <activity android:name=".SettingActivity" />
         <activity android:name=".HelpInfoActivity"/>
-        <activity android:name=".baidu.ocr.camera.CameraCaptureActivity" />
-        <activity android:name=".baidu.face.activity.FaceAuthActivity"/>
-        <activity android:name=".baidu.face.activity.FaceRGBIdentifyActivity"/>
-        <activity android:name=".baidu.face.activity.FaceRGBRegisterActivity"/>
-        <activity android:name=".baidu.face.activity.FaceUserManagerActivity"/>
-        <activity android:name=".baidu.face.activity.FaceUserInfoActivity"/>
+        <activity android:name=".camera.CameraCaptureActivity" />
+        <activity android:name=".baidu.faceoffline.activity.FaceAuthActivity"/>
+        <activity android:name=".baidu.faceoffline.activity.FaceRGBIdentifyActivity"/>
+        <activity android:name=".baidu.faceoffline.activity.FaceRGBRegisterActivity"/>
+        <activity android:name=".baidu.faceoffline.activity.FaceUserManagerActivity"/>
+        <activity android:name=".baidu.faceoffline.activity.FaceUserInfoActivity"/>
+
+        <activity android:name=".baidu.faceonline.activity.OnlineFaceUserInfoActivity"/>
+        <activity android:name=".baidu.faceonline.activity.OnlineFaceUserManagerActivity"/>
+        <activity android:name=".baidu.faceonline.activity.OnlineFaceMergeActivity"/>
+        <activity android:name=".baidu.faceonline.activity.OnlineFaceCompareActivity"/>
 
     </application>
 </manifest>

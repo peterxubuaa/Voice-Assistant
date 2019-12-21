@@ -37,12 +37,12 @@ public class MsgAdapter extends ArrayAdapter<Msg> {
         if(convertView == null) {
             view = LayoutInflater.from(getContext()).inflate(mResourceID, null);
             viewHolder = new ViewHolder();
-            viewHolder.mSendLayout = (RelativeLayout)view.findViewById(R.id.send_layout);
-            viewHolder.mReceiveLayout = (RelativeLayout)view.findViewById(R.id.receive_layout);
-            viewHolder.mSendMsg = (TextView)view.findViewById(R.id.send_msg);
-            viewHolder.mReceiveMsg = (TextView)view.findViewById(R.id.receive_msg);
-            viewHolder.mSendHead = (ImageView)view.findViewById(R.id.send_head);
-            viewHolder.mReceiveHead = (ImageView)view.findViewById(R.id.receive_head);
+            viewHolder.mSendLayout = view.findViewById(R.id.send_layout);
+            viewHolder.mReceiveLayout = view.findViewById(R.id.receive_layout);
+            viewHolder.mSendMsg = view.findViewById(R.id.send_msg);
+            viewHolder.mReceiveMsg = view.findViewById(R.id.receive_msg);
+            viewHolder.mSendHead = view.findViewById(R.id.send_head);
+            viewHolder.mReceiveHead = view.findViewById(R.id.receive_head);
             if (mHideHeadPic) {
                 viewHolder.mSendHead.setVisibility(View.GONE);
                 viewHolder.mReceiveHead.setVisibility(View.GONE);

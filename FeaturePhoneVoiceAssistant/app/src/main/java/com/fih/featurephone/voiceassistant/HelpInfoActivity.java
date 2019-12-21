@@ -24,6 +24,8 @@ public class HelpInfoActivity extends Activity {
 
     private void setHelpInfo() {
         StringBuilder sb = new StringBuilder();
+        sb.append(getString(R.string.baidu_unit_about)).append(CommonUtil.getVersionName(this));
+        sb.append("\n\n");
         sb.append(getString(R.string.baidu_unit_question_help));
         if (!CommonUtil.isSupportMultiTouch(this)) {
             sb.append("\n\n");
@@ -39,6 +41,8 @@ public class HelpInfoActivity extends Activity {
             sb.append(getString(R.string.baidu_unit_question_help_face_mode_support_touch));
             sb.append("\n\n");
             sb.append(getString(R.string.baidu_unit_question_help_ocr_mode_support_touch));
+            sb.append("\n\n");
+            sb.append(getString(R.string.baidu_unit_question_help_classify_mode_support_touch));
         }
         sb.append("\n\n");
         sb.append(getString(R.string.baidu_unit_question_help_keyboard_input));

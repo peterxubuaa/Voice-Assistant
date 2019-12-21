@@ -49,16 +49,16 @@ public class BaiduSpeechAI {
     19362	普通话	远场模型	加强标点（逗号、句号、问号、感叹号）	不支持
     19363	普通话	远场模型	加强标点（逗号、句号、问号、感叹号）	支持通用场景语义解析*/
     private int mLanguageID = 15363;
-    private onSpeechListener mListener;
+    private OnSpeechListener mListener;
 
-    public interface onSpeechListener {
+    public interface OnSpeechListener {
         void onShowDebugInfo(String info);
         void onExit();
         void onFinalResult(String result);
         void onError(String msg);
     }
 
-    public BaiduSpeechAI(Context context, onSpeechListener listener) {
+    public BaiduSpeechAI(Context context, OnSpeechListener listener) {
         mContext = context;
         mListener = listener;
     }

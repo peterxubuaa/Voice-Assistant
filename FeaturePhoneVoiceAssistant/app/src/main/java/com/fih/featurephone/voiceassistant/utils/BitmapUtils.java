@@ -7,6 +7,8 @@ package com.fih.featurephone.voiceassistant.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.media.ExifInterface;
 
 import java.io.BufferedInputStream;
@@ -20,76 +22,15 @@ import java.nio.ByteBuffer;
  * 这个类提供一些操作Bitmap的方法
  */
 public final class BitmapUtils {
-    /**
-     * 图像的旋转方向是0
-     */
-    public static final int ROTATE0 = 0;
-    /**
-     * 图像的旋转方向是90
-     */
-    public static final int ROTATE90 = 90;
-    /**
-     * 图像的旋转方向是180
-     */
-    public static final int ROTATE180 = 180;
-    /**
-     * 图像的旋转方向是270
-     */
-    public static final int ROTATE270 = 270;
-    /**
-     * 图像的旋转方向是360
-     */
-    public static final int ROTATE360 = 360;
-    /**
-     * 图片太大内存溢出后压缩的比例
-     */
-    public static final int PIC_COMPRESS_SIZE = 4;
-    /**
-     * 图像压缩边界
-     */
-    public static final int IMAGEBOUND = 128;
-    /**
-     * 图片显示最大边的像素
-     */
-    public static final int MAXLENTH = 1024;
-    /**
-     * Log TAG
-     */
-    private static final String TAG = "BitmapUtils";
-    /**
-     * Log switch
-     */
-    private static final boolean DEBUG = false;
-    /**
-     * 保存图片的质量：100
-     */
-    private static final int QUALITY = 100;
-    /**
-     * 默认的最大尺寸
-     */
-    private static final int DEFAULT_MAX_SIZE_CELL_NETWORK = 600;
-    /**
-     * 题编辑wifi环境下压缩的最大尺寸
-     */
-    private static final int QUESTION_MAX_SIZE_CELL_NETWORK = 1024;
-    /**
-     * 图片压缩的质量
-     */
-    private static final int QUESTION_IMAGE_JPG_QUALITY = 75;
-    /**
-     * 默认的图片压缩的质量
-     */
-    private static final int DEFAULT_IMAGE_JPG_QUALITY = 50;
-    /**
-     * 网络请求超时时间
-     */
-    private static final int CONNECTTIMEOUT = 3000;
-
-    /**
-     * Private constructor to prohibit nonsense instance creation.
-     */
-    private BitmapUtils() {
-    }
+    // 图像的旋转方向是0
+    private static final int ROTATE0 = 0;
+    private static final int ROTATE90 = 90;
+    private static final int ROTATE180 = 180;
+    private static final int ROTATE270 = 270;
+    // 图像压缩边界
+    private static final int IMAGEBOUND = 128;
+    // 默认的图片压缩的质量
+    private static final int DEFAULT_IMAGE_JPG_QUALITY = 90;
 
     /**
      * 根据从数据中读到的方向旋转图片
@@ -100,10 +41,10 @@ public final class BitmapUtils {
      */
     public static Bitmap rotateBitmap(float orientation, Bitmap bitmap) {
         Bitmap transformed;
-        Matrix m = new Matrix();
         if (orientation == 0) {
             transformed = bitmap;
         } else {
+            Matrix m = new Matrix();
             m.setRotate(orientation);
             transformed = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), m, true);
         }
@@ -140,7 +81,7 @@ public final class BitmapUtils {
      * @param maxNumOfPixels 最大的像素数目
      * @return 返回合适的压缩值
      */
-    public static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength,
+    private static int computeInitialSampleSize(BitmapFactory.Options options, int minSideLength,
                                                int maxNumOfPixels) {
         double w = options.outWidth;
         double h = options.outHeight;
@@ -166,7 +107,7 @@ public final class BitmapUtils {
      * @param path 图片的路径
      * @return 旋转角度
      */
-    public static int decodeImageDegree(String path) {
+    public static int getJpegImageRotateDegree(String path) {
         int degree;
         try {
             ExifInterface exifInterface = new ExifInterface(path);
@@ -207,7 +148,13 @@ public final class BitmapUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
-    /**
+    private static Bitmap rotateBitmap(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
+    }
+
+    /*
      * 尺寸缩放
      *
      * @param bitmap bitmap
@@ -215,7 +162,7 @@ public final class BitmapUtils {
      * @param h      height
      * @return scaleBitmap
      */
-    public static Bitmap scale(Bitmap bitmap, int w, int h) {
+    private static Bitmap scale(Bitmap bitmap, int w, int h) {
         if (bitmap == null) {
             return null;
         }
@@ -228,9 +175,8 @@ public final class BitmapUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true);
     }
 
-    /**
+    /*
      * 等比压缩图片
-     *
      * @param resBitmap 原图
      * @param desWidth  压缩后图片的宽度
      * @param desHeight 压缩后图片的高度
@@ -340,13 +286,13 @@ public final class BitmapUtils {
      * @param path
      * @return
      */
-    public static Bitmap getBitmap(String path) {
+    public static Bitmap getBitmapFromJpegFile(String path) {
         FileInputStream fis;
         Bitmap bm = null;
         try {
             fis = new FileInputStream(path);
             BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inSampleSize = 8;//图片的长宽都是原来的1/8
+//            options.inSampleSize = 8;//图片的长宽都是原来的1/8
             BufferedInputStream bis = new BufferedInputStream(fis);
             bm = BitmapFactory.decodeStream(bis, null, options);
             fis.close();
@@ -356,27 +302,12 @@ public final class BitmapUtils {
         return bm;
     }
 
-    public static void resize(Bitmap bitmap, File outputFile, int maxWidth, int maxHeight) {
+    public static void saveBitmapToJpeg(Bitmap bitmap, String filePath) {
         try {
-            Bitmap scaleBitmap = scale(bitmap, maxWidth, maxHeight);
-
-//            int bitmapWidth = bitmap.getWidth();
-//            int bitmapHeight = bitmap.getHeight();
-//            // 图片大于最大高宽，按大的值缩放
-//            if (bitmapWidth > maxHeight || bitmapHeight > maxWidth) {
-//                float widthScale = maxWidth * 1.0f / bitmapWidth;
-//                float heightScale = maxHeight * 1.0f / bitmapHeight;
-//
-//                float scale = Math.min(widthScale, heightScale);
-//                Matrix matrix = new Matrix();
-//                matrix.postScale(scale, scale);
-//                bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmapWidth, bitmapHeight, matrix, false);
-//            }
-
             // save image
-            FileOutputStream out = new FileOutputStream(outputFile);
+            FileOutputStream out = new FileOutputStream(new File(filePath));
             try {
-                scaleBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, DEFAULT_IMAGE_JPG_QUALITY, out);
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
@@ -389,5 +320,35 @@ public final class BitmapUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void resizeBitmapToJpeg(Bitmap bitmap, int maxWidth, int maxHeight, String filePath) {
+        Bitmap scaleBitmap = scale(bitmap, maxWidth, maxHeight);
+        saveBitmapToJpeg(scaleBitmap, filePath);
+    }
+
+    public static void resizeJpegFile(String inFilePath, int maxWidth, int maxHeight, String outFilePath) {
+        Bitmap bitmap = getBitmapFromJpegFile(inFilePath);
+        resizeBitmapToJpeg(bitmap, maxWidth, maxHeight, outFilePath);
+    }
+
+    public static Bitmap getFocusedBitmap(byte[] data, Point pictureSize, Point previewSize, Rect box, int orientation){
+        //data is jpeg format
+        Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+        if (orientation % ROTATE180 == ROTATE90) {
+            bitmap = rotateBitmap(bitmap, orientation);
+            int temp = pictureSize.x;
+            pictureSize.x = pictureSize.y;
+            pictureSize.y = temp;
+        }
+
+        int cropLeft = box.left * pictureSize.x / previewSize.x;
+        int cropTop = box.top * pictureSize.y / previewSize.y;
+        int cropRight = box.right * pictureSize.x / previewSize.x;
+        int cropBottom = box.bottom * pictureSize.y / previewSize.y;
+
+        bitmap = Bitmap.createBitmap(bitmap, cropLeft, cropTop, cropRight - cropLeft, cropBottom - cropTop);
+
+        return bitmap;
     }
 }

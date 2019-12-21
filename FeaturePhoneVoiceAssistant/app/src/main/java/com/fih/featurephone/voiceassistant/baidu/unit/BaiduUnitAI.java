@@ -2,38 +2,32 @@ package com.fih.featurephone.voiceassistant.baidu.unit;
 
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 
 import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduUtil;
+import com.fih.featurephone.voiceassistant.speechaction.BaseAction;
 import com.fih.featurephone.voiceassistant.speechaction.BrightnessAction;
 import com.fih.featurephone.voiceassistant.speechaction.CoupletFixAction;
 import com.fih.featurephone.voiceassistant.speechaction.FixBaseAction;
+import com.fih.featurephone.voiceassistant.speechaction.LaunchAppAction;
 import com.fih.featurephone.voiceassistant.speechaction.LaunchCameraAppAction;
 import com.fih.featurephone.voiceassistant.speechaction.LaunchMusicAppAction;
 import com.fih.featurephone.voiceassistant.speechaction.OCRAction;
+import com.fih.featurephone.voiceassistant.speechaction.PhoneAction;
 import com.fih.featurephone.voiceassistant.speechaction.PoemFixAction;
 import com.fih.featurephone.voiceassistant.speechaction.TranslateFixAction;
-import com.fih.featurephone.voiceassistant.speechaction.WebSearchAction;
-import com.fih.featurephone.voiceassistant.speechaction.BaseAction;
-import com.fih.featurephone.voiceassistant.speechaction.LaunchAppAction;
-import com.fih.featurephone.voiceassistant.speechaction.PhoneAction;
 import com.fih.featurephone.voiceassistant.speechaction.VoiceVolumeAction;
+import com.fih.featurephone.voiceassistant.speechaction.WebSearchAction;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class BaiduUnitAI {
-    private final static String TAG = BaiduUnitAI.class.getSimpleName();
-
     public static final int BAIDU_UNIT_TYPE_ASR_BOT = 1;
 //    public static final int BAIDU_UNIT_TYPE_ASR_ROBOT = 2;
     public static  final int BAIDU_UNIT_TYPE_KEYBOARD_BOT = 3;
@@ -73,7 +67,7 @@ public class BaiduUnitAI {
 //    static final String BAIDU_UNIT_BOT_TYPE_RADIO = "81470";
 
     //OK: 81459(天气), 81461(闲聊), 81469(成语问答), 81465(单位换算), 81476(智能对联), 81481(智能写诗), 81467(计算器), 81482(名词解释), 81485(智能问答), 81460(问候)
-    private final Map<String, String> WEB_BOTID_MAP = new HashMap<String, String>();
+    private final Map<String, String> WEB_BOTID_MAP = new HashMap<>();
     //Pending: 81472(屏幕控制), 81473(发短信), 81487(打电话), 81475(提醒), 81478(闹钟), 81483(音乐), 81479(故事), 81462(电影), 81464(火车票)
 //    private final Map<String, String> LOCAL_BOTID_MAP = new HashMap<String, String>();
 
@@ -83,6 +77,8 @@ public class BaiduUnitAI {
     private BaiduBotASRUnit mBaiduBotASRUnit;
     private int mBaiduUnitType;
     private TranslateFixAction mTranslateFixAction;
+    private ExecutorService mUnitExecutorService = Executors.newSingleThreadExecutor();
+    private Future mUnitTaskFuture;
 
     static public class BestResponse {
         String mBotID;
@@ -126,14 +122,14 @@ public class BaiduUnitAI {
         }
     }
 
-    public interface onUnitListener {
+    public interface OnUnitListener {
         void onShowDebugInfo(String info, boolean reset);
         void onExit();
         void onFinalResult(String question, String answer, String hint);
         void onNotify(String botID, int type);
     }
 
-    public BaiduUnitAI(Context context, onUnitListener listener,
+    public BaiduUnitAI(Context context, OnUnitListener listener,
                        int baiduUnitType, int robotType, ArrayList<String> botTypeList) {
         mContext = context;
         mBaiduUnitType = baiduUnitType;
@@ -142,13 +138,13 @@ public class BaiduUnitAI {
         BestResponse bestResponse = new BestResponse();
         bestResponse.reset();
 
-        ArrayList<FixBaseAction> fixActionList = new ArrayList<FixBaseAction>();
+        ArrayList<FixBaseAction> fixActionList = new ArrayList<>();
         mTranslateFixAction = new TranslateFixAction(mContext);
         fixActionList.add(mTranslateFixAction);
         fixActionList.add(new PoemFixAction(mContext));
         fixActionList.add(new CoupletFixAction(mContext));
 
-        ArrayList<BaseAction> localActionList = new ArrayList<BaseAction>();
+        ArrayList<BaseAction> localActionList = new ArrayList<>();
         localActionList.add(new PhoneAction(mContext));
         localActionList.add(new WebSearchAction(mContext));
         localActionList.add(new VoiceVolumeAction(mContext));
@@ -243,7 +239,7 @@ public class BaiduUnitAI {
 
     ArrayList<BestBotID> getBestBotID(String rawQuery) {
 //    private String[] IAQ = new String[]{"多大", "多高", "多远", "多深", "是啥", "是什么", "解释", "意思是", "是啥"};
-        ArrayList<BestBotID> bestBotIDList = new ArrayList<BestBotID>();
+        ArrayList<BestBotID> bestBotIDList = new ArrayList<>();
 
         rawQuery = CommonUtil.filterPunctuation(rawQuery);//去掉符号等干扰
 
@@ -341,60 +337,29 @@ public class BaiduUnitAI {
 
     String getBotIDLabel(String botID) {
         return WEB_BOTID_MAP.get(botID);
-//        if (TextUtils.isEmpty(label)) {
-//            label = LOCAL_BOTID_MAP.get(botID);
-//        }
-//        return label;
     }
 
-    /*
-    Keyboard(TEXT) UNIT
-    */
-    String getAuth() {
-        // 获取token地址
-        String authHost = "https://aip.baidubce.com/oauth/2.0/token?";
-        String getAccessTokenUrl = authHost
-                // 1. grant_type为固定参数
-                + "grant_type=client_credentials"
-                // 2. 官网获取的 API Key
-                + "&client_id=VoGOQkYvLcjWoYOfpmlh5Eps"
-                // 3. 官网获取的 Secret Key
-                + "&client_secret=P1SMk24HIORpsxfcm2jNFXgaLvYV4inI";
-        try {
-            URL realUrl = new URL(getAccessTokenUrl);
-            // 打开和URL之间的连接
-            HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-            // 获取所有响应头字段
-            Map<String, List<String>> map = connection.getHeaderFields();
-            // 遍历所有的响应头字段
-            for (String key : map.keySet()) {
-                System.err.println(key + "--->" + map.get(key));
-            }
-            // 定义 BufferedReader输入流来读取URL的响应
-            BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder sbResult = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                sbResult.append(line);
-            }
-            /*
-             * 返回结果示例
-             */
-            JSONObject jsonObject = new JSONObject(sbResult.toString());
-            return jsonObject.getString("access_token");
-        } catch (Exception e) {
-            Log.w(TAG, "获取token失败！");
-            e.printStackTrace(System.err);
-        }
-        return null;
+    String getAuthToken() {
+        return new BaiduUtil().getUnitToken(mContext);
     }
 
     /*
     Baidu Keyboard UNIT
      */
-    public void getBaiduKeyboardUnit(String query) {
+    public void getBaiduKeyboardUnitThread(final String query) {
+        if (mUnitTaskFuture != null && !mUnitTaskFuture.isDone()) {
+            return;//上一次没有处理完，直接返回
+        }
+
+        mUnitTaskFuture = mUnitExecutorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                getBaiduKeyboardUnit(query);
+            }
+        });
+    }
+
+    private void getBaiduKeyboardUnit(String query) {
         switch (mBaiduUnitType) {
             case BAIDU_UNIT_TYPE_KEYBOARD_BOT://baidu Bot Unit for keyboard
                 if (null != mBaiduBotKeyboardUnit) {

@@ -1,5 +1,6 @@
 package com.fih.featurephone.voiceassistant.speechaction;
 
+import android.annotation.SuppressLint;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -15,6 +16,15 @@ public class WebSearchAction implements BaseAction {
     private String[] KEYWORD_WEB_SEARCH;
 
     private Context mContext;
+    @SuppressLint("StaticFieldLeak")
+    private static WebSearchAction sInstance;
+
+    public static WebSearchAction getInstance(Context context) {
+        if (null == sInstance) {
+            sInstance = new WebSearchAction(context);
+        }
+        return sInstance;
+    }
 
     public WebSearchAction(Context context) {
         mContext = context;

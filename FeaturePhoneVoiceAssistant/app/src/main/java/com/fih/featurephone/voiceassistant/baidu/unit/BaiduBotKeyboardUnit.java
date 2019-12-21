@@ -3,9 +3,9 @@ package com.fih.featurephone.voiceassistant.baidu.unit;
 import android.text.TextUtils;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.speechaction.FixBaseAction;
 import com.fih.featurephone.voiceassistant.baidu.unit.parsejson.ParseKeyBoardBotJson;
 import com.fih.featurephone.voiceassistant.speechaction.BaseAction;
+import com.fih.featurephone.voiceassistant.speechaction.FixBaseAction;
 import com.fih.featurephone.voiceassistant.utils.HttpUtil;
 
 import org.json.JSONObject;
@@ -19,14 +19,14 @@ class BaiduBotKeyboardUnit {
 
     private BaiduUnitAI mBaiduUnitAI;
     private BaiduUnitAI.BestResponse mBestResponse;
-    private String mAuthentication;
+    private String mAccessToken;
     private ArrayList<String> mBotTypeList;
-    private BaiduUnitAI.onUnitListener mUnitListener;
+    private BaiduUnitAI.OnUnitListener mUnitListener;
     private ArrayList<FixBaseAction> mFixActionList;
     private ArrayList<BaseAction> mLocalActionList;
 
     BaiduBotKeyboardUnit(BaiduUnitAI baiduUnitAI, BaiduUnitAI.BestResponse bestResponse,
-                         ArrayList<String> botTypeList, BaiduUnitAI.onUnitListener unitListener,
+                         ArrayList<String> botTypeList, BaiduUnitAI.OnUnitListener unitListener,
                          ArrayList<FixBaseAction> fixActionList,
                          ArrayList<BaseAction> localActionList) {
         mBaiduUnitAI = baiduUnitAI;
@@ -207,8 +207,8 @@ class BaiduBotKeyboardUnit {
             // 请求参数
             String json = new JSONObject(map).toString();
             if (null != mUnitListener) mUnitListener.onShowDebugInfo("请求参数 -> " + json + "\n\n", false);
-            if (TextUtils.isEmpty(mAuthentication)) mAuthentication = mBaiduUnitAI.getAuth();//for keyboard unit
-            String result = HttpUtil.post(TALKURL, mAuthentication, "application/json", json);
+            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = mBaiduUnitAI.getAuthToken();//for keyboard unit
+            String result = HttpUtil.post(TALKURL, mAccessToken, "application/json", json);
             if (null != mUnitListener) mUnitListener.onShowDebugInfo("返回结果 -> " + result + "\n\n", false);
             ParseKeyBoardBotJson.BotKeyBoardUnit botKeyBoardUnit = ParseKeyBoardBotJson.parseBotKeyBoardUnit(result);
             ParseKeyBoardBotJson.BotSimpleResponse botSimpleResponse = ParseKeyBoardBotJson.getBotSimpleResponse(query, botKeyBoardUnit);

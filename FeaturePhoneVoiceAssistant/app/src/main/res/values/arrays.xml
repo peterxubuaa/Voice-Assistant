@@ -247,4 +247,19 @@
         <item>小孩</item>
     </string-array>
 
+    <string-array name="classify_image_type_item">
+        <item>通用识别</item>
+        <item>植物识别</item>
+        <item>车型识别</item>
+        <item>菜品识别</item>
+        <item>红酒识别</item>
+        <item>商标识别</item>
+        <item>动物识别</item>
+        <item>果蔬类食材识别</item>
+        <item>地标识别</item>
+        <item>货币识别</item>
+<!--        <item>车辆检测</item>-->
+<!--        <item>车辆外观损伤识别</item>-->
+    </string-array>
+
 </resources>

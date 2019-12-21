@@ -31,20 +31,36 @@
             android:orientation="vertical">
 
             <CheckBox
-                android:id="@+id/baidu_unit_debug"
+                android:id="@+id/baidu_debug"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:text="@string/baidu_unit_debug"
+                android:text="@string/baidu_debug"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_tts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_tts"
                 android:checked="true"/>
 
             <CheckBox
-                android:id="@+id/baidu_unit_tts"
+                android:id="@+id/baidu_offline_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:text="@string/baidu_unit_tts"
-                android:checked="true"/>
+                android:text="@string/baidu_offline_face"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_enable_extra_fun"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_extra_fun"
+                android:checked="false"/>
 
             <TextView
                 android:layout_width="wrap_content"

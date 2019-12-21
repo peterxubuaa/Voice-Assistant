@@ -112,7 +112,7 @@ public class LaunchMusicAppAction implements BaseAction {
     private List<MediaEntity> getAllMediaList(Context context) {
         String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
         Cursor cursor = null;
-        List<MediaEntity> mediaList = new ArrayList<MediaEntity>();
+        List<MediaEntity> mediaList = new ArrayList<>();
         try {
             cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                     new String[] {
@@ -133,7 +133,7 @@ public class LaunchMusicAppAction implements BaseAction {
                 Log.d(TAG, "The getMediaList cursor count is 0.");
                 return mediaList;
             }
-            mediaList = new ArrayList<MediaEntity>();
+            mediaList = new ArrayList<>();
             MediaEntity mediaEntity;
 //			String[] columns = cursor.getColumnNames();
             while (cursor.moveToNext()) {

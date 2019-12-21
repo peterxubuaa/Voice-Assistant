@@ -61,7 +61,7 @@ public class LaunchAppAction  implements BaseAction {
     }
 
     private void getAllInstalledAppList(Context context) {
-        mInstalledAppMap = new HashMap<String, String>();
+        mInstalledAppMap = new HashMap<>();
         PackageManager packageManager = context.getPackageManager();
         List<PackageInfo> pInfo = packageManager.getInstalledPackages(0);
 

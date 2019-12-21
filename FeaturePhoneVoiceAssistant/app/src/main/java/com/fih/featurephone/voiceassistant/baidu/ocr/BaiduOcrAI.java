@@ -9,6 +9,7 @@ import com.baidu.ocr.sdk.exception.OCRError;
 import com.baidu.ocr.sdk.model.AccessToken;
 import com.baidu.ocr.sdk.model.GeneralBasicParams;
 import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduUtil;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 import java.io.File;
@@ -36,14 +37,14 @@ public class BaiduOcrAI {
     private boolean mBaiduOCR_DetectLanguage = false;
     private String mBaiduOCR_LanguageType = GeneralBasicParams.CHINESE_ENGLISH;
     private Context mContext;
-    private onOCRListener mListener;
+    private OnOCRListener mListener;
 
-    public interface onOCRListener {
+    public interface OnOCRListener {
         void onError(String msg);
         void onFinalResult(String result, boolean question);
     }
 
-    public BaiduOcrAI(Context context, onOCRListener listener) {
+    public BaiduOcrAI(Context context, OnOCRListener listener) {
         mContext = context;
         mListener = listener;
         initMapValues();
@@ -64,7 +65,7 @@ public class BaiduOcrAI {
                 error.printStackTrace();
                 if (null != mListener) mListener.onError(error.getMessage());
             }
-        }, mContext, mContext.getString(R.string.API_KEY), mContext.getString(R.string.SECRET_KEY));
+        }, mContext, BaiduUtil.OCRTTS_API_KEY, BaiduUtil.OCRTTS_SECRET_KEY);
     }
 
     public void releaseBaiduOCR() {
