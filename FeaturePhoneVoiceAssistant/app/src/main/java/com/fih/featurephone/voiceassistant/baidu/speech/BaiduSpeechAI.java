@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.baidu.speech.listener.IRecogListener;
 import com.fih.featurephone.voiceassistant.baidu.speech.listener.MessageStatusRecogListener;
 
@@ -13,12 +12,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
-import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.*;
+
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_FINAL_RESULT;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_FINISHED;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_FINISHED_ERROR;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_LONG_SPEECH_FINISHED;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_NONE;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_OFFLINE_LOAD;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_OFFLINE_UNLOAD;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_PARTIAL_FINISHED;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_READY;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_RECOGNITION;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_SPEAKING;
+import static com.fih.featurephone.voiceassistant.baidu.speech.IStatus.STATUS_STOPPED;
 
 public class BaiduSpeechAI {
     private static final String TAG = BaiduSpeechAI.class.getSimpleName();
     private static final int SPEECH_START_STOP_MASK = 0x1;
     private static final int SPEECH_INIT_EXIT_MASK = 0x2;
+
+    public static final int BAIDU_SPEECH_ENGLISH = 1;
+    public static final int BAIDU_SPEECH_CHINESE = 2;
+    public static final int BAIDU_SPEECH_SICHUANESE = 3;
+    public static final int BAIDU_SPEECH_CANTONESE = 4;
 
     private Context mContext;
     private int mWorkState = 0;
@@ -143,13 +159,13 @@ public class BaiduSpeechAI {
     }
 
     public void initBaiduSpeechSettings(int languageType) {
-        if (BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE == languageType) {
+        if (BAIDU_SPEECH_CHINESE == languageType) {
             mLanguageID = 15363;
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_ENGLISH == languageType) {
+        } else if (BAIDU_SPEECH_ENGLISH == languageType) {
             mLanguageID = 17372;
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_SICHUANESE == languageType) {
+        } else if (BAIDU_SPEECH_SICHUANESE == languageType) {
             mLanguageID = 1837; //18372?
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_CANTONESE == languageType) {
+        } else if (BAIDU_SPEECH_CANTONESE == languageType) {
             mLanguageID = 16372;
         }
     }

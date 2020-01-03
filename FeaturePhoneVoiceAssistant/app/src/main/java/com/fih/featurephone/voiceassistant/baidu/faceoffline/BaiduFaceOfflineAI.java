@@ -3,6 +3,7 @@ package com.fih.featurephone.voiceassistant.baidu.faceoffline;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.fih.featurephone.voiceassistant.R;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.activity.FaceAuthActivity;
@@ -11,7 +12,6 @@ import com.fih.featurephone.voiceassistant.baidu.faceoffline.activity.FaceUserMa
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.listener.SdkInitListener;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.manager.FaceSDKManager;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.utils.ConfigUtils;
-import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 import java.io.File;
@@ -90,7 +90,7 @@ public class BaiduFaceOfflineAI {
     }
 
     public void identifyUser(String faceImagePath) {
-        Bitmap bitmap = BitmapUtils.getBitmapFromJpegFile(faceImagePath);
+        Bitmap bitmap = BitmapFactory.decodeFile(faceImagePath);
         if (null != bitmap) {
             FaceSDKManager.getInstance().identifyImage(bitmap, mListener);
         }

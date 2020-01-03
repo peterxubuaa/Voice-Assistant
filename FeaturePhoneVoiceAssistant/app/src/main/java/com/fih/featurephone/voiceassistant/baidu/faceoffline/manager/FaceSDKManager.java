@@ -53,12 +53,15 @@ public class FaceSDKManager {
     private FaceDetect mFaceDetect;
     private FaceFeature mFaceFeature;
 
-    private ExecutorService mFaceDetectExecutorService = Executors.newSingleThreadExecutor();
+    private ExecutorService mFaceDetectExecutorService;
     private Future mFaceDetectTaskFuture;
-    private ExecutorService mDBExecutorService = Executors.newSingleThreadExecutor();
+    private ExecutorService mDBExecutorService;
     private Future mDBTaskFuture;
 
     private FaceSDKManager() {
+        mFaceDetectExecutorService = Executors.newSingleThreadExecutor();
+        mDBExecutorService = Executors.newSingleThreadExecutor();
+
         mFaceAuth = new FaceAuth();
         mFaceAuth.setActiveLog(BDFACE_LOG_ALL_MESSAGE);
         mFaceAuth.setAnakinConfigure(BDFACE_ANAKIN_RUN_AT_SMALL_CORE, 2);

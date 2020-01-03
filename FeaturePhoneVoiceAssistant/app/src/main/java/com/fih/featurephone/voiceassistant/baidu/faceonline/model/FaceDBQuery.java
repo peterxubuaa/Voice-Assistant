@@ -3,6 +3,8 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.model;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseModel;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.activity.UserItem;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson.ParseFaceQueryJson;
@@ -16,27 +18,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FaceDBQuery extends BaseFaceModel {
+public class FaceDBQuery extends BaiduBaseModel<ParseFaceQueryJson.FaceQueryUserList> {
     private final String FACE_LOCAL_IMAGE_DIR = FileUtils.getFaceImageDirectory().getAbsolutePath();
 
-    public FaceDBQuery(Context context, BaiduFaceOnlineAI.OnFaceOnlineListener listener) {
+    public FaceDBQuery(Context context, BaiduBaseAI.IBaiduBaseListener listener) {
         super(context, listener);
     }
 
     //查找用户管理列表所需信息
     public void requestAllUserItem(String groupID, int start, int length) {
-        if (null == mFaceOnlineListener) return;
+        if (null == mBaiduBaseListener) return;
 
         String userListResponse = requestUserListHostUrl(groupID, start, length);
         if (TextUtils.isEmpty(userListResponse)) {
-            mFaceOnlineListener.onError("从服务器获取用户ID列表失败！");
+            mBaiduBaseListener.onError("从服务器获取用户ID列表失败！");
             return;
         }
 
         ParseFaceQueryJson.FaceQueryUserList userList = ParseFaceQueryJson.getInstance().parseQueryUserList(userListResponse);
         if (null == userList || null == userList.mResult
                 || 0 == userList.mResult.mUserIDList.size()) {
-            mFaceOnlineListener.onError("查询用户ID列表失败！");
+            mBaiduBaseListener.onError("查询用户ID列表失败！");
             return;
         }
 
@@ -71,7 +73,7 @@ public class FaceDBQuery extends BaseFaceModel {
             userItemList.add(userItem);
         }
 
-        mFaceOnlineListener.onFinalResult(userItemList, BaiduFaceOnlineAI.FACE_QUERY_ALL_USER_INFO_ACTION);
+        mBaiduBaseListener.onFinalResult(userItemList, BaiduFaceOnlineAI.FACE_QUERY_ALL_USER_INFO_ACTION);
     }
 
     //用于查询指定用户组中的用户列表
@@ -113,10 +115,8 @@ public class FaceDBQuery extends BaseFaceModel {
             map.put("length", length);
 
             String jsonParam = new JSONObject(map).toString();
-            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
 
-            return HttpUtil.post(FACE_DB_QUERY_URL, mAccessToken, "application/json", jsonParam);
+            return HttpUtil.post(FACE_DB_QUERY_URL, getAuthToken(), "application/json", jsonParam);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -161,10 +161,8 @@ public class FaceDBQuery extends BaseFaceModel {
             map.put("user_id", userID);//用户id（由数字、字母、下划线组成），长度限制48B
 
             String jsonParam = new JSONObject(map).toString();
-            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
 
-            return HttpUtil.post(FACE_DB_QUERY_URL, mAccessToken, "application/json", jsonParam);
+            return HttpUtil.post(FACE_DB_QUERY_URL, getAuthToken(), "application/json", jsonParam);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -209,10 +207,8 @@ public class FaceDBQuery extends BaseFaceModel {
             map.put("user_id", userID);//用户id（由数字、字母、下划线组成），长度限制48B
 
             String jsonParam = new JSONObject(map).toString();
-            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
 
-            return HttpUtil.post(FACE_DB_QUERY_URL, mAccessToken, "application/json", jsonParam);
+            return HttpUtil.post(FACE_DB_QUERY_URL, getAuthToken(), "application/json", jsonParam);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -53,6 +53,8 @@
         <activity android:name=".SettingActivity" />
         <activity android:name=".HelpInfoActivity"/>
         <activity android:name=".camera.CameraCaptureActivity" />
+        <activity android:name=".camera.ImageCropActivity" />
+
         <activity android:name=".baidu.faceoffline.activity.FaceAuthActivity"/>
         <activity android:name=".baidu.faceoffline.activity.FaceRGBIdentifyActivity"/>
         <activity android:name=".baidu.faceoffline.activity.FaceRGBRegisterActivity"/>

@@ -12,6 +12,7 @@
         android:background="@android:color/black"
         android:textColor="@android:color/white"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:text="@string/setting_title"
         />
 
@@ -44,14 +45,14 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:text="@string/baidu_tts"
-                android:checked="true"/>
+                android:checked="false"/>
 
             <CheckBox
-                android:id="@+id/baidu_offline_face"
+                android:id="@+id/baidu_request_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
-                android:text="@string/baidu_offline_face"
+                android:text="@string/baidu_request_image"
                 android:checked="false"/>
 
             <CheckBox
@@ -67,7 +68,57 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="20sp"
+                android:textColor="@android:color/holo_orange_dark"
+                android:text="@string/baidu_face_identify_work_mode"
+                />
+
+            <RadioGroup
+                android:id="@+id/baidu_face_identify_work_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/baidu_offline_face_identify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:text="@string/baidu_offline_face_identify"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_online_1N_face_identify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:text="@string/baidu_online_1N_face_identify"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_online_MN_face_identify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:text="@string/baidu_online_MN_face_identify"
+                    />
+                <RadioButton
+                    android:id="@+id/baidu_content_approve_face_identify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:text="@string/baidu_content_approve_face_identify"
+                    />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp"
                 android:visibility="gone"
+                android:textColor="@android:color/holo_orange_dark"
                 android:text="@string/baidu_unit_work_mode"
                 />
 
@@ -76,8 +127,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:visibility="gone"
-                >
+                android:visibility="gone">
+
                 <RadioButton
                     android:id="@+id/baidu_unit_keyboard_robot"
                     android:layout_width="wrap_content"
@@ -113,14 +164,16 @@
                 android:textStyle="bold"
                 android:textSize="20sp"
                 android:text="@string/baidu_unit_robot_type"
-                />
+                android:textColor="@android:color/holo_orange_dark"
+                android:visibility="gone"/>
 
             <RadioGroup
                 android:id="@+id/baidu_unit_robot_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                >
+                android:visibility="gone">
+
                 <RadioButton
                     android:id="@+id/baidu_unit_robot_web"
                     android:layout_width="wrap_content"
@@ -149,6 +202,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="20sp"
+                android:textColor="@android:color/holo_orange_dark"
                 android:text="@string/baidu_unit_speech_language_type"
                 />
             <RadioGroup
@@ -196,6 +250,7 @@
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
                 android:textSize="20sp"
+                android:textColor="@android:color/holo_orange_dark"
                 android:text="@string/baidu_unit_bot_type"
                 />
 <!--Web Bot ID-->
@@ -293,6 +348,15 @@
                 android:textColor="@android:color/holo_green_light"
                 android:text="@string/baidu_unit_bot_joke"
                 android:checked="false"/>
+            <CheckBox
+                android:id="@+id/baidu_unit_bot_garbage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:textColor="@android:color/holo_green_light"
+                android:text="@string/baidu_unit_bot_garbage"
+                android:checked="false"/>
+
 <!--Local Bot ID-->
  <!--           <CheckBox
                 android:id="@+id/baidu_unit_bot_phone"
@@ -364,6 +428,100 @@
                 android:textSize="15sp"
                 android:text="@string/baidu_unit_bot_radio"
                 android:checked="false"/>-->
+
+<!--Classify object type-->
+            <TextView
+                android:id="@+id/baidu_classify_image_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:textColor="@android:color/holo_orange_dark"
+                android:text="@string/baidu_classify_image_type"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_general_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_general_type"
+                android:textColor="@android:color/holo_green_light"
+                android:checked="true"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_plant_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_plant_type"
+                android:textColor="@android:color/holo_green_light"
+                android:checked="true"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_car_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_car_type"
+                android:textColor="@android:color/holo_green_light"
+                android:checked="true"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_dish_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_dish_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_red_wine_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_red_wine_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_logo_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_logo_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_animal_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_animal_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_ingredient_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_ingredient_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_landmark_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_landmark_type"
+                android:checked="false"/>
+
+            <CheckBox
+                android:id="@+id/baidu_classify_image_currency_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="15sp"
+                android:text="@string/baidu_classify_image_currency_type"
+                android:checked="false"/>
+
         </LinearLayout>
     </ScrollView>
 

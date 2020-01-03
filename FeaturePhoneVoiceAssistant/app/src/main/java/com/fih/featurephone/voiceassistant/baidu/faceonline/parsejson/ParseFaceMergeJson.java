@@ -2,10 +2,12 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ParseFaceMergeJson  extends ParseFaceBaseJson {
+public class ParseFaceMergeJson  extends BaiduParseBaseJson {
     private static ParseFaceMergeJson sParseFaceMergeJson = null;
 
     public static ParseFaceMergeJson getInstance() {
@@ -15,7 +17,7 @@ public class ParseFaceMergeJson  extends ParseFaceBaseJson {
         return sParseFaceMergeJson;
     }
 
-    public class FaceMerge extends FaceBaseResponse {
+    public class FaceMerge extends BaiduParseBaseResponse {
         public Result mResult;
     }
 

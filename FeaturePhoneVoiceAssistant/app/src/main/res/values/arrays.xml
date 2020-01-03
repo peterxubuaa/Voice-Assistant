@@ -157,6 +157,14 @@
         <item>.*[讲|说|来].*(?:笑话|段子).*</item>
     </string-array>
 
+    <string-array name="garbage_keyword">
+        <item>垃圾</item>
+    </string-array>
+    <string-array name="garbage_regex">
+        <item>.*(?:啥|哪些|属于|是|什么).*(?:垃圾).*</item>
+        <item>.*(?:垃圾).*(?:什么|哪些|啥).*</item>
+    </string-array>
+
     <string-array name="quit_session">
         <item>不对</item>
         <item>瞎说</item>
@@ -255,7 +263,7 @@
         <item>红酒识别</item>
         <item>商标识别</item>
         <item>动物识别</item>
-        <item>果蔬类食材识别</item>
+        <item>果蔬食材识别</item>
         <item>地标识别</item>
         <item>货币识别</item>
 <!--        <item>车辆检测</item>-->

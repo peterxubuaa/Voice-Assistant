@@ -83,7 +83,7 @@ public class SystemUtil {
         activity.startActivityForResult(intent, requestCode);
     }
 
-    private static String getAlbumImagePath(Context context, Uri uri) {
+    public static String getAlbumImagePath(Context context, Uri uri) {
         if (null == uri) return null;
 
         String imagePath = null;

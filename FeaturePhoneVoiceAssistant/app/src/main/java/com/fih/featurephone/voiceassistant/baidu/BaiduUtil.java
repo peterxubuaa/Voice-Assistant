@@ -13,32 +13,69 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class BaiduUtil {
-    private final String UNIT_API_KEY = "VoGOQkYvLcjWoYOfpmlh5Eps";
-    private final String UNIT_SECRET_KEY = "P1SMk24HIORpsxfcm2jNFXgaLvYV4inI";
+//    https://console.bce.baidu.com/ai/#/ai/ocr/app/detail~appId=1249908
+//    private final String ALL_APP_ID = "17380810";
+//    private final String ALL_API_KEY = "kA0qDiR7zLN5Pqf6zmt9uH7o";
+//    private final String ALL_SECRET_KEY = "rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ";
 
-    private final String CLASSIFY_IMAGE_API_KEY = "YaB7LWAjPDHiRx2pFK0wwSR4";
-    private final String CLASSIFY_IMAGE_SECRET_KEY = "GyebraoclthiLcG9isGB2tvBkKxejGmY";
+    //    https://console.bce.baidu.com/ai/?locale=zh-cn#/ai/face/app/detail~appId=1371781
+    private final String ALL_APP_ID = "17937628";
+    private final String ALL_API_KEY = "leiywSo72wPerpsc8DejCsfR";
+    private final String ALL_SECRET_KEY = "sg318tLG9uebAI7FnM9PgIH7a4sSfR9F";
 
-    private final String FACE_API_KEY = "leiywSo72wPerpsc8DejCsfR";
-    private final String FACE_SECRET_KEY = "sg318tLG9uebAI7FnM9PgIH7a4sSfR9F";
+//    private final String UNIT_API_KEY = "VoGOQkYvLcjWoYOfpmlh5Eps";
+//    private final String UNIT_SECRET_KEY = "P1SMk24HIORpsxfcm2jNFXgaLvYV4inI";
+//
+//    private final String CLASSIFY_IMAGE_API_KEY = "YaB7LWAjPDHiRx2pFK0wwSR4";
+//    private final String CLASSIFY_IMAGE_SECRET_KEY = "GyebraoclthiLcG9isGB2tvBkKxejGmY";
+//
+//    private final String FACE_API_KEY = "leiywSo72wPerpsc8DejCsfR";
+//    private final String FACE_SECRET_KEY = "sg318tLG9uebAI7FnM9PgIH7a4sSfR9F";
+//
+//    //https://console.bce.baidu.com/ai/?_=1576910506103&fromai=1&locale=zh-cn#/ai/body/app/list
+//    private final String HUMAN_BODY_API_KEY = "HRkbmXEY68VX7V32MTKW8tCy";
+//    private final String HUMAN_BODY_SECRET_KEY = "0QGKM3fcLo6qzGOMkDlG4381mmmfdVSF";
+//
+//    private final String CONTENT_APPROVE_API_KEY = "6wGxqok2XNXO5fcibdAwiEoj";
+//    private final String CONTENT_APPROVE_SECRET_KEY = "fvQ8DLsW6XT5XYcV2orritFvl7f1F3ma";
 
     public static final String OCRTTS_APP_ID = "17380810";
     public static final String OCRTTS_API_KEY = "kA0qDiR7zLN5Pqf6zmt9uH7o";
     public static final String OCRTTS_SECRET_KEY = "rwQ1TN64IPqCAGr5xoAqxPtRu009tWfZ";
 
+    public String getBaseToken(Context context) {
+        String errorMsg = context.getString(R.string.baidu_token_fail);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
+    }
+
+    public String getOCRToken(Context context) {
+        String errorMsg = context.getString(R.string.baidu_ocr_token_fail);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
+    }
+
     public String getUnitToken(Context context) {
         String errorMsg = context.getString(R.string.baidu_unit_token_fail);
-        return getAuthToken(context, UNIT_API_KEY, UNIT_SECRET_KEY, errorMsg);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
     }
 
     public String getClassifyImageToken(Context context) {
         String errorMsg = context.getString(R.string.baidu_classify_image_token_fail);
-        return getAuthToken(context, CLASSIFY_IMAGE_API_KEY, CLASSIFY_IMAGE_SECRET_KEY, errorMsg);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
     }
 
     public String getFaceToken(Context context) {
         String errorMsg = context.getString(R.string.baidu_face_token_fail);
-        return getAuthToken(context, FACE_API_KEY, FACE_SECRET_KEY, errorMsg);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
+    }
+
+    public String getHumanBodyToken(Context context) {
+        String errorMsg = context.getString(R.string.baidu_human_body_token_fail);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
+    }
+
+    public String getContentApproveToken(Context context) {
+        String errorMsg = context.getString(R.string.baidu_content_approve_token_fail);
+        return getAuthToken(context, ALL_API_KEY, ALL_SECRET_KEY, errorMsg);
     }
 
     private String getAuthToken(Context context, String apiKey, String secretKey, String errMsg) {

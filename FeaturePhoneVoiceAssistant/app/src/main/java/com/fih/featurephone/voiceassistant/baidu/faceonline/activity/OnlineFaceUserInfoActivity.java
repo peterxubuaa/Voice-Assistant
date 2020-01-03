@@ -15,9 +15,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceDBOperate;
 import com.fih.featurephone.voiceassistant.camera.CameraCaptureActivity;
+import com.fih.featurephone.voiceassistant.camera.ImageCropActivity;
 import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
@@ -36,7 +38,7 @@ public class OnlineFaceUserInfoActivity extends Activity {
     private UserItem mUserItem;
     private boolean mUpdateUerImage = false;
     private FaceDBOperate mFaceDBOperate;
-    private ExecutorService mFaceExecutorService = Executors.newSingleThreadExecutor();
+    private ExecutorService mFaceExecutorService;
     private Future mFaceTaskFuture;
     private ProgressDialog mProgressDialog;
 
@@ -44,6 +46,8 @@ public class OnlineFaceUserInfoActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_face_user_info);
+
+        mFaceExecutorService = Executors.newSingleThreadExecutor();
 
         mUserItem = new UserItem();
         mUserItem.setUserID(getIntent().getStringExtra(GlobalValue.INTENT_USER_ID));
@@ -96,14 +100,18 @@ public class OnlineFaceUserInfoActivity extends Activity {
 
         switch (requestCode) {
             case IMAGE_SELECT_REQUEST_CODE:
-                SystemUtil.cropSelectImage(this, data.getData(), CROP_IMAGE_REQUEST_CODE, CROP_IMAGE_FILE_PATH);
+                Intent intent = new Intent(OnlineFaceUserInfoActivity.this, ImageCropActivity.class);
+                intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH);
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, CROP_IMAGE_REQUEST_CODE);
                 break;
             case CROP_IMAGE_REQUEST_CODE:
                 if (FileUtils.isFileExist(CROP_IMAGE_FILE_PATH)) {
                     mUpdateUerImage = true;
                     int rotateDegree = BitmapUtils.getJpegImageRotateDegree(CROP_IMAGE_FILE_PATH);
                     ((ImageView) findViewById(R.id.user_image_image_view))
-                            .setImageBitmap(BitmapUtils.rotateBitmap(rotateDegree, BitmapFactory.decodeFile(CROP_IMAGE_FILE_PATH)));
+                            .setImageBitmap(BitmapUtils.rotateBitmap(BitmapFactory.decodeFile(CROP_IMAGE_FILE_PATH), rotateDegree));
                 }
                 break;
             case CAMERA_CAPTURE_REQUEST_CODE:
@@ -184,7 +192,7 @@ public class OnlineFaceUserInfoActivity extends Activity {
         }
     }
 
-    private BaiduFaceOnlineAI.OnFaceOnlineListener mFaceOnlineListener = new BaiduFaceOnlineAI.OnFaceOnlineListener() {
+    private BaiduBaseAI.IBaiduBaseListener mFaceOnlineListener = new BaiduBaseAI.IBaiduBaseListener() {
         @Override
         public void onError(String msg) {
             hideProgressDialog();

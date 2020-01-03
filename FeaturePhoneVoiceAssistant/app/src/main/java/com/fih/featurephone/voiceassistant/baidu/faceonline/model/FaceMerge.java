@@ -4,6 +4,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseModel;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson.ParseFaceMergeJson;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
@@ -15,48 +17,49 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FaceMerge extends BaseFaceModel {
+//https://ai.baidu.com/ai-doc/FACE/5k37c1ti0
+public class FaceMerge extends BaiduBaseModel<ParseFaceMergeJson.FaceMerge> {
 
-    public FaceMerge(Context context, BaiduFaceOnlineAI.OnFaceOnlineListener listener) {
+    public FaceMerge(Context context, BaiduBaseAI.IBaiduBaseListener listener) {
         super(context, listener);
     }
 
     public void request(String templateFilePath, String targetFilePath) {
-        if (null == mFaceOnlineListener) return;
+        if (null == mBaiduBaseListener) return;
 
         if (!FileUtils.isFileExist(templateFilePath) || !FileUtils.isFileExist(targetFilePath)) {
-            mFaceOnlineListener.onError("申请参数不合法！");
+            mBaiduBaseListener.onError("申请参数不合法！");
             return;
         }
 
         String response = requestHostUrl(templateFilePath, targetFilePath);
         if (TextUtils.isEmpty(response)) {
-            mFaceOnlineListener.onError("向服务器请求融合人脸失败！");
+            mBaiduBaseListener.onError("向服务器请求融合人脸失败！");
             return;
         }
 
         ParseFaceMergeJson.FaceMerge faceMerge = ParseFaceMergeJson.getInstance().parse(response);
         if (null == faceMerge) {
-            mFaceOnlineListener.onError("融合人脸失败！");
+            mBaiduBaseListener.onError("融合人脸失败！");
             return;
         }
 
         if (faceMerge.mErrorCode != 0) {
-            mFaceOnlineListener.onError("融合人脸失败信息：" + faceMerge.mErrorMsg);
+            mBaiduBaseListener.onError("融合人脸失败信息：" + faceMerge.mErrorMsg);
             return;
         }
 
         if (null == faceMerge.mResult || TextUtils.isEmpty(faceMerge.mResult.mMergeImage)) {
-            mFaceOnlineListener.onFinalResult(null, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
+            mBaiduBaseListener.onFinalResult(null, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
             return;
         }
 
         String mergeImageFile = mContext.getFilesDir() + File.separator + "merge.jpg";
         FileUtils.deleteFile(mergeImageFile);
         if (FileUtils.writeImageFile(Base64.decode(faceMerge.mResult.mMergeImage, Base64.DEFAULT), mergeImageFile)) {
-            mFaceOnlineListener.onFinalResult(mergeImageFile, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
+            mBaiduBaseListener.onFinalResult(mergeImageFile, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
         } else {
-            mFaceOnlineListener.onFinalResult(null, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
+            mBaiduBaseListener.onFinalResult(null, BaiduFaceOnlineAI.FACE_MERGE_ACTION);
         }
     }
 
@@ -84,10 +87,7 @@ public class FaceMerge extends BaseFaceModel {
 
             String jsonParam = new JSONObject(map).toString();
 
-            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
-
-            return HttpUtil.post(FACE_MERGE_URL, mAccessToken, "application/json", jsonParam);
+            return HttpUtil.post(FACE_MERGE_URL, getAuthToken(), "application/json", jsonParam);
         } catch (Exception e) {
             e.printStackTrace();
         }

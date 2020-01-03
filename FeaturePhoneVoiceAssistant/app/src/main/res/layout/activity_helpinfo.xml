@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,6 +15,16 @@
         android:textSize="20sp"
         android:text="@string/helpInfo_title"
         />
+
+    <ImageView
+        android:id="@+id/active_image_view"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="9dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/baseline_help_outline_white_48dp"
+        tools:ignore="ContentDescription" />
 
     <ScrollView
         android:id="@+id/center_scrollview"

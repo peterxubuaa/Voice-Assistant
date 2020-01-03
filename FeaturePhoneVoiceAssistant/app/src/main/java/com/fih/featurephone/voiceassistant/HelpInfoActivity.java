@@ -1,6 +1,8 @@
 package com.fih.featurephone.voiceassistant;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
@@ -13,6 +15,13 @@ public class HelpInfoActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helpinfo);
         setHelpInfo();
+
+        findViewById(R.id.active_image_view).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onActiveBaidu();
+            }
+        });
 
         findViewById(R.id.helpInfo_ok_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,8 +55,16 @@ public class HelpInfoActivity extends Activity {
         }
         sb.append("\n\n");
         sb.append(getString(R.string.baidu_unit_question_help_keyboard_input));
+        sb.append("\n\n");
+        sb.append(getString(R.string.baidu_unit_question_help_extra_fun));
 
         TextView helpInfoTextView = findViewById(R.id.helpInfo_text_view);
         helpInfoTextView.setText(sb.toString());
+    }
+
+    private void onActiveBaidu() {
+        Uri uri = Uri.parse("https://console.bce.baidu.com/?fromai=1&locale=zh-cn#/aip/overview");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 }

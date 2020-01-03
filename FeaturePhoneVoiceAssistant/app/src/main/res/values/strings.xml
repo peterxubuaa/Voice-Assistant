@@ -2,6 +2,8 @@
     <string name="app_name">AI助手</string>
 <!--    baidu token for com.fih.featurephone.voiceassistant-->
 
+    <string name="permission_fail">必须允许所有权限，否则功能会异常</string>
+
     <string name="image_view_assistant">帮助</string>
     <string name="image_view_microphone">麦克风</string>
     <string name="image_view_option">选项</string>
@@ -13,29 +15,35 @@
     <string name="text_view_debug">调试信息</string>
 
     <string name="option_dialog_title">功能选择</string>
-    <string name="option_voice_output">语音播报</string>
+    <string name="option_voice_output_text">语音播报文本</string>
     <string name="option_query_again">重新提问</string>
-    <string name="option_copy_edit">拷贝编辑</string>
+    <string name="option_copy_edit_text">拷贝编辑文本</string>
     <string name="option_clear_item">清除显示</string>
-    <string name="option_web_query">上网搜索</string>
-    <string name="option_translate_start">开始翻译</string>
-    <string name="option_shortcut_translate_stop">结束翻译</string>
+    <string name="option_web_query_text">上网搜索文本</string>
+    <string name="option_save_image">保存图片</string>
 
-    <string name="option_ocr">OCR文字识别</string>
-    <string name="option_ocr_camera">拍照OCR</string>
-    <string name="option_ocr_image">图片OCR</string>
-    <string name="option_text_input">文本输入</string>
     <string name="option_show_setting">系统设置</string>
     <string name="option_show_help">显示帮助</string>
-    <string name="option_clear_all_items">清除所有显示</string>
+
+    <string name="option_translate_start">开始翻译</string>
+    <string name="option_shortcut_translate_stop">结束翻译</string>
+    <string name="option_ocr">OCR文字识别</string>
     <string name="option_face_identify">人脸识别</string>
+    <string name="option_image_classify">物体识别</string>
+    <string name="option_text_input">文本输入</string>
+    <string name="option_clear_all_items">清除所有显示</string>
+
     <string name="option_face_detect">人脸检测</string>
     <string name="option_face_merge">人脸融合</string>
     <string name="option_face_compare">人脸比较</string>
+    <string name="option_face_authenticate">身份认证</string>
     <string name="option_show_face_manger">人脸库管理</string>
-    <string name="option_image_classify">物体识别</string>
-    <string name="option_image_classify_camera">拍照识别</string>
-    <string name="option_image_classify_image">图片识别</string>
+    <string name="option_human_body_gesture">手势识别</string>
+    <string name="option_human_body_headcount">清点人头</string>
+    <string name="option_ocr_qrcode">二维码识别</string>
+
+    <string name="option_camera">拍照识别</string>
+    <string name="option_image">图片识别</string>
 
     <string name="baidu_unit_welcome">我是富士康手机小助手小康，现已准备好了。按*键显示帮助</string>
     <string name="baidu_unit_welcome_support_touch">我是富士康手机小助手小康，现已准备好了。</string>
@@ -115,6 +123,11 @@
         1.按菜单键显示或隐藏文字输入框。\n
         2.按确认键完成文字输入。</string>
 
+    <string name="baidu_unit_question_help_extra_fun">
+        七、如何激活额外附加功能?\n
+        1.在系统设置中选择【启用额外功能】。\n
+        2.常按右下菜单键进入额外功能菜单。</string>
+
     <string name="baidu_unit_answer_fail">没有任何回复</string>
     <string name="baidu_unit_quit_session">好的，我明白了。请继续提问！</string>
     <string name="baidu_unit_fail_session">问的啥玩意？听不懂！</string>
@@ -124,9 +137,14 @@
 
     <string name="helpInfo_title">帮助信息</string>
     <string name="setting_title">系统设置</string>
-    <string name="baidu_debug">输出调试信息</string>
+    <string name="baidu_debug">调试信息输出</string>
     <string name="baidu_tts">语音合成输出</string>
-    <string name="baidu_offline_face">启用离线人脸模块</string>
+    <string name="baidu_request_image">请求图片输出</string>
+    <string name="baidu_face_identify_work_mode">人脸识别模式</string>
+        <string name="baidu_offline_face_identify">离线人脸模块</string>
+        <string name="baidu_online_1N_face_identify">在线1:N多人脸识别模块</string>
+        <string name="baidu_online_MN_face_identify">在线M:N多人脸识别模块</string>
+        <string name="baidu_content_approve_face_identify">图像审核公众人物识别模块</string>
     <string name="baidu_extra_fun">启用额外功能</string>
 
     <string name="baidu_unit_work_mode">工作模式</string>
@@ -160,6 +178,7 @@
     <string name="baidu_unit_bot_couplet">智能对联</string>
     <string name="baidu_unit_bot_translate">智能翻译</string>
     <string name="baidu_unit_bot_joke">笑话</string>
+    <string name="baidu_unit_bot_garbage">垃圾分类</string>
 
     <string name="baidu_unit_bot_phone">打电话</string>
     <string name="baidu_unit_bot_message">发短信</string>
@@ -171,6 +190,19 @@
     <string name="baidu_unit_bot_movie">电影</string>
     <string name="baidu_unit_bot_train_ticket">火车票</string>
     <string name="baidu_unit_bot_radio">电台控制</string>
+
+<!--    必须和<string-array name="classify_image_type_item"> 命名一致-->
+    <string name="baidu_classify_image_type">物体识别分类</string>
+    <string name="baidu_classify_image_general_type">通用识别</string>
+    <string name="baidu_classify_image_plant_type">植物识别</string>
+    <string name="baidu_classify_image_car_type">车型识别</string>
+    <string name="baidu_classify_image_dish_type">菜品识别</string>
+    <string name="baidu_classify_image_red_wine_type">红酒识别</string>
+    <string name="baidu_classify_image_logo_type">商标识别</string>
+    <string name="baidu_classify_image_animal_type">动物识别</string>
+    <string name="baidu_classify_image_ingredient_type">果蔬食材识别</string>
+    <string name="baidu_classify_image_landmark_type">地标识别</string>
+    <string name="baidu_classify_image_currency_type">货币识别</string>
 
     <string name="baidu_unit_help">帮助\n暂时没有:(\n\n</string>
 
@@ -233,10 +265,14 @@
     <string name="network_error">网络错误，不能访问外网</string>
     <string name="baidu_unit_token_fail">智能问答Unit模块获取token失败</string>
 
+    <string name="baidu_ocr_token_fail">OCR模块获取token失败</string>
+    <string name="baidu_ocr_text_fail">识别文字失败</string>
+    <string name="baidu_ocr_qrcode_fail">识别二维码失败</string>
+    <string name="baidu_ocr_formula_fail">识别公式失败</string>
+
+    <string name="baidu_token_fail">获取token失败</string>
 <!--    Face-->
 <!--    https://console.bce.baidu.com/ai/?_=1575250056181#/ai/face/offline/index-->
-    <string name="option_face_camera">拍照识别</string>
-    <string name="option_face_image">图片识别</string>
     <string name="baidu_face_token_fail">在线人脸识别模块获取token失败</string>
     <string name="baidu_face_authentic_key1">YAGV-BGF6-NXUX-QBGC</string>
     <string name="baidu_face_authentic_key2">VR1M-QWI8-IACI-KGEX</string>
@@ -250,12 +286,15 @@
     <string name="baidu_face_register_title">人脸注册</string>
     <string name="baidu_face_register_name_input">请输入识别人物的名字</string>
     <string name="baidu_face_register_start">人脸采集中..</string>
+    <string name="baidu_face_registering">正在注册人脸</string>
     <string name="baidu_face_register_end">长按下面人脸开始采集</string>
     <string name="baidu_face_register_delete_success">刚注册用户删除成功</string>
+    <string name="baidu_face_register_deleting">正在删除人脸数据</string>
     <string name="baidu_face_register_delete_fail">刚注册用户删除失败</string>
     <string name="baidu_face_register_info_lack">注册信息缺失</string>
     <string name="baidu_face_register_fail">注册失败，已有相似注册</string>
     <string name="baidu_face_register_success">用户【%1$s】注册完毕</string>
+    <string name="baidu_face_register_userinfo_hint">请在此输入人物名称</string>
 
     <string name="baidu_face_auth_exit">返回</string>
     <string name="baidu_face_auth_permission_active">授权激活</string>
@@ -332,6 +371,9 @@
     <string name="baidu_face_compare_score">人脸相似度得分[0~100]</string>
     <string name="baidu_face_compare_start">开始比较</string>
 
+    <string name="baidu_face_authenticate_name_hint">请在此输入姓名</string>
+    <string name="baidu_face_authenticate_id_card_number_hint">请在此输入身份证号码</string>
+
 <!--    Classify Image-->
     <string name="baidu_classify_image_token_fail">图像识别模块获取token失败</string>
     <string name="baidu_classify_image_fail">获取识别结果失败！</string>
@@ -347,6 +389,13 @@
     <string name="baidu_classify_image_landmark_fail">识别地标失败！</string>
     <string name="baidu_classify_image_logo_fail">识别Logo失败！</string>
     <string name="baidu_classify_image_redwine_fail">识别红酒失败！</string>
+
+<!--    Human Body-->
+    <string name="baidu_human_body_token_fail">在线人体分析模块获取token失败</string>
+    <string name="baidu_human_body_gesture_fail">不认识该手势</string>
+
+<!--    Content Approve-->
+    <string name="baidu_content_approve_token_fail">在线内容审核模块获取token失败</string>
 
 <!--    Common Camera-->
     <string name="camera_recognize_hint">单击识别,长按识别后提问</string>

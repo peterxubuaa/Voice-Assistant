@@ -14,35 +14,26 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.fih.featurephone.voiceassistant.baidu.faceoffline.BaiduFaceOfflineAI;
-import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
-import com.fih.featurephone.voiceassistant.baidu.imageclassify.BaiduClassifyImageAI;
-import com.fih.featurephone.voiceassistant.baidu.ocr.BaiduOcrAI;
-import com.fih.featurephone.voiceassistant.baidu.speech.BaiduSpeechAI;
-import com.fih.featurephone.voiceassistant.baidu.tts.BaiduTTSAI;
-import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.camera.CameraCaptureActivity;
-import com.fih.featurephone.voiceassistant.speechaction.FixBaseAction;
-import com.fih.featurephone.voiceassistant.speechaction.TranslateFixAction;
+import com.fih.featurephone.voiceassistant.camera.ImageCropActivity;
 import com.fih.featurephone.voiceassistant.speechaction.WebSearchAction;
 import com.fih.featurephone.voiceassistant.ui.Msg;
 import com.fih.featurephone.voiceassistant.ui.MsgAdapter;
@@ -56,46 +47,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalLayoutListener{
-    private final int SETTING_REQUEST_CODE = 1;
-    private final int OCR_CAMERA_REQUEST_CODE = 2;
-    private final int OCR_IMAGE_REQUEST_CODE = 3;
-    private final int FACE_IDENTIFY_CAMERA_REQUEST_CODE = 4;
-    private final int FACE_IDENTIFY_IMAGE_REQUEST_CODE = 5;
-    private final int FACE_DETECT_CAMERA_REQUEST_CODE = 44;
-    private final int FACE_DETECT_IMAGE_REQUEST_CODE = 55;
-    private final int CLASSIFY_CAMERA_REQUEST_CODE = 6;
-    private final int CLASSIFY_IMAGE_REQUEST_CODE = 7;
-    private final int IMAGE_SELECT_REQUEST_CODE = 99;
+public class MainActivity extends BaiduAIActivity implements ViewTreeObserver.OnGlobalLayoutListener {
+    private final int SETTING_REQUEST_CODE = 1000;
     private final int REQUEST_MULTIPLE_PERMISSION = 100;
 
-    private final int MAIN_UI_LEVER = 0x1;
-    private final int TRANSLATE_SUB_UI_LEVER = 0x2;
-    private final int POEM_SUB_UI_LEVER = 0x4;
-    private final int COUPLET_SUB_UI_LEVER = 0x8;
     private final int TEXT_INPUT_SUB_UI_LEVER = 0x10;
-
-    private BaiduSpeechAI mBaiduSpeechAI;
-    private BaiduUnitAI mBaiduUnitAI;
-    private BaiduTTSAI mBaiduTTSAI;
-    private BaiduOcrAI mBaiduOcrAI;
-    private BaiduFaceOfflineAI mBaiduFaceOfflineAI;
-    private BaiduFaceOnlineAI mBaiduFaceOnlineAI;
-    private BaiduClassifyImageAI mBaiduClassifyImageAI;
-
-    private boolean mSpeechEnable = false;
-    private SettingActivity.SettingResult mSettingResult;
-    private Handler mActionHandler;
 
     private List<Msg> mResultMsgList = new ArrayList<>();
     private ListView mResultMsgListView;
-    private boolean mSupportTouch = false;
-    private int mCurUILever = MAIN_UI_LEVER;
-    private int mLastItemOptionFunction = 0;
-    private String mLastTranslateLanguage = TranslateFixAction.DEFAULT_TRANSLATE_TARGET_LANGUAGE;
-    private int mLastOCROptionMode = OCR_CAMERA_REQUEST_CODE;// OCR_CAMERA_REQUEST_CODE: camera, OCR_IMAGE_REQUEST_CODE: photo album
-    private String mLastOCRLanguage = BaiduOcrAI.OCR_DEFAULT_LANGUAGE;
-    private int mLastClassifyImageType = BaiduClassifyImageAI.CLASSIFY_TYPE_ADVANCED_GENERAL;
     private ProgressDialog mProgressDialog;
     private int mCropImageRequestCode;
 
@@ -105,8 +64,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         setContentView(R.layout.activity_main);
 
         mSupportTouch = CommonUtil.isSupportMultiTouch(this);
-        mSettingResult = SettingActivity.getSavedSettingResults(this);
-        mActionHandler = new Handler();
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mLocalBroadCastReceiver,
                 new IntentFilter(GlobalValue.LOCAL_BROADCAST_LAUNCH_CAMERA));
@@ -191,6 +148,13 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 onShowManageDialog();
             }
         });
+        findViewById(R.id.manage_image_view).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (mSettingResult.mEnableExtraFun) onShowExtraManageDialog();
+                return false;
+            }
+        });
 
         findViewById(R.id.microphone_image_view).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,6 +177,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             }
         });
 
+        mResultMsgListView.setSelector(R.color.transparent);//设置条目没有选中背景@android:color/transparent
         mResultMsgListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -229,46 +194,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         });
     }
 
-    private void initAssistant() {
-        if (BaiduUnitAI.BAIDU_UNIT_TYPE_KEYBOARD_BOT == mSettingResult.mUnitType
-                || BaiduUnitAI.BAIDU_UNIT_TYPE_KEYBOARD_ROBOT == mSettingResult.mUnitType) {
-            mBaiduSpeechAI = new BaiduSpeechAI(this, mSpeechListener);
-            mBaiduSpeechAI.initBaiduSpeech();
-            mBaiduSpeechAI.initBaiduSpeechSettings(mSettingResult.mSpeechType);
-        }
-
-        mBaiduUnitAI = new BaiduUnitAI(this, mUnitListener,
-                mSettingResult.mUnitType, mSettingResult.mRobotType, mSettingResult.mBotTypeList);
-        mBaiduUnitAI.initBaiduUnit();
-
-        mBaiduTTSAI = new BaiduTTSAI(this, mTTSListener);
-        mBaiduTTSAI.initBaiduTTS();
-
-        mBaiduOcrAI = new BaiduOcrAI(this, mOCRListener);
-        mBaiduOcrAI.initBaiduOCR();
-
-        if (mSettingResult.mOfflineFace) {
-            mBaiduFaceOfflineAI = new BaiduFaceOfflineAI(this, mFaceOfflineListener);
-            mBaiduFaceOfflineAI.initBaiduFace();
-        } else {
-            mBaiduFaceOnlineAI = new BaiduFaceOnlineAI(this, mFaceOnlineListener);
-            mBaiduFaceOnlineAI.initBaiduFace();
-        }
-
-        mBaiduClassifyImageAI = new BaiduClassifyImageAI(this, mClassifyImageListener);
-        mBaiduClassifyImageAI.initBaiduClassifyImage();
-    }
-
-    private void releaseAssistant() {
-        if (null != mBaiduSpeechAI) mBaiduSpeechAI.releaseBaiduSpeech();
-        if (null != mBaiduUnitAI) mBaiduUnitAI.releaseBaiduUnit();
-        if (null != mBaiduTTSAI) mBaiduTTSAI.releaseBaiduTTS();
-        if (null != mBaiduOcrAI) mBaiduOcrAI.releaseBaiduOCR();
-        if (null != mBaiduFaceOfflineAI) mBaiduFaceOfflineAI.releaseBaiduFace();
-        if (null != mBaiduFaceOnlineAI) mBaiduFaceOnlineAI.releaseBaiduFace();
-        if (null != mBaiduClassifyImageAI) mBaiduClassifyImageAI.releaseBaiduClassifyImage();
-    }
-
     private void initMsg() {
         final String welcome;
         if (!mSupportTouch) {
@@ -276,7 +201,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         } else {
             welcome = getString(R.string.baidu_unit_welcome_support_touch);
         }
-        Msg msgWelcome = new Msg(welcome, Msg.TYPE_RECEIVED);
+        Msg msgWelcome = new Msg(welcome, Msg.TYPE_RECEIVED_TEXT);
         mResultMsgList.add(msgWelcome);
 /*
         mActionHandler.postDelayed(new Runnable() {
@@ -292,86 +217,56 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (Activity.RESULT_OK != resultCode) return;
 
-        final String CROP_IMAGE_FILE_PATH = FileUtils.getFaceTempImageDirectory().getAbsolutePath() + File.separator + "crop_main.jpg";
         switch (requestCode) {
             case SETTING_REQUEST_CODE:
                 relaunchApp();
                 break;
-            case OCR_CAMERA_REQUEST_CODE:
-                final boolean ocrQuestion = data.getBooleanExtra(GlobalValue.INTENT_UNIT_QUESTION, false);
-                final String ocrCameraPath = data.getStringExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH);
-                String language = data.getStringExtra(GlobalValue.INTENT_OCR_LANGUAGE);
-                final String ocrLanguage = TextUtils.isEmpty(language)? mLastOCRLanguage : language;
-
-                if (!TextUtils.isEmpty(ocrCameraPath)) {
-                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                    mBaiduOcrAI.setLanguageType(ocrLanguage);
-                    mBaiduOcrAI.setDetectDirection(true);
-                    mBaiduOcrAI.baiduOCRText(ocrCameraPath, ocrQuestion);
-                }
-                break;
-            case OCR_IMAGE_REQUEST_CODE:
-                if (!TextUtils.isEmpty(CROP_IMAGE_FILE_PATH)) {
-                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                    mBaiduOcrAI.setLanguageType(mLastOCRLanguage);
-                    mBaiduOcrAI.setDetectDirection(true);
-                    mBaiduOcrAI.baiduOCRText(CROP_IMAGE_FILE_PATH, false);
-                }
-                break;
-            case FACE_IDENTIFY_CAMERA_REQUEST_CODE:
-            case FACE_DETECT_CAMERA_REQUEST_CODE:
-                if (null != mBaiduFaceOnlineAI) {
-                    final boolean faceQuestion = data.getBooleanExtra(GlobalValue.INTENT_UNIT_QUESTION, false);
-                    final String faceCameraPath = data.getStringExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH);
-                    final String faceDetect = data.getStringExtra(GlobalValue.INTENT_EXTRA_FUN);
-                    if (!TextUtils.isEmpty(faceCameraPath)) {
-                        showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                        if (!TextUtils.isEmpty(faceDetect) || FACE_DETECT_CAMERA_REQUEST_CODE == requestCode) {
-                            mBaiduFaceOnlineAI.onDetect(faceCameraPath);
-                        } else {
-                            mBaiduFaceOnlineAI.onIdentify(faceCameraPath, faceQuestion);
-                        }
-                    }
-                } else if (null != mBaiduFaceOfflineAI) {
-                    String faceCameraUserName = data.getStringExtra("FACE_USER_NAME");
-                    triggerQuery("谁是" + faceCameraUserName);
-                }
-                break;
-            case FACE_IDENTIFY_IMAGE_REQUEST_CODE:
-            case FACE_DETECT_IMAGE_REQUEST_CODE:
-                if (null != mBaiduFaceOnlineAI) {
-                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                    if (FACE_IDENTIFY_IMAGE_REQUEST_CODE == requestCode) {
-                        mBaiduFaceOnlineAI.onIdentify(CROP_IMAGE_FILE_PATH, false);
-                    } else {
-                        mBaiduFaceOnlineAI.onDetect(CROP_IMAGE_FILE_PATH);
-                    }
-                } else if (null != mBaiduFaceOfflineAI) {
-                    mBaiduFaceOfflineAI.identifyUser(CROP_IMAGE_FILE_PATH);
-                }
-                break;
-            case CLASSIFY_CAMERA_REQUEST_CODE:
-                final boolean classifyCameraQuestion = data.getBooleanExtra(GlobalValue.INTENT_UNIT_QUESTION, false);
-                final String classifyCameraPath = data.getStringExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH);
-                int type = data.getIntExtra(GlobalValue.INTENT_CLASSIFY_IMAGE_TYPE, -1);
-                final int classifyImageType = type >= 0? type : BaiduClassifyImageAI.CLASSIFY_TYPE_ADVANCED_GENERAL;
-                if (!TextUtils.isEmpty(classifyCameraPath)) {
-                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                    mBaiduClassifyImageAI.classifyImageThread(classifyImageType,
-                            classifyCameraPath, classifyCameraQuestion);
-                }
-                break;
-            case CLASSIFY_IMAGE_REQUEST_CODE:
-                if (!TextUtils.isEmpty(CROP_IMAGE_FILE_PATH)) {
-                    showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-                    mBaiduClassifyImageAI.classifyImageThread(mLastClassifyImageType,
-                            CROP_IMAGE_FILE_PATH, false);
-                }
-                break;
             case IMAGE_SELECT_REQUEST_CODE:
-                SystemUtil.cropSelectImage(this, data.getData(), mCropImageRequestCode, CROP_IMAGE_FILE_PATH);
+//                SystemUtil.cropSelectImage(this, data.getData(), mCropImageRequestCode, CROP_IMAGE_FILE_PATH);
+                final String CROP_IMAGE_FILE_PATH_PREFIX = FileUtils.getFaceTempImageDirectory().getAbsolutePath() + File.separator;
+                Intent intent = new Intent(MainActivity.this, ImageCropActivity.class);
+                switch (mCropImageRequestCode) {
+                    case OCR_TEXT_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.OCR_TYPE);
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_ocr.jpg");
+                        intent.putExtra(GlobalValue.INTENT_OCR_LANGUAGE, mLastOCRLanguage);
+                        break;
+                    case FACE_IDENTIFY_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_face_identify.jpg");
+                        intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.IDENTIFY_FACE_TYPE);
+                        break;
+                    case FACE_DETECT_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_face_detect.jpg");
+                        intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.DETECT_FACE_TYPE);
+                        break;
+                    case FACE_AUTHENTICATE_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_face_authenticate.jpg");
+                        intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.AUTHENTICATE_FACE_TYPE);
+                        break;
+                    case CLASSIFY_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_classify.jpg");
+                        intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.CLASSIFY_IMAGE_TYPE);
+                        intent.putExtra(GlobalValue.INTENT_CLASSIFY_IMAGE_TYPE, mLastClassifyImageType);
+                        break;
+                    case HUMAN_BODY_GESTURE_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_gesture.jpg");
+                        break;
+                    case HUMAN_BODY_HEADCOUNT_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_headcount.jpg");
+                        break;
+                    case OCR_QRCODE_IMAGE_REQUEST_CODE:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_qrcode.jpg");
+                        break;
+                    default:
+                        intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH_PREFIX  + "crop_image_main.jpg");
+                }
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, mCropImageRequestCode);
                 break;
         }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     // 请求权限
@@ -405,7 +300,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         if (REQUEST_MULTIPLE_PERMISSION == requestCode) {
             for (int grantResult : grantResults) {
                 if (PackageManager.PERMISSION_GRANTED != grantResult) {
-                    CommonUtil.toast(this, "必须允许所有权限，否则功能会异常");
+                    CommonUtil.toast(this, getString(R.string.permission_fail));
                     SystemClock.sleep(2000);
                     applyApkPermissions();
                     return;
@@ -415,249 +310,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
-    /*功能模块监听回调*/
-    private BaiduSpeechAI.OnSpeechListener mSpeechListener = new BaiduSpeechAI.OnSpeechListener() {
-        @Override
-        public void onShowDebugInfo(final String info) {
-            if (mSettingResult.mDebug) {
-                showDebugInfo(info, false);
-            }
-        }
-
-        @Override
-        public void onExit() {
-            mSpeechEnable = false;
-            if (!mBaiduTTSAI.isTTSRunning()) {
-                ((ImageView) findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
-            }
-        }
-
-        @Override
-        public void onFinalResult(final String result) {
-            triggerQuery(result);
-        }
-
-        @Override
-        public void onError(final String msg) {
-            if (msg.contains("Network is not available")) {
-                showErrorMsg(getString(R.string.network_error));
-            } else {
-                if (mSettingResult.mDebug) showErrorMsg(msg);
-            }
-        }
-    };
-
-    private BaiduUnitAI.OnUnitListener mUnitListener = new BaiduUnitAI.OnUnitListener() {
-        @Override
-        public void onShowDebugInfo(final String info, final boolean reset) {
-            if (mSettingResult.mDebug) {
-                showDebugInfo(info, reset);
-            }
-        }
-
-        @Override
-        public void onExit() {
-            mSpeechEnable = false;
-            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
-        }
-
-        @Override
-        public void onFinalResult(final String question, final String answer, final String hint) {
-            hideProgressDialog();
-            if (TextUtils.isEmpty(answer)) return;
-            //为了翻译显示更合理
-            final boolean exchange = ((TRANSLATE_SUB_UI_LEVER & mCurUILever) > 0 &&
-                    mBaiduUnitAI.getTranslateFixAction().getTranslateType() == TranslateFixAction.REVERSE_TRANSLATE);
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    showFinalResponse(question, answer, exchange);
-                    showHint(hint);
-                }
-            });
-            startTTS(answer);
-        }
-
-        @Override
-        public void onNotify(String botID, int type) {
-            int viewStatus = -1;
-            if (FixBaseAction.STOP_FIX_ACTION == type) {
-                mCurUILever = MAIN_UI_LEVER;
-                if (mSupportTouch && BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_TRANSLATE.equals(botID)) {
-                    viewStatus = View.GONE;
-                }
-            } else {
-                if (BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_TRANSLATE.equals(botID)) {
-                    mCurUILever = TRANSLATE_SUB_UI_LEVER;
-                    if (mSupportTouch) viewStatus = View.VISIBLE;
-                } else if (BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_POEM.equals(botID)) {
-                    mCurUILever = POEM_SUB_UI_LEVER;
-                } else if (BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_COUPLET.equals(botID)) {
-                    mCurUILever = COUPLET_SUB_UI_LEVER;
-                }
-            }
-
-            if (viewStatus >= 0) {
-                if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
-                    findViewById(R.id.left_arrow_image_view).setVisibility(viewStatus);
-                    findViewById(R.id.right_arrow_image_view).setVisibility(viewStatus);
-                } else {
-                    final int viewStatusThread = viewStatus;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            findViewById(R.id.left_arrow_image_view).setVisibility(viewStatusThread);
-                            findViewById(R.id.right_arrow_image_view).setVisibility(viewStatusThread);
-                        }
-                    });
-                }
-            }
-        }
-    };
-
-    private BaiduTTSAI.OnTTSListener mTTSListener = new BaiduTTSAI.OnTTSListener() {
-        @Override
-        public void onStart() {
-            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_speaking_white_48dp);
-        }
-
-        @Override
-        public void onEnd() {
-            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
-        }
-
-        @Override
-        public void onError(String msg) {
-            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
-            if (msg.contains("TimeoutException")) {
-                showErrorMsg(getString(R.string.network_error));
-            } else {
-                if (mSettingResult.mDebug) showErrorMsg(msg);
-            }
-        }
-    };
-
-    private BaiduOcrAI.OnOCRListener mOCRListener = new BaiduOcrAI.OnOCRListener() {
-        @Override
-        public void onError(final String msg) {
-            showErrorMsg(msg);
-        }
-
-        @Override
-        public void onFinalResult(String result, boolean question) {
-            if (TextUtils.isEmpty(result)) {
-                showFinalResponse(getString(R.string.baidu_unit_ocr_fail),false);
-            } else {
-                if (MAIN_UI_LEVER == mCurUILever) {
-                    if (question) {
-                        triggerQuery(result);
-                    } else {
-                        showFinalResponse(result, false);
-                    }
-                } else if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-                    if (question) {
-                        triggerQuery(result);
-                    } else {
-                        showFinalResponse(result, (mBaiduUnitAI.getTranslateFixAction().getTranslateType() != TranslateFixAction.TRANSLATE));
-                    }
-                }
-            }
-        }
-    };
-
-    private BaiduClassifyImageAI.OnClassifyImageListener mClassifyImageListener = new BaiduClassifyImageAI.OnClassifyImageListener() {
-        @Override
-        public void onError(final String msg) {
-            showErrorMsg(msg);
-        }
-
-        @Override
-        public void onFinalResult(final String result, final String description, boolean question) {
-            if (question && !TextUtils.isEmpty(result)) {
-                triggerQuery(result);
-            } else {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        showFinalResponse(result, description, false);
-                    }
-                });
-                startTTS(result);
-            }
-        }
-    };
-
-    private BaiduFaceOfflineAI.OnFaceOfflineListener mFaceOfflineListener = new BaiduFaceOfflineAI.OnFaceOfflineListener() {
-        @Override
-        public void onError(final String msg) {
-            showErrorMsg(msg);
-        }
-
-        @Override
-        public void onFinalResult(final Object result, final int resultType) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String faceName = (String)result;
-                    if (TextUtils.isEmpty(faceName)) {
-                        showFinalResponse("不认识此人", false);
-                        startTTS("不认识此人");
-                    } else {
-                        showFinalResponse(faceName, false);
-                        startTTS(faceName);
-                    }
-                }
-            });
-        }
-    };
-
-    private BaiduFaceOnlineAI.OnFaceOnlineListener mFaceOnlineListener = new BaiduFaceOnlineAI.OnFaceOnlineListener() {
-        @Override
-        public void onError(final String msg) {
-            showErrorMsg(msg);
-        }
-
-        @Override
-        public void onFinalResult(final Object result, final int resultType) {
-            switch (resultType) {
-                case BaiduFaceOnlineAI.FACE_IDENTIFY_ACTION:
-                case BaiduFaceOnlineAI.FACE_IDENTIFY_QUESTION_ACTION:
-                    final String userInfo = (String)result;
-                    if (TextUtils.isEmpty(userInfo)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showFinalResponse("不认识此人", false);
-                            }
-                        });
-                        startTTS("不认识此人");
-                    } else {
-                        if (BaiduFaceOnlineAI.FACE_IDENTIFY_QUESTION_ACTION == resultType) {
-                            triggerQuery(userInfo);
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    showFinalResponse(userInfo, false);
-                                }
-                            });
-                            startTTS(userInfo);
-                        }
-                    }
-                    break;
-                case BaiduFaceOnlineAI.FACE_DETECT_ACTION:
-                    final String detailInfo = (String)result;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showFinalResponse(detailInfo, false);
-                        }
-                    });
-                    startTTS(detailInfo);
-                    break;
-            }
-        }
-    };
 
     private void relaunchApp() {
         Intent intent = getBaseContext().getPackageManager().getLaunchIntentForPackage(getBaseContext().getPackageName());
@@ -669,99 +321,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         finish();
     }
 
-    private void triggerQuery(String result) {
-        if (null == mBaiduUnitAI) return;
-
-        showProgressDialog(getResources().getString(R.string.baidu_unit_working));
-
-        final String filterResult;
-        if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-            String replace = result.replaceAll("\n", " ");
-            if (mBaiduUnitAI.getTranslateFixAction().getTranslateType() == TranslateFixAction.REVERSE_TRANSLATE) {
-                replace = CommonUtil.toLowerCase(replace);
-            }
-            filterResult = replace;
-        } else {
-            filterResult = result;
-        }
-
-        mBaiduUnitAI.getBaiduKeyboardUnitThread(filterResult);
-    }
-
-    private void startTTS(String text) {
-        if (!mSettingResult.mTTS || null == mBaiduTTSAI || TextUtils.isEmpty(text)) return;
-
-        final int MAX_TTS_LENGTH = 1024 / 2; //chines character is two bytes
-        int startPos = 0;
-        while (true) {
-            if ((startPos + MAX_TTS_LENGTH) > text.length()) {
-                mBaiduTTSAI.startTTSSpeak(text.substring(startPos));
-                break;
-            } else {
-                mBaiduTTSAI.startTTSSpeak(text.substring(startPos, MAX_TTS_LENGTH));
-                startPos += MAX_TTS_LENGTH;
-            }
-        }
-    }
-
     /*主界面下方按钮触发功能*/
-    private void onSwitchVoiceAssistant() {
-        if (null != mBaiduTTSAI && mBaiduTTSAI.isTTSRunning()) {
-            mBaiduTTSAI.stopTTSSpeak();
-            mSpeechEnable = false;
-            ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(R.drawable.baseline_mic_none_white_48dp);
-            return;
-        }
-
-        if (mSpeechEnable) {
-            if (null != mBaiduSpeechAI) mBaiduSpeechAI.cancelBaiduSpeechRecognize();
-            if (null != mBaiduUnitAI) mBaiduUnitAI.cancelBaiduASRUnit();
-        } else {
-            if (null != mBaiduSpeechAI) {
-                mActionHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBaiduSpeechAI.startBaiduSpeechRecognize();
-                    }
-                });
-            }
-            if (null != mBaiduUnitAI) {
-                mActionHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mBaiduUnitAI.startBaiduASRUnit();
-                    }
-                });
-            }
-        }
-        mSpeechEnable = !mSpeechEnable;
-        ((ImageView)findViewById(R.id.microphone_image_view)).setImageResource(
-                mSpeechEnable? R.drawable.baseline_mic_black_48dp : R.drawable.baseline_mic_none_white_48dp);
-    }
-
-    private void onSwitchTranslateLanguage(boolean chineseToForeign) {
-        if (null == mBaiduUnitAI || TRANSLATE_SUB_UI_LEVER != mCurUILever) return;
-
-        if (chineseToForeign) {
-            if (mSupportTouch) {
-                findViewById(R.id.left_arrow_image_view).setVisibility(View.INVISIBLE);
-                findViewById(R.id.right_arrow_image_view).setVisibility(View.VISIBLE);
-            }
-            if (null != mBaiduSpeechAI) mBaiduSpeechAI.initBaiduSpeechSettings(BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE);
-            mBaiduUnitAI.getTranslateFixAction().setTranslateType(TranslateFixAction.TRANSLATE);
-            showFinalResponse(String.format(getString(R.string.baidu_unit_fix_translate_input),
-                    mBaiduUnitAI.getTranslateFixAction().getOriginalLanguage()), false);
-        } else {
-            if (mSupportTouch) {
-                findViewById(R.id.left_arrow_image_view).setVisibility(View.VISIBLE);
-                findViewById(R.id.right_arrow_image_view).setVisibility(View.INVISIBLE);
-            }
-            if (null != mBaiduSpeechAI) mBaiduSpeechAI.initBaiduSpeechSettings(BaiduUnitAI.BAIDU_UNIT_SPEECH_ENGLISH);
-            mBaiduUnitAI.getTranslateFixAction().setTranslateType(TranslateFixAction.REVERSE_TRANSLATE);
-            showFinalResponse(String.format(getString(R.string.baidu_unit_fix_translate_input),
-                    mBaiduUnitAI.getTranslateFixAction().getTargetLanguage()), true);
-        }
-    }
 
     /*菜单功能选择*/
     private void onShowManageDialog() {
@@ -772,12 +332,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         itemList.add(getString(R.string.option_image_classify));
         itemList.add(getString(R.string.option_text_input));
         itemList.add(getString(R.string.option_clear_all_items));
-
-        if (mSettingResult.mEnableExtraFun) {
-            itemList.add(getString(R.string.option_face_detect));
-            itemList.add(getString(R.string.option_face_merge));
-            itemList.add(getString(R.string.option_face_compare));
-        }
         String[] items = itemList.toArray(new String[0]);
 
         if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
@@ -799,7 +353,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                             onShowTranslateLanguageDialog();
                         }
                         break;
-                    case 1: //快捷OCR
+                    case 1: //OCR文字识别
                         if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
                             onShowOCRInputDialog(mLastOCRLanguage);
                         } else {
@@ -818,15 +372,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                     case 5: //清除列表中所有显示
                         onClearAllItems();
                         break;
-                    case 6: //额外功能，人脸检测
-                        onShowFaceDetectInputDialog();
-                        break;
-                    case 7: //额外功能，人脸融合
-                        onShowFaceMerge();
-                        break;
-                    case 8: //额外功能，人脸比较
-                        onShowFaceCompare();
-                        break;
                 }
             }
         });
@@ -844,43 +389,11 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
-                mLastTranslateLanguage = items[which];
+//                mLastTranslateLanguage = items[which]; // for feature phone
                 onSwitchTranslateLanguage(items[which]);
             }
         });
         listDialog.show();
-    }
-
-    private void onSwitchTranslateLanguage(String language) {
-        if (null == mBaiduUnitAI) return;
-
-        if (null != mBaiduSpeechAI) mBaiduSpeechAI.initBaiduSpeechSettings(BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE);
-        mBaiduUnitAI.getTranslateFixAction().setTranslateType(TranslateFixAction.TRANSLATE);
-
-        if (TRANSLATE_SUB_UI_LEVER != mCurUILever) {
-            mBaiduUnitAI.getTranslateFixAction().forceAction(true);
-            mBaiduUnitAI.getTranslateFixAction().setTargetLanguage(language);
-            String msg = String.format(getString(R.string.baidu_unit_fix_translate_start), language);
-            showFinalResponse(msg,false);
-            startTTS(msg);
-
-            mCurUILever = TRANSLATE_SUB_UI_LEVER;
-            if (mSupportTouch) {
-                findViewById(R.id.left_arrow_image_view).setVisibility(View.VISIBLE);
-                findViewById(R.id.right_arrow_image_view).setVisibility(View.VISIBLE);
-            }
-        } else {
-            mBaiduUnitAI.getTranslateFixAction().forceAction(false);
-            String msg = String.format(getString(R.string.baidu_unit_fix_translate_stop), language);
-            showFinalResponse(msg, false);
-            startTTS(msg);
-
-            mCurUILever = MAIN_UI_LEVER;
-            if (mSupportTouch) {
-                findViewById(R.id.left_arrow_image_view).setVisibility(View.GONE);
-                findViewById(R.id.right_arrow_image_view).setVisibility(View.GONE);
-            }
-        }
     }
 
     private void onShowOCRLanguageDialog() {
@@ -900,56 +413,41 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     }
 
     private void onShowOCRInputDialog(final String language) {
-        final String[] items = {
-                getString(R.string.option_ocr_camera),
-                getString(R.string.option_ocr_image),
-        };
-
-        AlertDialog.Builder listDialog =
-                new AlertDialog.Builder(MainActivity.this);
-        listDialog.setTitle(getString(R.string.option_dialog_title));
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener clickListener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
                 switch (which) {
                     case 0:
-                        mLastOCROptionMode = OCR_CAMERA_REQUEST_CODE;
-                        onOCRCameraActivity(language);
+//                        mLastOCROptionMode = OCR_TEXT_CAMERA_REQUEST_CODE; //for feature phone
+                        onOCRTextCameraActivity(language);
                         break;
                     case 1:
-                        mLastOCROptionMode = OCR_IMAGE_REQUEST_CODE;
+//                        mLastOCROptionMode = OCR_TEXT_IMAGE_REQUEST_CODE; //for feature phone
                         mLastOCRLanguage = getAndShowMatchedOCRLanguage(language);
-                        mCropImageRequestCode = OCR_IMAGE_REQUEST_CODE;
+                        mCropImageRequestCode = OCR_TEXT_IMAGE_REQUEST_CODE;
                         SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
                         break;
                 }
             }
-        });
-        listDialog.show();
+        };
+
+        onShowAlbumAndCameraOptionDialog(clickListener);
     }
 
-    private void onOCRCameraActivity(String language) {
+    private void onOCRTextCameraActivity(String language) {
         mLastOCRLanguage = getAndShowMatchedOCRLanguage(language);
 
         Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
         intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.OCR_TYPE);
         intent.putExtra(GlobalValue.INTENT_OCR_LANGUAGE, mLastOCRLanguage);
         intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
-                getFilesDir().getAbsolutePath() + File.separator + "camera_ocr.jpg");
-        startActivityForResult(intent, OCR_CAMERA_REQUEST_CODE);
+                getFilesDir().getAbsolutePath() + File.separator + "camera_ocr_text.jpg");
+        startActivityForResult(intent, OCR_TEXT_CAMERA_REQUEST_CODE);
     }
 
     private void onShowFaceIdentifyInputDialog() {
-        final String[] items = {
-                getString(R.string.option_face_camera),
-                getString(R.string.option_face_image),
-        };
-
-        AlertDialog.Builder listDialog =
-                new AlertDialog.Builder(MainActivity.this);
-        listDialog.setTitle(getString(R.string.option_dialog_title));
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
@@ -964,100 +462,33 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 }
             }
         });
-        listDialog.show();
-    }
-
-    private void onFaceIdentifyCamera() {
-        if (null != mBaiduFaceOnlineAI) {
-            Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
-            intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.IDENTIFY_FACE_TYPE);
-            intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
-                    getFilesDir().getAbsolutePath() + File.separator + "camera_face_identify.jpg");
-            startActivityForResult(intent, FACE_IDENTIFY_CAMERA_REQUEST_CODE);
-        } else if (null != mBaiduFaceOfflineAI) {
-            showFinalResponse(getString(R.string.baidu_face_identify_start), false);
-            mBaiduFaceOfflineAI.onFaceDetect(FACE_IDENTIFY_CAMERA_REQUEST_CODE);
-        }
-    }
-
-    void onShowFaceDetectInputDialog() {
-        final String[] items = {
-                getString(R.string.option_face_camera),
-                getString(R.string.option_face_image),
-        };
-
-        AlertDialog.Builder listDialog =
-                new AlertDialog.Builder(MainActivity.this);
-        listDialog.setTitle(getString(R.string.option_dialog_title));
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // which 下标从0开始
-                switch (which) {
-                    case 0:
-                        onFaceDetectCamera();
-                        break;
-                    case 1:
-                        mCropImageRequestCode = FACE_DETECT_IMAGE_REQUEST_CODE;
-                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
-                        break;
-                }
-            }
-        });
-        listDialog.show();
-    }
-
-    private void onFaceDetectCamera() {
-        if (null != mBaiduFaceOnlineAI) {
-            Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
-            intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.DETECT_FACE_TYPE);
-            intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
-                    getFilesDir().getAbsolutePath() + File.separator + "camera_face_detect.jpg");
-            startActivityForResult(intent, FACE_DETECT_CAMERA_REQUEST_CODE);
-        } /*else if (null != mBaiduFaceOfflineAI) {
-        }*/
-    }
-
-    private void onShowFaceMerge() {
-        if (null != mBaiduFaceOnlineAI) {
-            mBaiduFaceOnlineAI.onFaceMerge();
-        } /*else if(null != mBaiduFaceOfflineAI) {
-        }*/
-    }
-
-    private void onShowFaceCompare() {
-        if (null != mBaiduFaceOnlineAI) {
-            mBaiduFaceOnlineAI.onFaceCompare();
-        } /*else if(null != mBaiduFaceOfflineAI) {
-        }*/
     }
 
     private void onShowClassifyTypeDialog() {
         final String[] items = getResources().getStringArray(R.array.classify_image_type_item);
+        ArrayList<String> selItemList = new ArrayList<>();
+        for (Integer index : mSettingResult.mClassifyImageTypeList) {
+            if (index < 0 || index >= items.length) continue;
+            selItemList.add(items[index]);
+        }
 
+        final String[] selItems = selItemList.toArray(new String[0]);
         AlertDialog.Builder listDialog =
                 new AlertDialog.Builder(MainActivity.this);
         listDialog.setTitle(getString(R.string.option_dialog_title));
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+        listDialog.setItems(selItems, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // which 下标从0开始
-                onShowClassifyImageInputDialog(which);
+                // which 下标从0开始, 需要转换为classify type
+                int classifyType = mSettingResult.mClassifyImageTypeList.get(which);
+                onShowClassifyImageInputDialog(classifyType);
             }
         });
         listDialog.show();
     }
 
     private void onShowClassifyImageInputDialog(final int classifyType) {
-        final String[] items = {
-                getString(R.string.option_image_classify_camera),
-                getString(R.string.option_image_classify_image),
-        };
-
-        AlertDialog.Builder listDialog =
-                new AlertDialog.Builder(MainActivity.this);
-        listDialog.setTitle(getString(R.string.option_dialog_title));
-        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
@@ -1073,7 +504,6 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 }
             }
         });
-        listDialog.show();
     }
 
     private void onClassifyImageCameraActivity(int classifyType) {
@@ -1106,14 +536,184 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
     }
 
+    /*额外菜单功能选择*/
+    private void onShowExtraManageDialog() {
+        ArrayList<String> itemList = new ArrayList<>();
+        itemList.add(getString(R.string.option_face_detect));
+        itemList.add(getString(R.string.option_face_compare));
+        itemList.add(getString(R.string.option_human_body_gesture));
+        itemList.add(getString(R.string.option_human_body_headcount));
+        itemList.add(getString(R.string.option_face_merge));
+        itemList.add(getString(R.string.option_face_authenticate));
+        itemList.add(getString(R.string.option_show_face_manger));
+        itemList.add(getString(R.string.option_ocr_qrcode));
+
+        String[] items = itemList.toArray(new String[0]);
+
+        AlertDialog.Builder listDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        listDialog.setTitle(getString(R.string.option_dialog_title));
+        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0: //额外功能，人脸检测
+                        onShowFaceDetectInputDialog();
+                        break;
+                    case 1: //额外功能，人脸比较
+                        onShowFaceCompare();
+                        break;
+                    case 2: //额外功能，手势识别
+                        onShowHumanBodyGesture();
+                        break;
+                    case 3: //额外功能，人头清点
+                        onShowHumanBodyHeadCount();
+                        break;
+                    case 4: //额外功能，人脸融合
+                        onShowFaceMerge();
+                        break;
+                    case 5: //额外功能，身份认证，没权限需要企业认证！
+                        onShowFaceAuthenticateInputDialog();
+                        break;
+                    case 6: //额外功能，人脸库管理
+                        onShowFaceManager();
+                        break;
+                    case 7: //额外功能，二维码识别
+                        onShowQRCodeInputDialog();
+                        break;
+                }
+            }
+        });
+        listDialog.show();
+    }
+
+    void onShowFaceDetectInputDialog() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0:
+                        onFaceDetectCamera();
+                        break;
+                    case 1:
+                        mCropImageRequestCode = FACE_DETECT_IMAGE_REQUEST_CODE;
+                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void onFaceDetectCamera() {
+        Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
+        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.DETECT_FACE_TYPE);
+        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
+                getFilesDir().getAbsolutePath() + File.separator + "camera_face_detect.jpg");
+        startActivityForResult(intent, FACE_DETECT_CAMERA_REQUEST_CODE);
+    }
+
+    void onShowFaceAuthenticateInputDialog() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0:
+                        onFaceAuthenticateCamera();
+                        break;
+                    case 1:
+                        mCropImageRequestCode = FACE_AUTHENTICATE_IMAGE_REQUEST_CODE;
+                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void onFaceAuthenticateCamera() {
+        Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
+        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.AUTHENTICATE_FACE_TYPE);
+        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
+                getFilesDir().getAbsolutePath() + File.separator + "camera_face_authenticate.jpg");
+        intent.putExtra(GlobalValue.INTENT_FACE_NAME, getString(R.string.baidu_face_authenticate_name_hint));
+        intent.putExtra(GlobalValue.INTENT_FACE_ID_CARD_NUM, getString(R.string.baidu_face_authenticate_id_card_number_hint));
+        startActivityForResult(intent, FACE_AUTHENTICATE_CAMERA_REQUEST_CODE);
+    }
+
+    private void onShowHumanBodyGesture() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0:
+                        Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.HUMAN_BODY_GESTURE_TYPE);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
+                                getFilesDir().getAbsolutePath() + File.separator + "camera_gesture.jpg");
+                        startActivityForResult(intent, HUMAN_BODY_GESTURE_CAMERA_REQUEST_CODE);
+                        break;
+                    case 1:
+                        mCropImageRequestCode = HUMAN_BODY_GESTURE_IMAGE_REQUEST_CODE;
+                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+    }
+
+    private void onShowHumanBodyHeadCount() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0:
+                        Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.HUMAN_BODY_GESTURE_TYPE);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
+                                getFilesDir().getAbsolutePath() + File.separator + "camera_headcount.jpg");
+                        startActivityForResult(intent, HUMAN_BODY_HEADCOUNT_CAMERA_REQUEST_CODE);
+                        break;
+                    case 1:
+                        mCropImageRequestCode = HUMAN_BODY_HEADCOUNT_IMAGE_REQUEST_CODE;
+                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+    }
+
+    void onShowQRCodeInputDialog() {
+        onShowAlbumAndCameraOptionDialog(new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0:
+                        Intent intent = new Intent(MainActivity.this, CameraCaptureActivity.class);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.OCR_TYPE);
+                        intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
+                                getFilesDir().getAbsolutePath() + File.separator + "camera_ocr_qrcode.jpg");
+                        startActivityForResult(intent, OCR_QRCODE_CAMERA_REQUEST_CODE);
+                        break;
+                    case 1:
+                        mCropImageRequestCode = OCR_QRCODE_IMAGE_REQUEST_CODE;
+                        SystemUtil.startSysAlbumActivity(MainActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+    }
+
+
     /*系统帮助选项*/
     private void onShowAssistantDialog() {
         ArrayList<String> itemList = new ArrayList<>();
         itemList.add(getString(R.string.option_show_setting));
         itemList.add(getString(R.string.option_show_help));
-        if (mSettingResult.mEnableExtraFun) {
-            itemList.add(getString(R.string.option_show_face_manger));
-        }
         final String[] items = itemList.toArray(new String[0]);
 
         AlertDialog.Builder listDialog =
@@ -1130,21 +730,10 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                     case 1: // 显示帮助
                         onShowHelp();
                         break;
-                    case 2: // 人脸库管理
-                        onShowFaceManager();
-                        break;
                 }
             }
         });
         listDialog.show();
-    }
-
-    private void onShowFaceManager() {
-        if (null != mBaiduFaceOnlineAI) {
-            mBaiduFaceOnlineAI.onFaceManager();
-        } else if(null != mBaiduFaceOfflineAI) {
-            mBaiduFaceOfflineAI.onFaceManager();
-        }
     }
 
     private void onShowHelp() {
@@ -1154,16 +743,16 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 break;
             case TRANSLATE_SUB_UI_LEVER:
                 if (!mSupportTouch) {
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_translate_help), Msg.TYPE_SEND));
+                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_translate_help), Msg.TYPE_SEND_TEXT));
                 } else {
-                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_translate_help_support_touch), Msg.TYPE_SEND));
+                    mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_translate_help_support_touch), Msg.TYPE_SEND_TEXT));
                 }
                 break;
             case POEM_SUB_UI_LEVER:
-                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_poem_help), Msg.TYPE_SEND));
+                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_poem_help), Msg.TYPE_SEND_TEXT));
                 break;
             case COUPLET_SUB_UI_LEVER:
-                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_couplet_help), Msg.TYPE_SEND));
+                mResultMsgList.add(new Msg(getString(R.string.baidu_unit_fix_couplet_help), Msg.TYPE_SEND_TEXT));
                 break;
         }
         ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
@@ -1176,13 +765,18 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
 
     /*选中列表任一条目的功能选项*/
     private void onShowItemOptionDialog(final View view, final int position) {
-        final String[] items = {
-                getString(R.string.option_voice_output),
-                getString(R.string.option_query_again),
-                getString(R.string.option_copy_edit),
-                getString(R.string.option_clear_item),
-                getString(R.string.option_web_query)
-        };
+        final ArrayList<String> itemList = new ArrayList<>();
+
+        itemList.add(getString(R.string.option_query_again));
+        itemList.add(getString(R.string.option_clear_item));
+        if (view instanceof TextView) {
+            itemList.add(getString(R.string.option_voice_output_text));
+            itemList.add(getString(R.string.option_copy_edit_text));
+            itemList.add(getString(R.string.option_web_query_text));
+        } else {
+            itemList.add(getString(R.string.option_save_image));
+        }
+        final String[] items = itemList.toArray(new String[0]);
         AlertDialog.Builder listDialog =
                 new AlertDialog.Builder(MainActivity.this);
         listDialog.setTitle(getString(R.string.option_dialog_title));
@@ -1190,46 +784,64 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 // which 下标从0开始
-                mLastItemOptionFunction = which;
+//                mLastItemOptionFunction = which; //for feature phone
+                Msg itemMsg = mResultMsgList.get(position);
+                if (null == itemMsg) return;
 
-                doListItemOption(which, view, position);
+                if (!TextUtils.isEmpty(itemMsg.getContent())) {
+                    String itemText = itemMsg.getContent();//getSelectedItemText((TextView)view);
+                    itemText = removeRedundancy(itemText);
+                    if (!TextUtils.isEmpty(itemText)) {
+                        doListItemTextOption(which, position, itemText);
+                    }
+                } else if (itemMsg.getImageBitmap() != null) {
+                    Bitmap bitmap = itemMsg.getImageBitmap();
+                    if (null != bitmap) {
+                        doListItemBitmapOption(which, position, bitmap);
+                    }
+                }
             }
         });
         listDialog.show();
     }
 
-    private void doListItemOption(int option, View view, int position) {
-        String text = "";
-
-        if (mSupportTouch) {
-            if (null != view) text = ((TextView)view).getText().toString();
-        } else {
-            Msg msg = (Msg)mResultMsgListView.getSelectedItem();
-            if (null != msg) text = msg.getContent();
+    private void doListItemBitmapOption(int option, int position, Bitmap bitmap) {
+        switch (option) {
+            case 0: //重新提问
+                triggerQuery(bitmap);
+                break;
+            case 1: //清除显示
+                if (mSupportTouch) {
+                    if (position >= 0) mResultMsgList.remove(position);
+                } else {
+                    mResultMsgList.remove(mResultMsgListView.getSelectedItemPosition());
+                }
+                ((MsgAdapter) mResultMsgListView.getAdapter()).notifyDataSetChanged();
+                break;
+            case 2: //保存图片
+                MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "", "");
+                break;
         }
+    }
 
-        if (TextUtils.isEmpty(text)) return;
+    private String removeRedundancy(String text) {
         //remove botid name, xxx (xxx)
-        if (text.lastIndexOf(")") == text.length() - 1) {
+        if (!TextUtils.isEmpty(text) && text.lastIndexOf(")") == text.length() - 1) {
             int pos = text.lastIndexOf("(");
             if (pos >= 0) {
                 text = text.substring(0, pos);
             }
         }
 
+        return text;
+    }
+
+    private void doListItemTextOption(int option, int position, String text) {
         switch (option) {
-            case 0://语音播报
-                if (!mSpeechEnable && (null != mBaiduTTSAI && !mBaiduTTSAI.isTTSRunning())) {
-                    startTTS(text);
-                }
-                break;
-            case 1://重新提问
+            case 0://重新提问
                 triggerQuery(text);
                 break;
-            case 2://拷贝编辑
-                copyAndEditMsgItemText(text);
-                break;
-            case 3://清除显示
+            case 1://清除显示
                 if (mSupportTouch) {
                     if (position >= 0) mResultMsgList.remove(position);
                 } else {
@@ -1237,31 +849,18 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 }
                 ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
                 break;
+            case 2://语音播报
+                if (!mSpeechEnable) {// && (null != mBaiduTTSAI && !mBaiduTTSAI.isTTSRunning())) {
+                    startTTS(text);
+                }
+                break;
+            case 3://拷贝编辑
+                copyAndEditMsgItemText(text);
+                break;
             case 4://上网搜索
                 WebSearchAction.getInstance(this).searchAction(text);
                 break;
         }
-    }
-
-
-    private void focusListView() {
-        mResultMsgListView.requestFocus();
-    }
-
-    private String getAndShowMatchedOCRLanguage(String language) {
-        if (TRANSLATE_SUB_UI_LEVER == mCurUILever && null != mBaiduUnitAI) {
-            if (mBaiduUnitAI.getTranslateFixAction().getTranslateType() == TranslateFixAction.TRANSLATE) {
-                language = mBaiduUnitAI.getTranslateFixAction().getOriginalLanguage();
-                showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), false);
-            } else {
-                language = mBaiduUnitAI.getTranslateFixAction().getTargetLanguage();
-                showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), true);
-            }
-        } else {
-            showFinalResponse(String.format(getString(R.string.baidu_unit_ocr_start), language), false);
-        }
-
-        return language;
     }
 
     private void onInputTextOver() {
@@ -1299,29 +898,29 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (GlobalValue.LOCAL_BROADCAST_LAUNCH_CAMERA.equals(action)) {
-                onOCRCameraActivity(intent.getStringExtra(GlobalValue.INTENT_OCR_LANGUAGE));
+                onOCRTextCameraActivity(intent.getStringExtra(GlobalValue.INTENT_OCR_LANGUAGE));
             }
         }
     };
 
     /*在UI界面上显示信息*/
-    private void initProgressDialog() {
+    protected void initProgressDialog() {
         mProgressDialog = new ProgressDialog(this);
         mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         mProgressDialog.setCancelable(true);
     }
 
-    private void showProgressDialog(String msg) {
+    protected void showProgressDialog(String msg) {
         mProgressDialog.setMessage(msg);
         mProgressDialog.setCancelable(true);
         mProgressDialog.show();
     }
 
-    private void hideProgressDialog() {
+    protected void hideProgressDialog() {
         if (mProgressDialog.isShowing()) mProgressDialog.dismiss();
     }
 
-    private void showDebugInfo(final String info, final boolean reset) {
+    protected void showDebugInfo(final String info, final boolean reset) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             subShowDebugInfo(info, reset);
         } else {
@@ -1334,7 +933,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
-    private void subShowDebugInfo(String info, boolean reset) {
+    protected void subShowDebugInfo(String info, boolean reset) {
         if (findViewById(R.id.tv_debug_info).getVisibility() != View.VISIBLE) {
             findViewById(R.id.tv_debug_info).setVisibility(View.VISIBLE);
         }
@@ -1350,46 +949,60 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
-    private void showFinalResponse(String first, boolean reverse) {
+    protected void showFinalImageResponse(String imageFilePath, boolean reverse) {
         hideProgressDialog();
 
         if (reverse) {
-            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_RECEIVED));
+            if (FileUtils.isFileExist(imageFilePath)) mResultMsgList.add(
+                    new Msg(BitmapFactory.decodeFile(imageFilePath), Msg.TYPE_RECEIVED_IMAGE));
         } else {
-            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_SEND));
+            if (FileUtils.isFileExist(imageFilePath)) mResultMsgList.add(
+                    new Msg(BitmapFactory.decodeFile(imageFilePath), Msg.TYPE_SEND_IMAGE));
         }
 
         ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
         mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
     }
 
-    private void showFinalResponse(String first, String second, boolean reverse) {
+    protected void showFinalTextResponse(String first, boolean reverse) {
         hideProgressDialog();
-
         if (reverse) {
-            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_RECEIVED));
-            if (!TextUtils.isEmpty(second)) mResultMsgList.add(new Msg(second, Msg.TYPE_SEND));
+            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_RECEIVED_TEXT));
         } else {
-            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_SEND));
-            if (!TextUtils.isEmpty(second)) mResultMsgList.add(new Msg(second, Msg.TYPE_RECEIVED));
+            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_SEND_TEXT));
         }
 
         ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
         mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
     }
 
-    private void showHint(String hint) {
+    protected void showFinalTextResponse(String first, String second, boolean reverse) {
+        hideProgressDialog();
+
+        if (reverse) {
+            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_RECEIVED_TEXT));
+            if (!TextUtils.isEmpty(second)) mResultMsgList.add(new Msg(second, Msg.TYPE_SEND_TEXT));
+        } else {
+            if (!TextUtils.isEmpty(first)) mResultMsgList.add(new Msg(first, Msg.TYPE_SEND_TEXT));
+            if (!TextUtils.isEmpty(second)) mResultMsgList.add(new Msg(second, Msg.TYPE_RECEIVED_TEXT));
+        }
+
+        ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
+        mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
+    }
+
+    protected void showHint(String hint) {
         if (!TextUtils.isEmpty(hint)) {
-            mResultMsgList.add(new Msg(hint, Msg.TYPE_RECEIVED));
+            mResultMsgList.add(new Msg(hint, Msg.TYPE_RECEIVED_TEXT));
             ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
             mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
         }
     }
 
-    private void showErrorMsg(final String msg) {
+    protected void showErrorMsg(final String msg) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
             hideProgressDialog();
-            mResultMsgList.add(new Msg(msg, Msg.TYPE_RECEIVED));
+            mResultMsgList.add(new Msg(msg, Msg.TYPE_RECEIVED_TEXT));
             ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
             mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
         } else {
@@ -1397,7 +1010,7 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
                 @Override
                 public void run() {
                     hideProgressDialog();
-                    mResultMsgList.add(new Msg(msg, Msg.TYPE_RECEIVED));
+                    mResultMsgList.add(new Msg(msg, Msg.TYPE_RECEIVED_TEXT));
                     ((MsgAdapter)mResultMsgListView.getAdapter()).notifyDataSetChanged();
                     mResultMsgListView.setSelection(mResultMsgListView.getAdapter().getCount() - 1);
                 }
@@ -1405,7 +1018,29 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
     }
 
+    private void onShowAlbumAndCameraOptionDialog(DialogInterface.OnClickListener listener) {
+        final String[] items = {
+                getString(R.string.option_camera),
+                getString(R.string.option_image),
+        };
+
+        AlertDialog.Builder listDialog =
+                new AlertDialog.Builder(MainActivity.this);
+        listDialog.setTitle(getString(R.string.option_dialog_title));
+        listDialog.setItems(items, listener);
+        listDialog.show();
+    }
+
     /*以下支持按键功能机*/
+/*
+    private int mLastItemOptionFunction = 0;
+    private String mLastTranslateLanguage = TranslateFixAction.DEFAULT_TRANSLATE_TARGET_LANGUAGE;
+    private int mLastOCROptionMode = OCR_TEXT_CAMERA_REQUEST_CODE;// OCR_TEXT_CAMERA_REQUEST_CODE: camera, OCR_TEXT_IMAGE_REQUEST_CODE: photo album
+
+    private void focusListView() {
+        mResultMsgListView.requestFocus();
+    }
+
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         int keyCode = event.getKeyCode();
@@ -1495,17 +1130,26 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
     public boolean onKeyUp(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_5:
-                if(mShortPress) doListItemOption(mLastItemOptionFunction, null, -1);
+                if(mShortPress) {
+                    Msg msg = (Msg)mResultMsgListView.getSelectedItem();
+                    String itemText = null;
+                    if (null != msg) {
+                        itemText = removeRedundancy(msg.getContent());
+                    }
+                    if (TextUtils.isEmpty(itemText)) {
+                        doListItemTextOption(mLastItemOptionFunction, -1, itemText);
+                    }
+                }
                 //Don't handle long press here, because the user will have to get his finger back up first
                 mShortPress = false;
                 return true;
             case KeyEvent.KEYCODE_3:
                 if(mShortPress) {
-                    if (OCR_CAMERA_REQUEST_CODE == mLastOCROptionMode) {
-                        onOCRCameraActivity(mLastOCRLanguage);
-                    } else if (OCR_IMAGE_REQUEST_CODE == mLastOCROptionMode) {
+                    if (OCR_TEXT_CAMERA_REQUEST_CODE == mLastOCROptionMode) {
+                        onOCRTextCameraActivity(mLastOCRLanguage);
+                    } else if (OCR_TEXT_IMAGE_REQUEST_CODE == mLastOCROptionMode) {
                         mLastOCRLanguage = getAndShowMatchedOCRLanguage(mLastOCRLanguage);
-                        mCropImageRequestCode = OCR_IMAGE_REQUEST_CODE;
+                        mCropImageRequestCode = OCR_TEXT_IMAGE_REQUEST_CODE;
                         SystemUtil.startSysAlbumActivity(this, IMAGE_SELECT_REQUEST_CODE);
                     }
                 }
@@ -1538,11 +1182,11 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
             case KeyEvent.KEYCODE_3:
                 mShortPress = false;
                 if (TRANSLATE_SUB_UI_LEVER == mCurUILever) {
-                    if (OCR_CAMERA_REQUEST_CODE == mLastOCROptionMode) {
-                        onOCRCameraActivity(mLastOCRLanguage);
-                    } else if (OCR_IMAGE_REQUEST_CODE == mLastOCROptionMode) {
+                    if (OCR_TEXT_CAMERA_REQUEST_CODE == mLastOCROptionMode) {
+                        onOCRTextCameraActivity(mLastOCRLanguage);
+                    } else if (OCR_TEXT_IMAGE_REQUEST_CODE == mLastOCROptionMode) {
                         mLastOCRLanguage = getAndShowMatchedOCRLanguage(mLastOCRLanguage);
-                        mCropImageRequestCode = OCR_IMAGE_REQUEST_CODE;
+                        mCropImageRequestCode = OCR_TEXT_IMAGE_REQUEST_CODE;
                         SystemUtil.startSysAlbumActivity(this, IMAGE_SELECT_REQUEST_CODE);
                     }
                 } else {
@@ -1566,5 +1210,5 @@ public class MainActivity extends Activity implements ViewTreeObserver.OnGlobalL
         }
         //Just return false because the super call does always the same (returning false)
         return false;
-    }
+    }*/
 }

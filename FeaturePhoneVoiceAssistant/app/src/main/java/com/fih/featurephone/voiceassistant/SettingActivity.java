@@ -8,10 +8,14 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
 
+import com.fih.featurephone.voiceassistant.baidu.imageclassify.BaiduClassifyImageAI;
+import com.fih.featurephone.voiceassistant.baidu.speech.BaiduSpeechAI;
 import com.fih.featurephone.voiceassistant.baidu.unit.BaiduUnitAI;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
+import com.fih.featurephone.voiceassistant.utils.GlobalValue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -19,13 +23,15 @@ import java.util.Objects;
 public class SettingActivity extends Activity {
     static final String PREF_SETTINGS = "pref_settings";
     static final String PREF_DEBUG = "pref_debug";
-    static final String PREF_TTS =  "pref_tts";
-    static final String PREF_OFFLINEFACE = "pref_offlineface";
-    static final String PREF_ENABLE_EXTRAFUN = "PREF_ENABLE_EXTRAFUN";
-    static final String PREF_WORK_MODE = "pref_work_mode";
-    static final String PREF_ROBOT_TYPE = "pref_robot_type";
-    static final String PREF_BOT_TYPE = "pref_bot_type";
+    static final String PREF_TTS = "pref_tts";
+    static final String PREF_REQUEST_IMAGE = "perf_request_image";
+    static final String PREF_ENABLE_EXTRA_FUN = "pref_enable_extra_fun";
+    static final String PREF_FACE_IDENTIFY_WORK_MODE = "pref_face_identify_work_mode";
+    static final String PREF_UNIT_WORK_MODE = "pref_unit_work_mode";
+    static final String PREF_UNIT_ROBOT_TYPE = "pref_unit_robot_type";
+    static final String PREF_UNIT_BOT_TYPE = "pref_unit_bot_type";
     static final String PREF_SPEECH_TYPE = "pref_speech_type";
+    static final String PREF_CLASSIFY_IMAGE_TYPE = "pref_classify_image_type";
 
     static final int NONE = 0;
 
@@ -34,22 +40,26 @@ public class SettingActivity extends Activity {
     public static class SettingResult implements Cloneable {
         boolean mDebug;
         boolean mTTS;
-        boolean mOfflineFace;
+        boolean mRequestImage;
         boolean mEnableExtraFun;
+        int mFaceIdentifyMode;
         int mUnitType;
         int mRobotType;
         int mSpeechType;
         ArrayList<String> mBotTypeList;
+        ArrayList<Integer> mClassifyImageTypeList;
 
         SettingResult() {
             mDebug = false;
             mTTS = true;
-            mOfflineFace = false;
+            mRequestImage = false;
             mEnableExtraFun = false;
+            mFaceIdentifyMode = NONE;
             mUnitType = NONE;
             mRobotType = NONE;
             mSpeechType = NONE;
             mBotTypeList = new ArrayList<>();
+            mClassifyImageTypeList = new ArrayList<>();
         }
 
         @Override
@@ -70,17 +80,19 @@ public class SettingActivity extends Activity {
             SettingResult that = (SettingResult) o;
             return mDebug == that.mDebug &&
                     mTTS == that.mTTS &&
-                    mOfflineFace == that.mOfflineFace &&
+                    mRequestImage == that.mRequestImage &&
                     mEnableExtraFun == that.mEnableExtraFun &&
+                    mFaceIdentifyMode == that.mFaceIdentifyMode &&
                     mUnitType == that.mUnitType &&
                     mRobotType == that.mRobotType &&
                     mSpeechType == that.mRobotType &&
-                    mBotTypeList.equals(that.mBotTypeList);
+                    mBotTypeList.equals(that.mBotTypeList) &&
+                    mClassifyImageTypeList.equals(that.mClassifyImageTypeList);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mUnitType, mRobotType, mSpeechType, mBotTypeList);
+            return Objects.hash(mFaceIdentifyMode, mUnitType, mRobotType, mSpeechType, mBotTypeList, mClassifyImageTypeList);
         }
     }
 
@@ -98,6 +110,22 @@ public class SettingActivity extends Activity {
             put(R.id.baidu_unit_bot_couplet, BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_COUPLET);
             put(R.id.baidu_unit_bot_translate, BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_TRANSLATE);
             put(R.id.baidu_unit_bot_joke, BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_JOKE);
+            put(R.id.baidu_unit_bot_garbage, BaiduUnitAI.BAIDU_UNIT_BOT_TYPE_GARBAGE);
+        }
+    };
+
+    private final Map<Integer, Integer> CLASSIFY_IMAGE_RID_MAP = new HashMap<Integer, Integer>() {
+        {
+            put(R.id.baidu_classify_image_general_type, BaiduClassifyImageAI.CLASSIFY_TYPE_ADVANCED_GENERAL);
+            put(R.id.baidu_classify_image_plant_type, BaiduClassifyImageAI.CLASSIFY_TYPE_PLANT);
+            put(R.id.baidu_classify_image_car_type, BaiduClassifyImageAI.CLASSIFY_TYPE_CAR);
+            put(R.id.baidu_classify_image_dish_type, BaiduClassifyImageAI.CLASSIFY_TYPE_DISH);
+            put(R.id.baidu_classify_image_red_wine_type, BaiduClassifyImageAI.CLASSIFY_TYPE_RED_WINE);
+            put(R.id.baidu_classify_image_logo_type, BaiduClassifyImageAI.CLASSIFY_TYPE_LOGO);
+            put(R.id.baidu_classify_image_animal_type, BaiduClassifyImageAI.CLASSIFY_TYPE_ANIMAL);
+            put(R.id.baidu_classify_image_ingredient_type, BaiduClassifyImageAI.CLASSIFY_TYPE_INGREDIENT);
+            put(R.id.baidu_classify_image_landmark_type, BaiduClassifyImageAI.CLASSIFY_TYPE_LANDMARK);
+            put(R.id.baidu_classify_image_currency_type, BaiduClassifyImageAI.CLASSIFY_TYPE_CURRENCY);
         }
     };
 
@@ -174,14 +202,16 @@ public class SettingActivity extends Activity {
         SharedPreferences settingPrefs = context.getSharedPreferences(PREF_SETTINGS, Context.MODE_PRIVATE);
         settingResult.mDebug = settingPrefs.getBoolean(PREF_DEBUG, false);
         settingResult.mTTS = settingPrefs.getBoolean(PREF_TTS, true);
-        settingResult.mOfflineFace = settingPrefs.getBoolean(PREF_OFFLINEFACE, false);
-        settingResult.mEnableExtraFun = settingPrefs.getBoolean(PREF_ENABLE_EXTRAFUN, false);
-        settingResult.mUnitType = settingPrefs.getInt(PREF_WORK_MODE, BaiduUnitAI.BAIDU_UNIT_TYPE_KEYBOARD_BOT);
-        settingResult.mRobotType = settingPrefs.getInt(PREF_ROBOT_TYPE, BaiduUnitAI.BAIDU_UNIT_ROBOT_TYPE_LOCAL);
-        settingResult.mSpeechType = settingPrefs.getInt(PREF_SPEECH_TYPE, BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE);
-        settingResult.mBotTypeList = CommonUtil.getListFromString(settingPrefs.getString(PREF_BOT_TYPE,
-                "81459,81485,81469,81467,81465,81461,84536,87833,81481,81476"));
-
+        settingResult.mRequestImage = settingPrefs.getBoolean(PREF_REQUEST_IMAGE, false);
+        settingResult.mEnableExtraFun = settingPrefs.getBoolean(PREF_ENABLE_EXTRA_FUN, false);
+        settingResult.mFaceIdentifyMode = settingPrefs.getInt(PREF_FACE_IDENTIFY_WORK_MODE, GlobalValue.FACE_IDENTIFY_CONTENT_APPROVE);
+        settingResult.mUnitType = settingPrefs.getInt(PREF_UNIT_WORK_MODE, BaiduUnitAI.BAIDU_UNIT_TYPE_KEYBOARD_BOT);
+        settingResult.mRobotType = settingPrefs.getInt(PREF_UNIT_ROBOT_TYPE, BaiduUnitAI.BAIDU_UNIT_ROBOT_TYPE_LOCAL);
+        settingResult.mSpeechType = settingPrefs.getInt(PREF_SPEECH_TYPE, BaiduSpeechAI.BAIDU_SPEECH_CHINESE);
+        settingResult.mBotTypeList = CommonUtil.getListFromString(settingPrefs.getString(PREF_UNIT_BOT_TYPE,
+                "81459,81485,81469,81467,81465,81461,84536,87833,81481,81476,1010930"));
+        settingResult.mClassifyImageTypeList = CommonUtil.getNumListFromString(settingPrefs.getString(PREF_CLASSIFY_IMAGE_TYPE,
+                "0,1,2,3"));//CLASSIFY_TYPE_ADVANCED_GENERAL, CLASSIFY_TYPE_PLANT, CLASSIFY_TYPE_CAR, CLASSIFY_TYPE_DISH
         return settingResult;
     }
 
@@ -219,12 +249,16 @@ public class SettingActivity extends Activity {
 
         settingEditor.putBoolean(PREF_DEBUG, settingResult.mDebug);
         settingEditor.putBoolean(PREF_TTS, settingResult.mTTS);
-        settingEditor.putBoolean(PREF_OFFLINEFACE, settingResult.mOfflineFace);
-        settingEditor.putBoolean(PREF_ENABLE_EXTRAFUN, settingResult.mEnableExtraFun);
-        settingEditor.putInt(PREF_WORK_MODE, settingResult.mUnitType);
-        settingEditor.putInt(PREF_ROBOT_TYPE, settingResult.mRobotType);
+        settingEditor.putBoolean(PREF_REQUEST_IMAGE, settingResult.mRequestImage);
+        settingEditor.putBoolean(PREF_ENABLE_EXTRA_FUN, settingResult.mEnableExtraFun);
+        settingEditor.putInt(PREF_FACE_IDENTIFY_WORK_MODE, settingResult.mFaceIdentifyMode);
+        settingEditor.putInt(PREF_UNIT_WORK_MODE, settingResult.mUnitType);
+        settingEditor.putInt(PREF_UNIT_ROBOT_TYPE, settingResult.mRobotType);
         settingEditor.putInt(PREF_SPEECH_TYPE, settingResult.mSpeechType);
-        settingEditor.putString(PREF_BOT_TYPE, CommonUtil.getStringFromList(settingResult.mBotTypeList));
+        settingEditor.putString(PREF_UNIT_BOT_TYPE, CommonUtil.getStringFromList(settingResult.mBotTypeList));
+
+        Collections.sort(settingResult.mClassifyImageTypeList);//从小到大排列的
+        settingEditor.putString(PREF_CLASSIFY_IMAGE_TYPE, CommonUtil.getStringFromNumList(settingResult.mClassifyImageTypeList));
 
         settingEditor.apply();
     }
@@ -232,12 +266,14 @@ public class SettingActivity extends Activity {
     private void setUIValue(SettingResult settingResult) {
         ((CheckBox)findViewById(R.id.baidu_debug)).setChecked(settingResult.mDebug);
         ((CheckBox)findViewById(R.id.baidu_tts)).setChecked(settingResult.mTTS);
-        ((CheckBox)findViewById(R.id.baidu_offline_face)).setChecked(settingResult.mOfflineFace);
+        ((CheckBox)findViewById(R.id.baidu_request_image)).setChecked(settingResult.mRequestImage);
         ((CheckBox)findViewById(R.id.baidu_enable_extra_fun)).setChecked(settingResult.mEnableExtraFun);
+        setFaceIdentifyWorkMode(settingResult.mFaceIdentifyMode);
         setUnitWorkMode(settingResult.mUnitType);
         setUnitRobotType(settingResult.mRobotType);
         setUnitSpeechType(settingResult.mSpeechType);
         setUnitBotTypeList(settingResult.mBotTypeList);
+        setClassifyImageTypeList(settingResult.mClassifyImageTypeList);
 
         switch (settingResult.mUnitType) {
             case BaiduUnitAI.BAIDU_UNIT_TYPE_ASR_BOT:
@@ -256,13 +292,37 @@ public class SettingActivity extends Activity {
         SettingResult settingResult = new SettingResult();
         settingResult.mDebug = ((CheckBox)findViewById(R.id.baidu_debug)).isChecked();
         settingResult.mTTS = ((CheckBox)findViewById(R.id.baidu_tts)).isChecked();
-        settingResult.mOfflineFace = ((CheckBox)findViewById(R.id.baidu_offline_face)).isChecked();
+        settingResult.mRequestImage = ((CheckBox)findViewById(R.id.baidu_request_image)).isChecked();
         settingResult.mEnableExtraFun = ((CheckBox)findViewById(R.id.baidu_enable_extra_fun)).isChecked();
+        settingResult.mFaceIdentifyMode = getFaceIdentifyWorkMode();
         settingResult.mUnitType = getUnitWorkMode();
         settingResult.mRobotType = getUnitRobotType();
         settingResult.mSpeechType = getUnitSpeechType();
         settingResult.mBotTypeList = getUnitBotTypeList();
+        settingResult.mClassifyImageTypeList = getClassifyImageTypeList();
+
         return settingResult;
+    }
+
+    private int getFaceIdentifyWorkMode() {
+        RadioGroup radioGroup = findViewById(R.id.baidu_face_identify_work_mode);
+        int selID = radioGroup.getCheckedRadioButtonId();
+        int workMode = NONE;
+        switch (selID) {
+            case R.id.baidu_offline_face_identify:
+                workMode = GlobalValue.FACE_IDENTIFY_OFFLINE;
+                break;
+            case R.id.baidu_online_1N_face_identify:
+                workMode = GlobalValue.FACE_IDENTIFY_ONLINE_1N;
+                break;
+            case R.id.baidu_online_MN_face_identify:
+                workMode = GlobalValue.FACE_IDENTIFY_ONLINE_MN;
+                break;
+            case R.id.baidu_content_approve_face_identify:
+                workMode = GlobalValue.FACE_IDENTIFY_CONTENT_APPROVE;
+                break;
+        }
+        return workMode;
     }
 
     private int getUnitWorkMode() {
@@ -284,6 +344,19 @@ public class SettingActivity extends Activity {
                 break;
         }
         return workMode;
+    }
+
+    private void setFaceIdentifyWorkMode(int workMode) {
+        RadioGroup radioGroup = findViewById(R.id.baidu_face_identify_work_mode);
+        if (GlobalValue.FACE_IDENTIFY_OFFLINE == workMode) {
+            radioGroup.check(R.id.baidu_offline_face_identify);
+        } else if (GlobalValue.FACE_IDENTIFY_ONLINE_1N == workMode) {
+            radioGroup.check(R.id.baidu_online_1N_face_identify);
+        } else if (GlobalValue.FACE_IDENTIFY_ONLINE_MN == workMode) {
+            radioGroup.check(R.id.baidu_online_MN_face_identify);
+        } else if (GlobalValue.FACE_IDENTIFY_CONTENT_APPROVE == workMode) {
+            radioGroup.check(R.id.baidu_content_approve_face_identify);
+        }
     }
 
     private void setUnitWorkMode(int workMode) {
@@ -330,13 +403,13 @@ public class SettingActivity extends Activity {
 
     private void setUnitSpeechType(int speechType) {
         RadioGroup radioGroup = findViewById(R.id.baidu_unit_speech_language_type);
-        if (BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE == speechType) {
+        if (BaiduSpeechAI.BAIDU_SPEECH_CHINESE == speechType) {
             radioGroup.check(R.id.baidu_unit_speech_language_chinese);
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_ENGLISH == speechType) {
+        } else if (BaiduSpeechAI.BAIDU_SPEECH_ENGLISH == speechType) {
             radioGroup.check(R.id.baidu_unit_speech_language_english);
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_SICHUANESE == speechType) {
+        } else if (BaiduSpeechAI.BAIDU_SPEECH_SICHUANESE == speechType) {
             radioGroup.check(R.id.baidu_unit_speech_language_sichuanese);
-        } else if (BaiduUnitAI.BAIDU_UNIT_SPEECH_CANTONESE == speechType) {
+        } else if (BaiduSpeechAI.BAIDU_SPEECH_CANTONESE == speechType) {
             radioGroup.check(R.id.baidu_unit_speech_language_cantonese);
         }
     }
@@ -347,16 +420,16 @@ public class SettingActivity extends Activity {
         int speechType = NONE;
         switch (selID) {
             case R.id.baidu_unit_speech_language_chinese:
-                speechType = BaiduUnitAI.BAIDU_UNIT_SPEECH_CHINESE;
+                speechType = BaiduSpeechAI.BAIDU_SPEECH_CHINESE;
                 break;
             case R.id.baidu_unit_speech_language_english:
-                speechType = BaiduUnitAI.BAIDU_UNIT_SPEECH_ENGLISH;
+                speechType = BaiduSpeechAI.BAIDU_SPEECH_ENGLISH;
                 break;
             case R.id.baidu_unit_speech_language_sichuanese:
-                speechType = BaiduUnitAI.BAIDU_UNIT_SPEECH_SICHUANESE;
+                speechType = BaiduSpeechAI.BAIDU_SPEECH_SICHUANESE;
                 break;
             case R.id.baidu_unit_speech_language_cantonese:
-                speechType = BaiduUnitAI.BAIDU_UNIT_SPEECH_CANTONESE;
+                speechType = BaiduSpeechAI.BAIDU_SPEECH_CANTONESE;
                 break;
             default:
                 break;
@@ -397,7 +470,6 @@ public class SettingActivity extends Activity {
 */
 
         if (null == botTypeList) return;
-
 //        boolean bSetDone;
         for (String botType : botTypeList) {
 //            bSetDone = false;
@@ -420,6 +492,32 @@ public class SettingActivity extends Activity {
                 }
             }
 */
+        }
+    }
+
+    private ArrayList<Integer> getClassifyImageTypeList() {
+        ArrayList<Integer> classifyImageTypeList = new ArrayList<>();
+        for (int r_id : CLASSIFY_IMAGE_RID_MAP.keySet()) {
+            if (((CheckBox) findViewById(r_id)).isChecked()) {
+                classifyImageTypeList.add(CLASSIFY_IMAGE_RID_MAP.get(r_id));
+            }
+        }
+        return classifyImageTypeList;
+    }
+
+    private void setClassifyImageTypeList(ArrayList<Integer> classifyImageTypeList) {
+        for (int r_id : CLASSIFY_IMAGE_RID_MAP.keySet()) {
+            ((CheckBox)findViewById(r_id)).setChecked(false);
+        }
+
+        if (null == classifyImageTypeList) return;
+        for (Integer classifyImageType : classifyImageTypeList) {
+            for (int r_id : CLASSIFY_IMAGE_RID_MAP.keySet()) {
+                if (classifyImageType.equals(CLASSIFY_IMAGE_RID_MAP.get(r_id))) {
+                    ((CheckBox) findViewById(r_id)).setChecked(true);
+                    break;
+                }
+            }
         }
     }
 }

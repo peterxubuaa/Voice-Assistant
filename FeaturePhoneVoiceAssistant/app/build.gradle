@@ -8,8 +8,8 @@ android {
         minSdkVersion 19
         //noinspection ExpiredTargetSdkVersion
         targetSdkVersion 28
-        versionCode 6
-        versionName "Peter xu 6.0"
+        versionCode 7
+        versionName "Peter xu 7.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true //key point

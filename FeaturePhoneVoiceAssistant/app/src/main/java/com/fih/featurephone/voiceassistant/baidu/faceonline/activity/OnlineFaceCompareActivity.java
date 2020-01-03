@@ -5,7 +5,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceCompare;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
@@ -32,7 +32,7 @@ public class OnlineFaceCompareActivity extends OnlineFaceDoubleBaseActivity {
         });
     }
 
-    private BaiduFaceOnlineAI.OnFaceOnlineListener mFaceOnlineListener = new BaiduFaceOnlineAI.OnFaceOnlineListener() {
+    private BaiduBaseAI.IBaiduBaseListener mFaceOnlineListener = new BaiduBaseAI.IBaiduBaseListener() {
         @Override
         public void onError(String msg) {
             CommonUtil.toast(OnlineFaceCompareActivity.this, msg);

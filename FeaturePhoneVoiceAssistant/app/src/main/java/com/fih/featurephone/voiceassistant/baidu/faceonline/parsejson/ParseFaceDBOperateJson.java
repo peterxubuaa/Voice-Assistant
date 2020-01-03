@@ -2,11 +2,13 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ParseFaceDBOperateJson extends ParseFaceBaseJson{
 //https://ai.baidu.com/docs#/Face-ErrorCode-V3/top
+public class ParseFaceDBOperateJson extends BaiduParseBaseJson {
 
     private static ParseFaceDBOperateJson sParseFaceDBOperateJson = null;
 
@@ -17,13 +19,13 @@ public class ParseFaceDBOperateJson extends ParseFaceBaseJson{
         return sParseFaceDBOperateJson;
     }
 
-    public class FaceOperate extends FaceBaseResponse {
+    public class FaceOperate extends BaiduParseBaseResponse {
         public Result mResult;
     }
 
     public class Result {
         public String mFaceToken;
-        Location mLocation;
+        LocationF mLocationF;
     }
 
     public FaceOperate parse(String result) {
@@ -50,7 +52,7 @@ public class ParseFaceDBOperateJson extends ParseFaceBaseJson{
                 result.mFaceToken = jsonObject.getString("face_token");
             }
             if (!jsonObject.isNull("location")) {
-                result.mLocation = parseLocation(jsonObject.getJSONObject("location"));
+                result.mLocationF = parseLocationF(jsonObject.getJSONObject("location"));
             }
         } catch (JSONException e) {
             e.printStackTrace();

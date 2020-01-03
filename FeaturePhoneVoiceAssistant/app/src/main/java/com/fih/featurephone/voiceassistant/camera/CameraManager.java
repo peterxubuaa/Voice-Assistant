@@ -46,7 +46,7 @@ public final class CameraManager {
         if (Camera.CameraInfo.CAMERA_FACING_BACK == mCameraFacing) {
             return mCameraRotation;
         } else {
-            return mCameraRotation + 180;//temp solution?
+            return mCameraRotation + 180;//compensate the mirror
         }
     }
 

@@ -20,9 +20,11 @@ import com.fih.featurephone.voiceassistant.baidu.faceoffline.camera.FaceCameraPr
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.listener.UserInfoUpdateListener;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.manager.FaceSDKManager;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.model.User;
+import com.fih.featurephone.voiceassistant.camera.ImageCropActivity;
 import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
+import com.fih.featurephone.voiceassistant.utils.GlobalValue;
 import com.fih.featurephone.voiceassistant.utils.SystemUtil;
 
 import java.io.File;
@@ -147,14 +149,18 @@ public class FaceUserInfoActivity extends Activity {
         final String CROP_IMAGE_FILE_PATH = FileUtils.getFaceTempImageDirectory().getAbsolutePath() + File.separator + "crop_user_info.jpg";
         switch (requestCode) {
             case IMAGE_SELECT_REQUEST_CODE:
-                SystemUtil.cropSelectImage(this, data.getData(), CROP_IMAGE_REQUEST_CODE, CROP_IMAGE_FILE_PATH);
+                Intent intent = new Intent(FaceUserInfoActivity.this, ImageCropActivity.class);
+                intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH);
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, CROP_IMAGE_REQUEST_CODE);
                 break;
             case CROP_IMAGE_REQUEST_CODE:
                 if (FileUtils.isFileExist(CROP_IMAGE_FILE_PATH)) {
                     mUpdateUerImage = true;
                     int rotateDegree = BitmapUtils.getJpegImageRotateDegree(CROP_IMAGE_FILE_PATH);
                     ((ImageView) findViewById(R.id.user_image_image_view))
-                            .setImageBitmap(BitmapUtils.rotateBitmap(rotateDegree, BitmapFactory.decodeFile(CROP_IMAGE_FILE_PATH)));
+                            .setImageBitmap(BitmapUtils.rotateBitmap(BitmapFactory.decodeFile(CROP_IMAGE_FILE_PATH), rotateDegree));
                 }
                 break;
         }

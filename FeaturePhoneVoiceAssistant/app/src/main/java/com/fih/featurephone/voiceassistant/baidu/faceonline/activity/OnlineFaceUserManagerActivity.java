@@ -15,14 +15,16 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
-import com.fih.featurephone.voiceassistant.baidu.faceonline.model.BaseFaceModel;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceDBOperate;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceDBQuery;
 import com.fih.featurephone.voiceassistant.camera.CameraCaptureActivity;
+import com.fih.featurephone.voiceassistant.camera.ImageCropActivity;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
 import com.fih.featurephone.voiceassistant.utils.GlobalValue;
+import com.fih.featurephone.voiceassistant.utils.SystemUtil;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,15 +35,16 @@ import java.util.concurrent.Future;
 import static android.widget.AbsListView.CHOICE_MODE_NONE;
 
 public class OnlineFaceUserManagerActivity extends Activity {
-    private final int ADD_ITEM_REQUEST_CODE = 100;
-    private final int UPDATE_ITEM_REQUEST_CODE = 101;
+    private final int ADD_ITEM_CAMERA_REQUEST_CODE = 100;
+    private final int UPDATE_ITEM_REQUEST_CODE = 300;
     private final int MAX_QUERY_ITEM_NUM = 10;
+    private final int IMAGE_SELECT_REQUEST_CODE = 1000;
 
     private ArrayList<UserItem> mUserList = new ArrayList<>();
     private ListView mUserListView;
     private boolean mSelectAll = false;
     private ProgressDialog mProgressDialog;
-    private ExecutorService mFaceExecutorService = Executors.newSingleThreadExecutor();
+    private ExecutorService mFaceExecutorService;
     private Future mFaceTaskFuture;
     private int mQueryStartPos = 0;
 
@@ -53,6 +56,7 @@ public class OnlineFaceUserManagerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_face_user_manager);
 
+        mFaceExecutorService = Executors.newSingleThreadExecutor();
         mFaceDBOperate = new FaceDBOperate(this, mFaceOnlineListener);
         mFaceDBQuery = new FaceDBQuery(this, mFaceOnlineListener);
 
@@ -60,7 +64,7 @@ public class OnlineFaceUserManagerActivity extends Activity {
         initView();
     }
 
-    private BaiduFaceOnlineAI.OnFaceOnlineListener mFaceOnlineListener = new BaiduFaceOnlineAI.OnFaceOnlineListener() {
+    private BaiduBaseAI.IBaiduBaseListener mFaceOnlineListener = new BaiduBaseAI.IBaiduBaseListener() {
         @Override
         public void onError(String msg) {
             CommonUtil.toast(OnlineFaceUserManagerActivity.this, msg);
@@ -119,15 +123,33 @@ public class OnlineFaceUserManagerActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (Activity.RESULT_OK != resultCode) return;
 
+        final int ADD_ITEM_ALBUM_REQUEST_CODE = 200;
+        final String CROP_IMAGE_FILE_PATH = FileUtils.getFaceTempImageDirectory().getAbsolutePath()
+                            + File.separator + "crop_face_manager.jpg";
         switch (requestCode) {
-            case ADD_ITEM_REQUEST_CODE:
-                showProgressDialog("正在注册人脸");
+            case ADD_ITEM_CAMERA_REQUEST_CODE:
+                showProgressDialog(getString(R.string.baidu_face_registering));
                 final String cameraImagePath = data.getStringExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH);
-                final String userInfo = data.getStringExtra(GlobalValue.INTENT_REGISTER_FACE_INFO);
+                final String userInfo = data.getStringExtra(GlobalValue.INTENT_FACE_NAME);
                 registerFace(cameraImagePath, userInfo);
                 break;
             case UPDATE_ITEM_REQUEST_CODE:
                 freshUpdateItem(data);
+                break;
+
+            case IMAGE_SELECT_REQUEST_CODE:
+                Intent intent = new Intent(OnlineFaceUserManagerActivity.this, ImageCropActivity.class);
+                intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_IMAGE_FILE_PATH);
+                intent.putExtra(GlobalValue.INTENT_FACE_NAME, getString(R.string.baidu_face_register_userinfo_hint));
+                intent.putExtra(GlobalValue.INTENT_IMAGE_CROP_TYPE, ImageCropActivity.REGISTER_FACE_TYPE);
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, ADD_ITEM_ALBUM_REQUEST_CODE);
+                break;
+            case ADD_ITEM_ALBUM_REQUEST_CODE:
+                final String cropImagePath = data.getStringExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH);
+                final String faceName = data.getStringExtra(GlobalValue.INTENT_FACE_NAME);
+                registerFace(cropImagePath, faceName);
                 break;
         }
     }
@@ -159,7 +181,7 @@ public class OnlineFaceUserManagerActivity extends Activity {
         findViewById(R.id.face_item_add).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onAddNewItem();
+                onShowAlbumAndCameraOptionDialog();
             }
         });
 
@@ -234,17 +256,43 @@ public class OnlineFaceUserManagerActivity extends Activity {
         startActivityForResult(intent, UPDATE_ITEM_REQUEST_CODE);
     }
 
-    private void onAddNewItem() {
+    private void onShowAlbumAndCameraOptionDialog() {
+        final String[] items = {
+                getString(R.string.option_camera),
+                getString(R.string.option_image),
+        };
+
+        AlertDialog.Builder listDialog =
+                new AlertDialog.Builder(OnlineFaceUserManagerActivity.this);
+        listDialog.setTitle(getString(R.string.option_dialog_title));
+        listDialog.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // which 下标从0开始
+                switch (which) {
+                    case 0: //camera
+                        onAddNewItemByCamera();
+                        break;
+                    case 1: //album
+                        SystemUtil.startSysAlbumActivity(OnlineFaceUserManagerActivity.this, IMAGE_SELECT_REQUEST_CODE);
+                        break;
+                }
+            }
+        });
+        listDialog.show();
+    }
+
+    private void onAddNewItemByCamera() {
         Intent intent = new Intent(OnlineFaceUserManagerActivity.this, CameraCaptureActivity.class);
-        intent.putExtra(GlobalValue.INTENT_REGISTER_FACE_INFO, "请在此输入人物名称");
+        intent.putExtra(GlobalValue.INTENT_FACE_NAME, getString(R.string.baidu_face_register_userinfo_hint));
         intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, CameraCaptureActivity.REGISTER_FACE_TYPE);
         intent.putExtra(GlobalValue.INTENT_CAMERA_CAPTURE_FILEPATH,
                 getFilesDir().getAbsolutePath() + File.separator + "camera_face_register.jpg");
-        startActivityForResult(intent, ADD_ITEM_REQUEST_CODE);
+        startActivityForResult(intent, ADD_ITEM_CAMERA_REQUEST_CODE);
     }
 
     private void onDeleteItem(final UserItem userItem) {
-        showProgressDialog("正在删除人脸数据");
+        showProgressDialog(getString(R.string.baidu_face_register_deleting));
         mFaceTaskFuture = mFaceExecutorService.submit(new Runnable() {
             @Override
             public void run() {
@@ -260,7 +308,7 @@ public class OnlineFaceUserManagerActivity extends Activity {
         builder.setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                showProgressDialog("正在删除人脸数据");
+                showProgressDialog(getString(R.string.baidu_face_register_deleting));
                 mFaceTaskFuture = mFaceExecutorService.submit(new Runnable() {
                     @Override
                     public void run() {
@@ -304,7 +352,7 @@ public class OnlineFaceUserManagerActivity extends Activity {
             @Override
             public void run() {
                 //后续需要添加分段查询，减少等待时间又能显示所有数据
-                mFaceDBQuery.requestAllUserItem(BaseFaceModel.DEFAULT_GROUP_ID, mQueryStartPos, MAX_QUERY_ITEM_NUM);
+                mFaceDBQuery.requestAllUserItem(GlobalValue.FACE_DEFAULT_GROUP_ID, mQueryStartPos, MAX_QUERY_ITEM_NUM);
             }
         });
     }

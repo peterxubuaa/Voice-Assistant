@@ -2,34 +2,42 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseIngredientJson extends BaseParseJson {
+public class ParseIngredientJson extends BaiduParseBaseJson {
 
-    public static class Ingredient {
-        Long mLogID;
+    private static ParseIngredientJson sParseIngredientJson = null;
+
+    public static ParseIngredientJson getInstance() {
+        if (null == sParseIngredientJson) {
+            sParseIngredientJson = new ParseIngredientJson();
+        }
+        return sParseIngredientJson;
+    }
+
+    public class Ingredient extends BaiduParseBaseResponse {
         int mResultNum;
         public ArrayList<Result> mResultList;
     }
 
-    public static class Result {
+    public class Result {
         public String mName;//图像中的食材名称
         public double mScore;//分类结果置信度（0--1.0）
     }
 
-    public static Ingredient parse(String result) {
+    public Ingredient parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         Ingredient ingredient = new Ingredient();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                ingredient.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, ingredient);
             if (!jsonObject.isNull("result_num")) {
                 ingredient.mResultNum = jsonObject.getInt("result_num");
             }
@@ -45,7 +53,7 @@ public class ParseIngredientJson extends BaseParseJson {
         return ingredient;
     }
 
-    private static ArrayList<Result> parseResults(JSONArray jsonArray) {
+    private ArrayList<Result> parseResults(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Result> resultList = new ArrayList<>();

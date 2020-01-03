@@ -18,6 +18,7 @@ import com.fih.featurephone.voiceassistant.baidu.faceoffline.camera.FaceCameraPr
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.manager.FaceSDKManager;
 import com.fih.featurephone.voiceassistant.baidu.faceoffline.model.User;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
+import com.fih.featurephone.voiceassistant.utils.GlobalValue;
 
 public class FaceRGBIdentifyActivity extends Activity {
     FaceCameraPreview mFaceCameraPreview;
@@ -110,7 +111,7 @@ public class FaceRGBIdentifyActivity extends Activity {
 
         if (null != user && !TextUtils.isEmpty(user.getUserName())) {
             Intent intent = new Intent();
-            intent.putExtra("FACE_USER_NAME", user.getUserName());
+            intent.putExtra(GlobalValue.INTENT_FACE_USER_NAME, user.getUserName());
             setResult(Activity.RESULT_OK, intent);
             finish();
             return true;

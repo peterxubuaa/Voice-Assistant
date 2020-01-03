@@ -31,12 +31,15 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
     public static final int IDENTIFY_FACE_TYPE = 3;
     public static final int DETECT_FACE_TYPE = 4;
     public static final int REGISTER_FACE_TYPE = 5;
+    public static final int HUMAN_BODY_GESTURE_TYPE = 6;
+    public static final int AUTHENTICATE_FACE_TYPE = 7;
 
     private int mCaptureType;
     private String mOcrLanguage;
     private int mClassifyType;
-    private String mRegisterFaceInfo;
+    private String mFaceName;
     private String mCaptureFilePath;
+    private String mFaceIDCardNumber;
 
     private Bitmap mBmp = null;
     private boolean mHasSurface;
@@ -50,7 +53,7 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scanner);
+        setContentView(R.layout.activity_camera_capture);
 
         mSupportTouch = CommonUtil.isSupportMultiTouch(this);
 
@@ -61,7 +64,8 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
         mCaptureType = getIntent().getIntExtra(GlobalValue.INTENT_CAMERA_CAPTURE_TYPE, 0);
         mOcrLanguage = getIntent().getStringExtra(GlobalValue.INTENT_OCR_LANGUAGE);
         mClassifyType = getIntent().getIntExtra(GlobalValue.INTENT_CLASSIFY_IMAGE_TYPE, -1);
-        mRegisterFaceInfo = getIntent().getStringExtra(GlobalValue.INTENT_REGISTER_FACE_INFO);
+        mFaceName = getIntent().getStringExtra(GlobalValue.INTENT_FACE_NAME);
+        mFaceIDCardNumber = getIntent().getStringExtra(GlobalValue.INTENT_FACE_ID_CARD_NUM);
 
         initView();
     }
@@ -114,8 +118,16 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
                 findViewById(R.id.recognize_hint).setVisibility(View.VISIBLE);
                 break;
             case REGISTER_FACE_TYPE:
-                findViewById(R.id.info_edit_text).setVisibility(View.VISIBLE);
-                ((EditText)findViewById(R.id.info_edit_text)).setHint(mRegisterFaceInfo);
+                findViewById(R.id.name_edit_text).setVisibility(View.VISIBLE);
+                ((EditText)findViewById(R.id.name_edit_text)).setHint(mFaceName);
+                break;
+            case AUTHENTICATE_FACE_TYPE:
+                findViewById(R.id.name_edit_text).setVisibility(View.VISIBLE);
+                ((EditText)findViewById(R.id.name_edit_text)).setHint(mFaceName);
+                findViewById(R.id.id_num_edit_text).setVisibility(View.VISIBLE);
+                ((EditText)findViewById(R.id.id_num_edit_text)).setHint(mFaceIDCardNumber);
+                break;
+            case HUMAN_BODY_GESTURE_TYPE:
                 break;
         }
 
@@ -128,6 +140,7 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
     private void initTouchScreenView() {
         mFinderView = findViewById(R.id.view_finder);
         mFinderView.init(mCameraViewSize, 0, mCameraViewSize.y, false);
+        mFinderView.setClickCallBack(mClickCallBack);
         mFinderView.setVisibility(View.VISIBLE);
 
         findViewById(R.id.camera_flash_image_view).setVisibility(View.VISIBLE);
@@ -143,13 +156,13 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
         recognizeImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startCapture(false, null);
+                startCapture(false);
             }
         });
         recognizeImageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                startCapture(true, null);
+                startCapture(true);
                 return false;
             }
         });
@@ -172,12 +185,12 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
         findViewById(R.id.face_detect_image_view).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startCapture(false, GlobalValue.EXTRA_FUN_FACE_DETECT);
+                startCapture(false);
             }
         });
     }
 
-    private void startCapture(final boolean question, final String extraFun) {
+    private void startCapture(final boolean question) {
         if (mCapturing) return;
         mCapturing = true;
 
@@ -192,8 +205,7 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
                         CameraManager.getInstance().stopPreview();
                         Point pictureSize = CameraManager.getInstance().getCameraPictureSize();
                         int orientation = CameraManager.getInstance().getCapturePictureRotation();
-                        mBmp = BitmapUtils.getFocusedBitmap(data, pictureSize, mCameraViewSize, getCropRect(), orientation);
-
+                        mBmp = BitmapUtils.getCameraShotBitmap(data, pictureSize, mCameraViewSize, getCropRect(), orientation);
                         FileUtils.deleteFile(mCaptureFilePath);//删除上一次临时保存的拍照文件
                         BitmapUtils.saveBitmapToJpeg(mBmp, mCaptureFilePath);
 
@@ -207,10 +219,12 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
                         if (mClassifyType > 0) {
                             intent.putExtra(GlobalValue.INTENT_CLASSIFY_IMAGE_TYPE, mClassifyType);
                         }
-                        if (!TextUtils.isEmpty(mRegisterFaceInfo)) {
-                            intent.putExtra(GlobalValue.INTENT_REGISTER_FACE_INFO, ((EditText)findViewById(R.id.info_edit_text)).getText().toString());
+                        if (findViewById(R.id.name_edit_text).getVisibility() == View.VISIBLE) {
+                            intent.putExtra(GlobalValue.INTENT_FACE_NAME, ((EditText)findViewById(R.id.name_edit_text)).getText().toString());
                         }
-                        if (!TextUtils.isEmpty(extraFun)) intent.putExtra(GlobalValue.INTENT_EXTRA_FUN, extraFun);
+                        if (findViewById(R.id.id_num_edit_text).getVisibility() == View.VISIBLE) {
+                            intent.putExtra(GlobalValue.INTENT_FACE_ID_CARD_NUM, ((EditText)findViewById(R.id.id_num_edit_text)).getText().toString());
+                        }
                         setResult(Activity.RESULT_OK, intent);
 
                         finish();
@@ -313,12 +327,20 @@ public class CameraCaptureActivity extends Activity implements SurfaceHolder.Cal
         switch (keyCode) {
             case KeyEvent.KEYCODE_ENTER:
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                startCapture(true, null);
+                startCapture(true);
                 break;
             case KeyEvent.KEYCODE_3:
-                startCapture(false, null);
+                startCapture(false);
                 break;
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    ScannerFinderView.IClickCallBack mClickCallBack = new ScannerFinderView.IClickCallBack() {
+        public void onGestureZoom(boolean zoomIn) {
+            if (CameraManager.getInstance().isPreviewRunning()) {
+                CameraManager.getInstance().setZoom(zoomIn);
+            }
+        }
+    };
 }

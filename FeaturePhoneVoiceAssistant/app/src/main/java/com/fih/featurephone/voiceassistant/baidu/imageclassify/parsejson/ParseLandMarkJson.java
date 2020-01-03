@@ -2,29 +2,37 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ParseLandMarkJson extends BaseParseJson {
+public class ParseLandMarkJson extends BaiduParseBaseJson {
 
-    public static class LandMark {
-        String mLogID;
+    private static ParseLandMarkJson sParseLandMarkJson = null;
+
+    public static ParseLandMarkJson getInstance() {
+        if (null == sParseLandMarkJson) {
+            sParseLandMarkJson = new ParseLandMarkJson();
+        }
+        return sParseLandMarkJson;
+    }
+
+    public class LandMark extends BaiduParseBaseResponse {
         public Result mResult;//地标名称，无法识别则返回空字符串
     }
 
-    public static class Result {
+    public class Result {
         public String mLandMark;
     }
 
-    public static LandMark parse(String result) {
+    public LandMark parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         LandMark landMark = new LandMark();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                landMark.mLogID = jsonObject.getString("log_id");
-            }
+            baseParse(jsonObject, landMark);
             if (!jsonObject.isNull("result")) {
                 landMark.mResult = parseResults(jsonObject.getJSONObject("result"));
             }
@@ -36,7 +44,7 @@ public class ParseLandMarkJson extends BaseParseJson {
         return landMark;
     }
 
-    private static Result parseResults(JSONObject jsonObject) {
+    private Result parseResults(JSONObject jsonObject) {
         if (null == jsonObject) return null;
 
         Result result = new Result();

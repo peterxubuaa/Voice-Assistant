@@ -9,7 +9,11 @@ import com.baidu.ocr.sdk.exception.OCRError;
 import com.baidu.ocr.sdk.model.AccessToken;
 import com.baidu.ocr.sdk.model.GeneralBasicParams;
 import com.fih.featurephone.voiceassistant.R;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.BaiduUtil;
+import com.fih.featurephone.voiceassistant.baidu.ocr.model.RecognizeFormula;
+import com.fih.featurephone.voiceassistant.baidu.ocr.model.RecognizeQRCode;
+import com.fih.featurephone.voiceassistant.baidu.ocr.model.RecognizeText;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 
 import java.io.File;
@@ -29,28 +33,38 @@ import java.util.Map;
 //"JAP";日语
 //"KOR";韩语
 
-public class BaiduOcrAI {
-    public static final Map<String, String> LANGUAGE_MAP = new HashMap<String, String>();
+public class BaiduOcrAI extends BaiduBaseAI {
+    public static final int OCR_TEXT_ACTION = 1;
+    public static final int OCR_TEXT_QUESTION_ACTION = 2;
+    public static final int OCR_FORMULA_ACTION = 3;
+    public static final int OCR_QRCODE_ACTION = 5;
+
+    public static final Map<String, String> LANGUAGE_MAP = new HashMap<>();
     public static final String OCR_DEFAULT_LANGUAGE = "中英文";
-    private boolean mBaiduOCR_HasToken = false;
     private boolean mBaiduOCR_DetectDirection = true;
-    private boolean mBaiduOCR_DetectLanguage = false;
+
+    private boolean mBaiduOCR_HasToken = false;
+//    private boolean mBaiduOCR_DetectLanguage = false;
     private String mBaiduOCR_LanguageType = GeneralBasicParams.CHINESE_ENGLISH;
     private Context mContext;
-    private OnOCRListener mListener;
+    private BaiduBaseAI.IBaiduBaseListener mListener;
 
-    public interface OnOCRListener {
-        void onError(String msg);
-        void onFinalResult(String result, boolean question);
-    }
+    private RecognizeText mRecognizeText;
+    private RecognizeFormula mRecognizeFormula;
+    private RecognizeQRCode mRecognizeQRCode;
 
-    public BaiduOcrAI(Context context, OnOCRListener listener) {
+    public BaiduOcrAI(Context context, BaiduBaseAI.IBaiduBaseListener listener) {
+        super(context, listener);
         mContext = context;
         mListener = listener;
         initMapValues();
+
+        mRecognizeText = new RecognizeText(context, listener);
+        mRecognizeFormula = new RecognizeFormula(context, listener);
+        mRecognizeQRCode = new RecognizeQRCode(context, listener);
     }
 
-    public void initBaiduOCR() {
+    public void init() {
 //        用明文ak，sk初始化
         OCR.getInstance(mContext).initAccessTokenWithAkSk(new OnResultListener<AccessToken>() {
             @Override
@@ -68,7 +82,7 @@ public class BaiduOcrAI {
         }, mContext, BaiduUtil.OCRTTS_API_KEY, BaiduUtil.OCRTTS_SECRET_KEY);
     }
 
-    public void releaseBaiduOCR() {
+    public void release() {
         OCR.getInstance(mContext).release();
     }
 
@@ -111,7 +125,7 @@ public class BaiduOcrAI {
         return mBaiduOCR_HasToken;
     }
 
-    public void baiduOCRText(String imagePath, final boolean question) {
+    public void onBaiduOCRText(String imagePath, final boolean question) {
         if (!checkTokenStatus() || TextUtils.isEmpty(imagePath)) return;
 
         GeneralBasicParams param = new GeneralBasicParams();
@@ -123,7 +137,7 @@ public class BaiduOcrAI {
             param.setLanguageType(mBaiduOCR_LanguageType);
         }
         param.setDetectDirection(mBaiduOCR_DetectDirection);
-        param.setDetectLanguage(mBaiduOCR_DetectLanguage);
+        param.setDetectLanguage(false);
         param.setImageFile(new File(imagePath));
 //            RecognizeService.recGeneralEnhanced(mContext, param, listener);
         RecognizeService.recGeneralBasic(mContext, param, new RecognizeService.ServiceListener() {
@@ -135,9 +149,44 @@ public class BaiduOcrAI {
                     } else if ("ENG".equals(mBaiduOCR_LanguageType)) {
                         result = CommonUtil.filterChineseCharacter(result);
                     }
-                    mListener.onFinalResult(result, question);
+                    mListener.onFinalResult(result, question? OCR_TEXT_QUESTION_ACTION : OCR_TEXT_ACTION);
                 }
             }
         });
+    }
+
+/*    以下是不用百度的OCR SDK*/
+    public void onOCRText(final String imagePath, final boolean question, final String languageType) {
+        new Thread() {
+            @Override
+            public void run() {
+                String ocrLanguage = LANGUAGE_MAP.get(languageType);
+                if (TextUtils.isEmpty(ocrLanguage)) {
+                    mBaiduOCR_LanguageType = "CHN_ENG";
+                } else {
+                    mBaiduOCR_LanguageType = ocrLanguage;
+                }
+                mRecognizeText.setLanguageType(ocrLanguage);
+                mRecognizeText.request(imagePath, question);
+            }
+        }.start();
+    }
+
+    public void onOCRFormula(final String imagePath, final boolean question) {
+        new Thread() {
+            @Override
+            public void run() {
+                mRecognizeFormula.request(imagePath, question);
+            }
+        }.start();
+    }
+
+    public void onOCRQRCode(final String imagePath, final boolean question) {
+        new Thread() {
+            @Override
+            public void run() {
+                mRecognizeQRCode.request(imagePath, question);
+            }
+        }.start();
     }
 }

@@ -2,17 +2,27 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ParseCurrencyJson {
+public class ParseCurrencyJson extends BaiduParseBaseJson {
 
-    public static class Currency {
-        Long mLogID;
+    private static ParseCurrencyJson sParseCurrencyJson = null;
+
+    public static ParseCurrencyJson getInstance() {
+        if (null == sParseCurrencyJson) {
+            sParseCurrencyJson = new ParseCurrencyJson();
+        }
+        return sParseCurrencyJson;
+    }
+
+    public class Currency extends BaiduParseBaseResponse {
         public Result mResult;
     }
 
-    public static class Result {
+    public class Result {
         public String mCurrencyName;//货币名称，无法识别返回空，示例：新加坡元
         public int mHasDetail;//判断是否返回详细信息（除货币名称之外的其他字段），含有返回1，不含有返回0
         public String mCurrencyCode;//货币代码，hasdetail = 0时，表示无法识别，该字段不返回，示例：SGD
@@ -20,15 +30,13 @@ public class ParseCurrencyJson {
         public String mYear;//货币年份，hasdetail = 0时，表示无法识别，该字段不返回，示例：2004年
     }
 
-    public static Currency parse(String result) {
+    public Currency parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         Currency currency = new Currency();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                currency.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, currency);
             if (!jsonObject.isNull("result")) {
                 currency.mResult = parseResults(jsonObject.getJSONObject("result"));
             }
@@ -40,7 +48,7 @@ public class ParseCurrencyJson {
         return currency;
     }
 
-    private static Result parseResults(JSONObject jsonObject) {
+    private Result parseResults(JSONObject jsonObject) {
         if (null == jsonObject) return null;
 
         Result result = new Result();

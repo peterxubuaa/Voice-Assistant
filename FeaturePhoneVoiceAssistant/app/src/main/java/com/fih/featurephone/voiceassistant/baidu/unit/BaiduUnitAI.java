@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class BaiduUnitAI {
     public static final int BAIDU_UNIT_TYPE_ASR_BOT = 1;
@@ -36,11 +35,6 @@ public class BaiduUnitAI {
     public static final int BAIDU_UNIT_ROBOT_TYPE_WEB = 1;
     public static final int BAIDU_UNIT_ROBOT_TYPE_LOCAL = 2;
     public static final int BAIDU_UNIT_ROBOT_TYPE_ALL = 3;
-
-    public static final int BAIDU_UNIT_SPEECH_ENGLISH = 1;
-    public static final int BAIDU_UNIT_SPEECH_CHINESE = 2;
-    public static final int BAIDU_UNIT_SPEECH_SICHUANESE = 3;
-    public static final int BAIDU_UNIT_SPEECH_CANTONESE = 4;
 
     public static final String BAIDU_UNIT_BOT_TYPE_WEATHER = "81459";
     public static final String BAIDU_UNIT_BOT_TYPE_IA = "81485";
@@ -54,6 +48,7 @@ public class BaiduUnitAI {
     public static final String BAIDU_UNIT_BOT_TYPE_COUPLET = "81476";
     public static final String BAIDU_UNIT_BOT_TYPE_TRANSLATE = "84536";
     public static final String BAIDU_UNIT_BOT_TYPE_JOKE = "87833";
+    public static final String BAIDU_UNIT_BOT_TYPE_GARBAGE = "1010930";
 
 //    static final String BAIDU_UNIT_BOT_TYPE_PHONE = "81487";
 //    static final String BAIDU_UNIT_BOT_TYPE_MESSAGE = "81473";
@@ -77,8 +72,7 @@ public class BaiduUnitAI {
     private BaiduBotASRUnit mBaiduBotASRUnit;
     private int mBaiduUnitType;
     private TranslateFixAction mTranslateFixAction;
-    private ExecutorService mUnitExecutorService = Executors.newSingleThreadExecutor();
-    private Future mUnitTaskFuture;
+    private ExecutorService mUnitExecutorService;
 
     static public class BestResponse {
         String mBotID;
@@ -131,12 +125,12 @@ public class BaiduUnitAI {
 
     public BaiduUnitAI(Context context, OnUnitListener listener,
                        int baiduUnitType, int robotType, ArrayList<String> botTypeList) {
+        mUnitExecutorService = Executors.newSingleThreadExecutor();
+//        mUnitExecutorService = Executors.newFixedThreadPool (10);
+
         mContext = context;
         mBaiduUnitType = baiduUnitType;
         initValues();
-
-        BestResponse bestResponse = new BestResponse();
-        bestResponse.reset();
 
         ArrayList<FixBaseAction> fixActionList = new ArrayList<>();
         mTranslateFixAction = new TranslateFixAction(mContext);
@@ -153,6 +147,9 @@ public class BaiduUnitAI {
         localActionList.add(new LaunchCameraAppAction(mContext));
         localActionList.add(new LaunchMusicAppAction(mContext));
         localActionList.add(new LaunchAppAction(mContext));
+
+        BestResponse bestResponse = new BestResponse();
+        bestResponse.reset();
 
         switch (mBaiduUnitType) {
             case BAIDU_UNIT_TYPE_ASR_BOT:
@@ -180,6 +177,7 @@ public class BaiduUnitAI {
         WEB_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_POEM, mContext.getString(R.string.baidu_unit_bot_poem));
         WEB_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_COUPLET, mContext.getString(R.string.baidu_unit_bot_couplet));
         WEB_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_JOKE, mContext.getString(R.string.baidu_unit_bot_joke));
+        WEB_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_GARBAGE, mContext.getString(R.string.baidu_unit_bot_garbage));
 
 //        LOCAL_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_SCREEN_CONTROL, mContext.getString(R.string.baidu_unit_bot_screen_control));
 //        LOCAL_BOTID_MAP.put(BAIDU_UNIT_BOT_TYPE_MESSAGE, mContext.getString(R.string.baidu_unit_bot_message));
@@ -265,6 +263,10 @@ public class BaiduUnitAI {
             bestBotIDList.add(new BestBotID(BAIDU_UNIT_BOT_TYPE_JOKE, null));//(笑话)
         }
 
+        if (checkGarbage(rawQuery)) {
+            bestBotIDList.add(new BestBotID(BAIDU_UNIT_BOT_TYPE_GARBAGE, null));//(垃圾分类)
+        }
+
         String[] result = new String[2];
         if (checkPoem(rawQuery, result)) {
             bestBotIDList.add(new BestBotID(BAIDU_UNIT_BOT_TYPE_POEM, result[1]));//(智能写诗)
@@ -330,6 +332,15 @@ public class BaiduUnitAI {
         return CommonUtil.checkRegexMatch(query, REGEX);
     }
 
+    private boolean checkGarbage(String query) {
+        query = CommonUtil.filterPunctuation(query);
+        final String[] GARBAGE = mContext.getResources().getStringArray(R.array.garbage_keyword);
+        if (!CommonUtil.isContainKeyWord(query, GARBAGE)) return false;
+
+        final String[] REGEX = mContext.getResources().getStringArray(R.array.garbage_regex);
+        return CommonUtil.checkRegexMatch(query, REGEX);
+    }
+
     boolean isQuitSession(String query) {
         final String[] QUIT_LAST_BOTID = mContext.getResources().getStringArray(R.array.quit_session);
         return CommonUtil.isEqualsKeyWord(query, QUIT_LAST_BOTID);
@@ -347,11 +358,8 @@ public class BaiduUnitAI {
     Baidu Keyboard UNIT
      */
     public void getBaiduKeyboardUnitThread(final String query) {
-        if (mUnitTaskFuture != null && !mUnitTaskFuture.isDone()) {
-            return;//上一次没有处理完，直接返回
-        }
-
-        mUnitTaskFuture = mUnitExecutorService.submit(new Runnable() {
+        //保证逐个执行
+        mUnitExecutorService.submit(new Runnable() {
             @Override
             public void run() {
                 getBaiduKeyboardUnit(query);

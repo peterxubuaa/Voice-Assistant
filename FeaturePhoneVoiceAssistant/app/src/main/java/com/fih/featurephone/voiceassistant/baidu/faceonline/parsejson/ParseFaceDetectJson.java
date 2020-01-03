@@ -3,29 +3,38 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson;
 import android.graphics.Point;
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseFaceDetectJson {
 //https://ai.baidu.com/docs#/Face-ErrorCode-V3/top
-    public static class FaceDetect {
-        Long mLogID;
-        public int mErrorCode;
-        public String mErrorMsg;
+public class ParseFaceDetectJson extends BaiduParseBaseJson {
+
+    private static ParseFaceDetectJson sParseFaceDetectJson = null;
+
+    public static ParseFaceDetectJson getInstance() {
+        if (null == sParseFaceDetectJson) {
+            sParseFaceDetectJson = new ParseFaceDetectJson();
+        }
+        return sParseFaceDetectJson;
+    }
+
+    public class FaceDetect extends BaiduParseBaseResponse {
         public Result mResult;
     }
 
-    public static class Result {
+    public class Result {
         int mFaceNum;//检测到的图片中的人脸数量
         public ArrayList<Face> mFaceList;
     }
 
-    public static class Face {
+    public class Face {
         String mFaceToken;//人脸图片的唯一标识
-        public Location mLocation;//人脸在图片中的位置
+        public LocationF mLocationF;//人脸在图片中的位置
         public int mFaceProbability;//人脸置信度，范围【0~1】，代表这是一张人脸的概率，0最小、1最大。
         public Angle mAngle;//人脸旋转角度参数
         public int mAge;
@@ -39,68 +48,51 @@ public class ParseFaceDetectJson {
         public FaceAttribute mFaceType;//真实人脸/卡通人脸
         ArrayList<Point> mLandMarkList;
         ArrayList<Point> mLandMark72List;
-        ArrayList<Point> mLandMark150List;
+//        ArrayList<Point> mLandMark150List;
         public Quality mQuality;//人脸质量信息
         public EyStatus mEyeStatus;//双眼状态（睁开/闭合）
     }
 
-    public static class Location {
-        double mLeft;
-        double mTop;
-        int mWidth;
-        int mHeight;
-        public int mRotation;
-    }
-
-    public static class Angle {
+    public class Angle {
         public double mYaw;
         public double mPitch;
         public double mRoll;
     }
 
-    public static class FaceAttribute {
+    public class FaceAttribute {
         public String mType;
         double mProbability;
     }
 
-    public static class Quality {
-        public Occlusion mOcclusion;
+    public class Quality {
+        Occlusion mOcclusion;
         public int mBlur;
         public int mIllumination;
         public int mCompleteness;
     }
 
     public static class Occlusion {
-        public int mLeftEye;
-        public int mRightEye;
-        public int mNose;
-        public int mMouth;
-        public int mLeftCheek;
-        public int mRightCheek;
-        public int mChinContour;
+        int mLeftEye;
+        int mRightEye;
+        int mNose;
+        int mMouth;
+        int mLeftCheek;
+        int mRightCheek;
+        int mChinContour;
     }
 
-    public static class EyStatus {
+    public class EyStatus {
         public double mLeftEye;
         public double mRightEye;
     }
 
-    public static FaceDetect parse(String result) {
+    public FaceDetect parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         FaceDetect faceDetect = new FaceDetect();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                faceDetect.mLogID = jsonObject.getLong("log_id");
-            }
-            if (!jsonObject.isNull("error_code")) {
-                faceDetect.mErrorCode = jsonObject.getInt("error_code");
-            }
-            if (!jsonObject.isNull("error_msg")) {
-                faceDetect.mErrorMsg = jsonObject.getString("error_msg");
-            }
-
+            baseParse(jsonObject, faceDetect);
             if (!jsonObject.isNull("result")) {
                 faceDetect.mResult = parseResult(jsonObject.getJSONObject("result"));
             }
@@ -112,7 +104,7 @@ public class ParseFaceDetectJson {
         return faceDetect;
     }
 
-    private static Result parseResult(JSONObject jsonObject) {
+    private Result parseResult(JSONObject jsonObject) {
         Result result = new Result();
         try {
             if (!jsonObject.isNull("face_num")) {
@@ -130,7 +122,7 @@ public class ParseFaceDetectJson {
         return result;
     }
 
-    private static ArrayList<Face> parseFaces(JSONArray jsonArray) {
+    private ArrayList<Face> parseFaces(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Face> faceList = new ArrayList<>();
@@ -142,7 +134,7 @@ public class ParseFaceDetectJson {
                     face.mFaceToken = jsonObject.getString("face_token");
                 }
                 if (!jsonObject.isNull("location")) {
-                    face.mLocation = parseLocation(jsonObject.getJSONObject("location"));
+                    face.mLocationF = parseLocationF(jsonObject.getJSONObject("location"));
                 }
                 if (!jsonObject.isNull("face_probability")) {
                     face.mFaceProbability = jsonObject.getInt("face_probability");
@@ -201,31 +193,7 @@ public class ParseFaceDetectJson {
         return faceList;
     }
 
-    private static Location parseLocation(JSONObject jsonObject) {
-        Location location = new Location();
-        try {
-            if (!jsonObject.isNull("left")) {
-                location.mLeft = jsonObject.getDouble("left");
-            }
-            if (!jsonObject.isNull("top")) {
-                location.mTop = jsonObject.getDouble("top");
-            }
-            if (!jsonObject.isNull("width")) {
-                location.mWidth = jsonObject.getInt("width");
-            }
-            if (!jsonObject.isNull("height")) {
-                location.mHeight = jsonObject.getInt("height");
-            }
-            if (!jsonObject.isNull("rotation")) {
-                location.mRotation = jsonObject.getInt("rotation");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return location;
-    }
-
-    private static Angle parseAngle(JSONObject jsonObject) {
+    private Angle parseAngle(JSONObject jsonObject) {
         Angle angle = new Angle();
         try {
             if (!jsonObject.isNull("yaw")) {
@@ -243,7 +211,7 @@ public class ParseFaceDetectJson {
         return angle;
     }
 
-    private static FaceAttribute parseFaceAttr(JSONObject jsonObject) {
+    private FaceAttribute parseFaceAttr(JSONObject jsonObject) {
         FaceAttribute faceAttribute = new FaceAttribute();
         try {
             if (!jsonObject.isNull("type")) {
@@ -258,7 +226,7 @@ public class ParseFaceDetectJson {
         return faceAttribute;
     }
 
-    private static ArrayList<Point> parseLandMark(JSONArray jsonArray) {
+    private ArrayList<Point> parseLandMark(JSONArray jsonArray) {
         ArrayList<Point> landMarkList = new ArrayList<>();
         try {
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -279,7 +247,7 @@ public class ParseFaceDetectJson {
         return landMarkList;
     }
 
-    private static Quality parseQuality(JSONObject jsonObject) {
+    private Quality parseQuality(JSONObject jsonObject) {
         Quality quality = new Quality();
         try {
             if (!jsonObject.isNull("occlusion")) {
@@ -300,7 +268,7 @@ public class ParseFaceDetectJson {
         return quality;
     }
 
-    private static Occlusion parseOcclusion(JSONObject jsonObject) {
+    private Occlusion parseOcclusion(JSONObject jsonObject) {
         Occlusion occlusion = new Occlusion();
         try {
             if (!jsonObject.isNull("left_eye")) {
@@ -330,7 +298,7 @@ public class ParseFaceDetectJson {
         return occlusion;
     }
 
-    private static EyStatus parseEyeStatus(JSONObject jsonObject) {
+    private EyStatus parseEyeStatus(JSONObject jsonObject) {
         EyStatus eyeStatus = new EyStatus();
         try {
             if (!jsonObject.isNull("left_eye")) {

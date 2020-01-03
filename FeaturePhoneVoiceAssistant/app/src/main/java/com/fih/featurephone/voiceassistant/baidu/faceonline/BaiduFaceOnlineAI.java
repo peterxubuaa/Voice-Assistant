@@ -1,51 +1,51 @@
 package com.fih.featurephone.voiceassistant.baidu.faceonline;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.activity.OnlineFaceCompareActivity;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.activity.OnlineFaceMergeActivity;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.activity.OnlineFaceUserManagerActivity;
+import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceAuthenticate;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceDetect;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceIdentify;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+public class BaiduFaceOnlineAI extends BaiduBaseAI {
 
-public class BaiduFaceOnlineAI {
-
-    public static final int FACE_IDENTIFY_ACTION = 1;
-    public static final int FACE_IDENTIFY_QUESTION_ACTION = 11;
-    public static final int FACE_DETECT_ACTION = 2;
-    public static final int FACE_REGISTER_ACTION = 3;
-    public static final int FACE_UPDATE_ACTION = 4;
-    public static final int FACE_DELETE_ACTION = 5;
-    public static final int FACE_DELETE_LIST_ACTION = 55;
-//    public static final int FACE_QUERY_USER_LIST_ACTION = 6;
-//    public static final int FACE_QUERY_USER_INFO_ACTION = 7;
-//    public static final int FACE_QUERY_FACE_INFO_ACTION = 7;
-    public static final int FACE_QUERY_ALL_USER_INFO_ACTION = 8;
-    public static final int FACE_MERGE_ACTION = 9;
-    public static final int FACE_COMPARE_ACTION = 10;
+    public static final int FACE_IDENTIFY_ACTION = 100;
+    public static final int FACE_IDENTIFY_IMAGE_ACTION = 101;
+    public static final int FACE_IDENTIFY_QUESTION_ACTION = 102;
+    public static final int FACE_DETECT_ACTION = 200;
+    public static final int FACE_DETECT_IMAGE_ACTION = 201;
+    public static final int FACE_REGISTER_ACTION = 300;
+    public static final int FACE_UPDATE_ACTION = 400;
+    public static final int FACE_DELETE_ACTION = 500;
+    public static final int FACE_DELETE_LIST_ACTION = 501;
+//    public static final int FACE_QUERY_USER_LIST_ACTION = 600;
+//    public static final int FACE_QUERY_USER_INFO_ACTION = 700;
+//    public static final int FACE_QUERY_FACE_INFO_ACTION = 701;
+    public static final int FACE_QUERY_ALL_USER_INFO_ACTION = 800;
+    public static final int FACE_MERGE_ACTION = 900;
+    public static final int FACE_COMPARE_ACTION = 1000;
+    public static final int FACE_AUTHENTICATE_ACTION = 1100;
+    public static final int FACE_AUTHENTICATE_IMAGE_ACTION = 1101;
 
     private Activity mActivity;
-    private ExecutorService mFaceExecutorService = Executors.newSingleThreadExecutor();
-    private Future mFaceTaskFuture;
 
     private FaceIdentify mFaceIdentify;
     private FaceDetect mFaceDetect;
+    private FaceAuthenticate mFaceAuthenticate;
 
-    public interface OnFaceOnlineListener {
-        void onError(String msg);
-        void onFinalResult(Object result, int resultType);
-    }
+    public BaiduFaceOnlineAI(Context context, IBaiduBaseListener listener) {
+        super(context, listener);
 
-    public BaiduFaceOnlineAI(Activity activity, OnFaceOnlineListener listener) {
-        mActivity = activity;
+        mActivity = (Activity)context;
 
-        mFaceIdentify = new FaceIdentify(activity, listener);
-        mFaceDetect = new FaceDetect(activity, listener);
+        mFaceIdentify = new FaceIdentify(context, listener);
+        mFaceDetect = new FaceDetect(context, listener);
+        mFaceAuthenticate =  new FaceAuthenticate(context, listener);
     }
 
     public void initBaiduFace() {
@@ -54,41 +54,42 @@ public class BaiduFaceOnlineAI {
     public void releaseBaiduFace() {
     }
 
-    public void onIdentify(final String imageFilePath, final boolean question) {
-        if (mFaceTaskFuture != null && !mFaceTaskFuture.isDone()) {
-            return;//上一次没有处理完，直接返回
-        }
-
-        mFaceTaskFuture = mFaceExecutorService.submit(new Runnable() {
+    public void onIdentifyThread(final String imageFilePath, final boolean question, final int type) {
+        new Thread() {
             @Override
             public void run() {
-                mFaceIdentify.request(imageFilePath, question);
+                mFaceIdentify.request(imageFilePath, question, type);
             }
-        });
+        }.start();
     }
 
-    public void onDetect(final String imageFilePath) {
-        if (mFaceTaskFuture != null && !mFaceTaskFuture.isDone()) {
-            return;//上一次没有处理完，直接返回
-        }
-
-        mFaceTaskFuture = mFaceExecutorService.submit(new Runnable() {
+    public void onDetectThread(final String imageFilePath) {
+        new Thread() {
             @Override
             public void run() {
                 mFaceDetect.request(imageFilePath);
             }
-        });
+        }.start();
     }
 
-    public void onFaceManager() {
+    public void onAuthenticateThread(final String imageFilePath, final String idCardNumber, final String name) {
+        new Thread() {
+            @Override
+            public void run() {
+                mFaceAuthenticate.request(imageFilePath, idCardNumber, name);
+            }
+        }.start();
+    }
+
+    public void onFaceManagerActivity() {
         mActivity.startActivity(new Intent(mActivity, OnlineFaceUserManagerActivity.class));
     }
 
-    public void onFaceMerge() {
+    public void onFaceMergeActivity() {
         mActivity.startActivity(new Intent(mActivity, OnlineFaceMergeActivity.class));
     }
 
-    public void onFaceCompare() {
+    public void onFaceCompareActivity() {
         mActivity.startActivity(new Intent(mActivity, OnlineFaceCompareActivity.class));
     }
 }

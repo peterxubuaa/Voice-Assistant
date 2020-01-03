@@ -2,14 +2,16 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseFaceQueryJson extends ParseFaceBaseJson {
 //https://ai.baidu.com/docs#/Face-ErrorCode-V3/top
+public class ParseFaceQueryJson extends BaiduParseBaseJson {
 
     private static ParseFaceQueryJson sParseFaceQueryJson = null;
 
@@ -25,7 +27,7 @@ public class ParseFaceQueryJson extends ParseFaceBaseJson {
         public ArrayList<String> mUserIDList;
     }
 
-    public class FaceQueryUserList extends FaceBaseResponse{
+    public class FaceQueryUserList extends BaiduParseBaseResponse{
         public FaceQueryUserList_Result mResult;
     }
 
@@ -74,7 +76,7 @@ public class ParseFaceQueryJson extends ParseFaceBaseJson {
         String mGroupID;
     }
 
-    public class FaceQueryUserInfo extends FaceBaseResponse {
+    public class FaceQueryUserInfo extends BaiduParseBaseResponse {
         public FaceQueryUserInfo_Result mResult;
     }
 
@@ -132,7 +134,7 @@ public class ParseFaceQueryJson extends ParseFaceBaseJson {
         String mCreateTime;
     }
 
-    public class FaceQueryFaceInfo extends FaceBaseResponse {
+    public class FaceQueryFaceInfo extends BaiduParseBaseResponse {
         public FaceQueryFaceInfo_Result mResult;
     }
 

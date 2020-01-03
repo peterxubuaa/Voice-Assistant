@@ -2,21 +2,31 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseCarJson  extends BaseParseJson {
+public class ParseCarJson extends BaiduParseBaseJson {
 
-    public static class Car {
-        long mLogID;
+    private static ParseCarJson sParseCarJson = null;
+
+    public static ParseCarJson getInstance() {
+        if (null == sParseCarJson) {
+            sParseCarJson = new ParseCarJson();
+        }
+        return sParseCarJson;
+    }
+
+    public class Car extends BaiduParseBaseResponse {
         String mColorResult;//颜色
         public ArrayList<Result> mResultList;
     }
 
-    public static class Result {
+    public class Result {
         public String mName;//车型名称，示例：宝马x6
         public double mScore;//置信度，示例：0.5321
         String mYear;//年份
@@ -24,22 +34,20 @@ public class ParseCarJson  extends BaseParseJson {
         LocationResult mLocationResult;//车在图片中的位置信息
     }
 
-    public static class LocationResult {
+    public class LocationResult {
         int mLeft;
         int mTop;
         int mWidth;
         int mHeight;
     }
 
-    public static Car parse(String result) {
+    public Car parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         Car car = new Car();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                car.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, car);
             if (!jsonObject.isNull("color_result")) {
                 car.mColorResult = jsonObject.getString("color_result");
             }
@@ -55,7 +63,7 @@ public class ParseCarJson  extends BaseParseJson {
         return car;
     }
 
-    private static ArrayList<Result> parseResults(JSONArray jsonArray) {
+    private ArrayList<Result> parseResults(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Result> resultList = new ArrayList<>();
@@ -86,7 +94,7 @@ public class ParseCarJson  extends BaseParseJson {
         return resultList;
     }
 
-    private static LocationResult parseLocationInfo(JSONObject jsonObject) {
+    private LocationResult parseLocationInfo(JSONObject jsonObject) {
         if (null == jsonObject) return null;
         LocationResult locationResult = new LocationResult();
         try {

@@ -10,7 +10,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.fih.featurephone.voiceassistant.R;
-import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.model.FaceMerge;
 import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
@@ -55,7 +55,7 @@ public class OnlineFaceMergeActivity extends OnlineFaceDoubleBaseActivity {
         builder.setPositiveButton(getString(R.string.button_ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                Bitmap bitmap = BitmapUtils.getBitmapFromJpegFile(mMergeFaceFilePath);
+                Bitmap bitmap = BitmapFactory.decodeFile(mMergeFaceFilePath);
                 MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "face merge", "merged face");
             }
         });
@@ -63,7 +63,7 @@ public class OnlineFaceMergeActivity extends OnlineFaceDoubleBaseActivity {
         builder.show();
     }
 
-    private BaiduFaceOnlineAI.OnFaceOnlineListener mFaceOnlineListener = new BaiduFaceOnlineAI.OnFaceOnlineListener() {
+    private BaiduBaseAI.IBaiduBaseListener mFaceOnlineListener = new BaiduBaseAI.IBaiduBaseListener() {
         @Override
         public void onError(String msg) {
             CommonUtil.toast(OnlineFaceMergeActivity.this, msg);
@@ -81,8 +81,7 @@ public class OnlineFaceMergeActivity extends OnlineFaceDoubleBaseActivity {
                         hideProgressDialog();
                         mMergeFaceFilePath = mergeFilePath;
                         ((ImageView)findViewById(R.id.merge_image_view)).setImageBitmap(
-                                BitmapUtils.rotateBitmap(BitmapUtils.getJpegImageRotateDegree(mergeFilePath),
-                                        BitmapFactory.decodeFile(mergeFilePath)));
+                                BitmapUtils.rotateBitmap(BitmapFactory.decodeFile(mergeFilePath), BitmapUtils.getJpegImageRotateDegree(mergeFilePath)));
                     }
                 });
             }

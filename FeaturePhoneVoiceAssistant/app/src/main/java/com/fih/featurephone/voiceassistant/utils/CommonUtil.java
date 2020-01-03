@@ -278,6 +278,29 @@ public class CommonUtil {
         return sbValue.toString();
     }
 
+    public static ArrayList<Integer> getNumListFromString(String str) {
+        if (TextUtils.isEmpty(str)) return null;
+
+        String[] strArray = str.split(",");
+        ArrayList<Integer> integerList = new ArrayList<>();
+        for (String num : strArray) {
+            integerList.add(Integer.valueOf(num));
+        }
+
+        return integerList;
+    }
+
+    public static String getStringFromNumList(ArrayList<Integer> strList) {
+        StringBuilder sbValue = new StringBuilder();
+
+        for (Integer value : strList) {
+            if (sbValue.length() > 0) sbValue.append(",");
+            sbValue.append(value);
+        }
+
+        return sbValue.toString();
+    }
+
     public static boolean checkRegexMatch(String query, String[] regex) {
         for (String re : regex) {
             Pattern pattern = Pattern.compile(re);

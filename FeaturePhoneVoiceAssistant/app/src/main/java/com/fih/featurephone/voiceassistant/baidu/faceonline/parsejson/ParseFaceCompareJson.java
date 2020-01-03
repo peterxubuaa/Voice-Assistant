@@ -2,13 +2,15 @@ package com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseFaceCompareJson extends ParseFaceBaseJson {
+public class ParseFaceCompareJson extends BaiduParseBaseJson {
     private static ParseFaceCompareJson sParseFaceCompareJson = null;
 
     public static ParseFaceCompareJson getInstance() {
@@ -18,7 +20,7 @@ public class ParseFaceCompareJson extends ParseFaceBaseJson {
         return sParseFaceCompareJson;
     }
 
-    public class FaceCompare extends FaceBaseResponse {
+    public class FaceCompare extends BaiduParseBaseResponse {
         public Result mResult;
     }
 
@@ -67,5 +69,4 @@ public class ParseFaceCompareJson extends ParseFaceBaseJson {
 
         return result;
     }
-
 }

@@ -12,6 +12,7 @@ import android.widget.ImageView;
 
 import com.fih.featurephone.voiceassistant.R;
 import com.fih.featurephone.voiceassistant.camera.CameraCaptureActivity;
+import com.fih.featurephone.voiceassistant.camera.ImageCropActivity;
 import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.CommonUtil;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
@@ -72,11 +73,17 @@ abstract class OnlineFaceDoubleBaseActivity extends Activity {
 
         if ((requestCode & ALBUM_SELECT_OFFSET_REQUEST_CODE) > 0) {//相册选择
             if (requestBaseCode == FIRST_IMAGE_BASE_REQUEST_CODE) {
-                SystemUtil.cropSelectImage(this, data.getData(),
-                        requestBaseCode + ALBUM_CROP_OFFSET_REQUEST_CODE, CROP_FIRST_IMAGE_FILE_PATH);
+                Intent intent = new Intent(OnlineFaceDoubleBaseActivity.this, ImageCropActivity.class);
+                intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_FIRST_IMAGE_FILE_PATH);
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, requestBaseCode + ALBUM_CROP_OFFSET_REQUEST_CODE);
             } else if (requestBaseCode == SECOND_IMAGE_BASE_REQUEST_CODE) {
-                SystemUtil.cropSelectImage(this, data.getData(),
-                        requestBaseCode + ALBUM_CROP_OFFSET_REQUEST_CODE, CROP_SECOND_IMAGE_FILE_PATH);
+                Intent intent = new Intent(OnlineFaceDoubleBaseActivity.this, ImageCropActivity.class);
+                intent.putExtra(GlobalValue.INTENT_CROP_IMAGE_FILEPATH, CROP_SECOND_IMAGE_FILE_PATH);
+                String imagePath = SystemUtil.getAlbumImagePath(this, data.getData());
+                intent.putExtra(GlobalValue.INTENT_IMAGE_FILEPATH, imagePath);
+                startActivityForResult(intent, requestBaseCode + ALBUM_CROP_OFFSET_REQUEST_CODE);
             }
         } else {
             int imageViewID = requestBaseCode == FIRST_IMAGE_BASE_REQUEST_CODE?
@@ -99,8 +106,7 @@ abstract class OnlineFaceDoubleBaseActivity extends Activity {
                 mSecondFaceFilePath = imagePath;
             }
             ((ImageView)findViewById(imageViewID)).setImageBitmap(
-                    BitmapUtils.rotateBitmap(BitmapUtils.getJpegImageRotateDegree(imagePath),
-                            BitmapFactory.decodeFile(imagePath)));
+                    BitmapUtils.rotateBitmap(BitmapFactory.decodeFile(imagePath), BitmapUtils.getJpegImageRotateDegree(imagePath)));
         }
     }
 

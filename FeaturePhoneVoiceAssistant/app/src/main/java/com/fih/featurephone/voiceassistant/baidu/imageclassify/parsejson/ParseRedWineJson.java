@@ -2,17 +2,27 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ParseRedWineJson extends BaseParseJson {
+public class ParseRedWineJson extends BaiduParseBaseJson {
 
-    public static class RedWine {
-        Long mLogID;
+    private static ParseRedWineJson sParseRedWineJson = null;
+
+    public static ParseRedWineJson getInstance() {
+        if (null == sParseRedWineJson) {
+            sParseRedWineJson = new ParseRedWineJson();
+        }
+        return sParseRedWineJson;
+    }
+
+    public class RedWine extends BaiduParseBaseResponse {
         public Result mResult;
     }
 
-    public static class Result {
+    public class Result {
         public int mHasDetail;//判断是否返回详细信息（除红酒中文名之外的其他字段），含有返回1，不含有返回0
         public String mWineNameCn;//红酒中文名，无法识别返回空，示例：波斯塔瓦经典赤霞珠品丽珠半甜红葡萄酒
         public String mWineNameEn;//红酒英文名，hasdetail = 0时，表示无法识别，该字段不返回，示例：Bostavan Classic Cabernet
@@ -34,15 +44,13 @@ public class ParseRedWineJson extends BaseParseJson {
         public String mDescription;//酒品描述，hasdetail = 0时，表示无法识别，该字段不返回，示例：葡萄酒呈深宝石红色，具有香料、香草和新鲜水果的果香，酒体分明，口感畅顺，果香横溢，单宁软化程度高，让你回味无穷
     }
 
-    public static RedWine parse(String result) {
+    public RedWine parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         RedWine redWine = new RedWine();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                redWine.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, redWine);
             if (!jsonObject.isNull("result")) {
                 redWine.mResult = parseResults(jsonObject.getJSONObject("result"));
             }
@@ -54,7 +62,7 @@ public class ParseRedWineJson extends BaseParseJson {
         return redWine;
     }
 
-    private static Result parseResults(JSONObject jsonObject) {
+    private Result parseResults(JSONObject jsonObject) {
         if (null == jsonObject) return null;
 
         Result result = new Result();

@@ -25,7 +25,7 @@ public final class ScannerFinderView extends RelativeLayout {
 
     private double MIN_ZOOM_DISTANCE = 100.0;
     private Point mScreenResolution;
-    private int mTop;
+    private int mTop, mLeft;
 
     private Paint mPaint;
     private int mMaskColor;
@@ -39,12 +39,11 @@ public final class ScannerFinderView extends RelativeLayout {
     private Handler mViewHandler;
 
     //记录连续点击次数
-    private int mClickCount = 0;
+//    private int mClickCount = 0;
     private Handler mClickHandler;
     private IClickCallBack mClickCallBack = null;
     public interface IClickCallBack {
-        void onOneClick();//点击一次的回调
-        void onDoubleClick();//连续点击两次的回调
+        void onGestureZoom(boolean zoomIn);//
     }
 
     public ScannerFinderView(Context context) {
@@ -103,12 +102,17 @@ public final class ScannerFinderView extends RelativeLayout {
         int left = (mScreenResolution.x - width) / 2;
         int top = bMaxRect? MIN_FOCUS_BOX_TOP : (MAX_FOCUS_BOX_BOTTOM + MIN_FOCUS_BOX_TOP)/2 -  height / 2;
         mTop = top; //记录初始距离上方距离
+        mLeft = left; //记录初始距离左方距离
 
         mFrameRect = new Rect(left, top, left + width, top + height);
     }
 
     public Rect getRect() {
         return mFrameRect;
+    }
+
+    public void setClickCallBack (IClickCallBack clickCallBack) {
+        mClickCallBack = clickCallBack;
     }
 
     @Override
@@ -234,7 +238,7 @@ public final class ScannerFinderView extends RelativeLayout {
                 int zoomValue = (int)((endDistance - mStartDistance) / MIN_ZOOM_DISTANCE);
                 if (zoomValue != mLastZoomValue) {
                     boolean zoomIn = zoomValue > mLastZoomValue;
-                    CameraManager.getInstance().setZoom(zoomIn);
+                    if (null != mClickCallBack) mClickCallBack.onGestureZoom(zoomIn);
                     mLastZoomValue = zoomValue;
                     Log.i("Zoom", "zoom camera " + zoomIn);
                 }
@@ -245,30 +249,30 @@ public final class ScannerFinderView extends RelativeLayout {
     }
 
     final int TIMEOUT = 400; ////双击间四百毫秒延时ms
-    final int CLICK_OFFSET = 100;
+//    final int CLICK_OFFSET = 100;
     int mSingleTouchLastX = -1, mSingleTouchLastY = -1;
     int mSingleTouchLastDownX = -1, mSingleTouchLastUpX = -1, mSingleTouchLastDownY = -1, mSingleTouchLastUpY = -1;
     private boolean onSingleTouchPointer(View v, MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (null != mClickCallBack) {
-                    mClickCount++;
+//                    mClickCount++;
                     mSingleTouchLastDownX = (int) event.getX();
                     mSingleTouchLastDownY = (int) event.getY();
                     mClickHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            if (1 == mClickCount) {
-                                if (Math.abs(mSingleTouchLastDownX - mSingleTouchLastUpX) < CLICK_OFFSET && Math.abs(mSingleTouchLastDownY - mSingleTouchLastUpY) < CLICK_OFFSET) {
-                                    mClickCallBack.onOneClick();
-                                }
-                            } else if (2 == mClickCount) {
-                                mClickCallBack.onDoubleClick();
-                            }
+//                            if (1 == mClickCount) {
+//                                if (Math.abs(mSingleTouchLastDownX - mSingleTouchLastUpX) < CLICK_OFFSET && Math.abs(mSingleTouchLastDownY - mSingleTouchLastUpY) < CLICK_OFFSET) {
+//                                    mClickCallBack.onOneClick();
+//                                }
+//                            } else if (2 == mClickCount) {
+//                                mClickCallBack.onDoubleClick();
+//                            }
                             //清空handler延时，并防内存泄漏
                             mClickHandler.removeCallbacksAndMessages(null);
                             //计数清零
-                            mClickCount = 0;
+//                            mClickCount = 0;
                         }
                         //延时timeout后执行run方法中的代码
                     }, TIMEOUT);
@@ -284,7 +288,6 @@ public final class ScannerFinderView extends RelativeLayout {
                     Rect rect = mFrameRect;
                     final int BUFFER = 60;
                     if (mSingleTouchLastX >= 0) {
-
                         boolean currentXLeft = currentX >= rect.left - BUFFER && currentX <= rect.left + BUFFER;
                         boolean currentXRight = currentX >= rect.right - BUFFER && currentX <= rect.right + BUFFER;
                         boolean lastXLeft = mSingleTouchLastX >= rect.left - BUFFER && mSingleTouchLastX <= rect.left + BUFFER;
@@ -306,30 +309,22 @@ public final class ScannerFinderView extends RelativeLayout {
                         boolean XLeftRight = (currentX <= rect.right && currentX >= rect.left)
                                 || (mSingleTouchLastX <= rect.right && mSingleTouchLastX >= rect.left);
 
-                        //右上角
-                        if (XLeft && YTop) {
-                            updateBoxRect(2 * (mSingleTouchLastX - currentX), (mSingleTouchLastY - currentY), true);
-                            //左上角
-                        } else if (XRight && YTop) {
-                            updateBoxRect(2 * (currentX - mSingleTouchLastX), (mSingleTouchLastY - currentY), true);
-                            //右下角
-                        } else if (XLeft && YBottom) {
-                            updateBoxRect(2 * (mSingleTouchLastX - currentX), (currentY - mSingleTouchLastY), false);
-                            //左下角
-                        } else if (XRight && YBottom) {
-                            updateBoxRect(2 * (currentX - mSingleTouchLastX), (currentY - mSingleTouchLastY), false);
-                            //左侧
-                        } else if (XLeft && YTopBottom) {
-                            updateBoxRect(2 * (mSingleTouchLastX - currentX), 0, false);
-                            //右侧
-                        } else if (XRight && YTopBottom) {
-                            updateBoxRect(2 * (currentX - mSingleTouchLastX), 0, false);
-                            //上方
-                        } else if (YTop && XLeftRight) {
-                            updateBoxRect(0, (mSingleTouchLastY - currentY), true);
-                            //下方
-                        } else if (YBottom && XLeftRight) {
-                            updateBoxRect(0, (currentY - mSingleTouchLastY), false);
+                        if (XLeft && YTop) {//左上角
+                            updateBoxRect((mSingleTouchLastX - currentX), (mSingleTouchLastY - currentY), true, true);
+                        } else if (XRight && YTop) {//右上角
+                            updateBoxRect((currentX - mSingleTouchLastX), (mSingleTouchLastY - currentY), true, false);
+                        } else if (XLeft && YBottom) {//左下角
+                            updateBoxRect((mSingleTouchLastX - currentX), (currentY - mSingleTouchLastY), false, true);
+                        } else if (XRight && YBottom) {//右下角
+                            updateBoxRect((currentX - mSingleTouchLastX), (currentY - mSingleTouchLastY), false, false);
+                        } else if (XLeft && YTopBottom) {//左侧
+                            updateBoxRect((mSingleTouchLastX - currentX), 0, false, true);
+                        } else if (XRight && YTopBottom) {//右侧
+                            updateBoxRect((currentX - mSingleTouchLastX), 0, false, false);
+                        } else if (YTop && XLeftRight) {//上方
+                            updateBoxRect(0, (mSingleTouchLastY - currentY), true, false);
+                        } else if (YBottom && XLeftRight) {//下方
+                            updateBoxRect(0, (currentY - mSingleTouchLastY), false, false);
                         }
                     }
                 } catch (NullPointerException e) {
@@ -344,7 +339,6 @@ public final class ScannerFinderView extends RelativeLayout {
                     mSingleTouchLastUpX = (int) event.getX();
                     mSingleTouchLastUpY = (int) event.getY();
                 }
-
                 //移除之前的刷新
                 mViewHandler.removeMessages(1);
                 //松手时对外更新
@@ -356,7 +350,7 @@ public final class ScannerFinderView extends RelativeLayout {
         return false;
     }
 
-    private void updateBoxRect(int dW, int dH, boolean isUpward) {
+    private void updateBoxRect(int dW, int dH, boolean isUpward, boolean isLeftward) {
 
         int newWidth = (mFrameRect.width() + dW > mScreenResolution.x || mFrameRect.width() + dW < MIN_FOCUS_BOX_WIDTH)
                 ? 0 : mFrameRect.width() + dW;
@@ -369,22 +363,22 @@ public final class ScannerFinderView extends RelativeLayout {
             return;
         }
 
-        int leftOffset = (mScreenResolution.x - newWidth) / 2;
-
-        if (isUpward){
-            mTop -= dH;
+//        int leftOffset = (mScreenResolution.x - newWidth) / 2;
+        if (isLeftward) mLeft -= dW;
+        int leftOffset = mLeft;
+        if (leftOffset < 0) {
+            mLeft = 0;
+            return;
         }
+        if (leftOffset + newWidth > mScreenResolution.x) return;
 
+        if (isUpward) mTop -= dH;
         int topOffset = mTop;
-
         if (topOffset < MIN_FOCUS_BOX_TOP){
             mTop = MIN_FOCUS_BOX_TOP;
             return;
         }
-
-        if (topOffset + newHeight > MAX_FOCUS_BOX_BOTTOM){
-            return;
-        }
+        if (topOffset + newHeight > MAX_FOCUS_BOX_BOTTOM) return;
 
         mFrameRect = new Rect(leftOffset, topOffset, leftOffset + newWidth, topOffset + newHeight);
     }

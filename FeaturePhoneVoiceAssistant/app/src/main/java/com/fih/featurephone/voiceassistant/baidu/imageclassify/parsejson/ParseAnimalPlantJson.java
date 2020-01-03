@@ -2,34 +2,42 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseAnimalPlantJson extends BaseParseJson {
+public class ParseAnimalPlantJson extends BaiduParseBaseJson {
 
-    public static class AnimalPlant {
-        Long mLogID;
+    private static ParseAnimalPlantJson sParseAnimalPlantJson = null;
+
+    public static ParseAnimalPlantJson getInstance() {
+        if (null == sParseAnimalPlantJson) {
+            sParseAnimalPlantJson = new ParseAnimalPlantJson();
+        }
+        return sParseAnimalPlantJson;
+    }
+
+    public class AnimalPlant extends BaiduParseBaseResponse {
         public ArrayList<Result> mResultList;
     }
 
-    public static class Result {
+    public class Result {
         public String mName;//动物名称，示例：蒙古马
         public double mScore;//分类结果置信度（0--1.0）
         public BaiKeInfo mBaiKeInfo;//对应识别结果的百科词条名称
     }
 
-    public static AnimalPlant parse(String result) {
+    public AnimalPlant parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         AnimalPlant animalPlant = new AnimalPlant();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                animalPlant.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, animalPlant);
             if (!jsonObject.isNull("result")) {
                 animalPlant.mResultList = parseResults(jsonObject.getJSONArray("result"));
             }
@@ -41,7 +49,7 @@ public class ParseAnimalPlantJson extends BaseParseJson {
         return animalPlant;
     }
 
-    private static ArrayList<Result> parseResults(JSONArray jsonArray) {
+    private ArrayList<Result> parseResults(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Result> resultList = new ArrayList<>();

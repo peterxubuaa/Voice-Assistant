@@ -2,16 +2,26 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseAdvancedGeneralJson extends BaseParseJson {
+public class ParseAdvancedGeneralJson extends BaiduParseBaseJson {
 
-    public static class Advanced_General {
-        Long mLogID;
+    private static ParseAdvancedGeneralJson sParseAdvancedGeneralJson = null;
+
+    public static ParseAdvancedGeneralJson getInstance() {
+        if (null == sParseAdvancedGeneralJson) {
+            sParseAdvancedGeneralJson = new ParseAdvancedGeneralJson();
+        }
+        return sParseAdvancedGeneralJson;
+    }
+
+    public class AdvancedGeneral extends BaiduParseBaseResponse{
         int mResultNum;
         public ArrayList<Result> mResultList;
     }
@@ -23,31 +33,29 @@ public class ParseAdvancedGeneralJson extends BaseParseJson {
         public BaiKeInfo mBaiKeInfo;//对应识别结果的百科词条名称
     }
 
-    public static Advanced_General parse(String result) {
+    public AdvancedGeneral parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
-        Advanced_General advanced_general = new Advanced_General();
+        AdvancedGeneral advancedGeneral = new AdvancedGeneral();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                advanced_general.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, advancedGeneral);
             if (!jsonObject.isNull("result_num")) {
-                advanced_general.mResultNum = jsonObject.getInt("result_num");
+                advancedGeneral.mResultNum = jsonObject.getInt("result_num");
             }
 
-            if (advanced_general.mResultNum > 0 && !jsonObject.isNull("result")) {
-                advanced_general.mResultList = parseResults(jsonObject.getJSONArray("result"));
+            if (advancedGeneral.mResultNum > 0 && !jsonObject.isNull("result")) {
+                advancedGeneral.mResultList = parseResults(jsonObject.getJSONArray("result"));
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        return advanced_general;
+        return advancedGeneral;
     }
 
-    private static ArrayList<Result> parseResults(JSONArray jsonArray) {
+    private ArrayList<Result> parseResults(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Result> resultList = new ArrayList<>();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,28 +11,40 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="start"
-        android:visibility="gone"
-        android:orientation="horizontal">
+        android:visibility="gone">
 
         <ImageView
-            android:id="@+id/send_head"
+            android:id="@+id/send_head_image_view"
             android:contentDescription="@string/image_view_send_head"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentStart="true"
+            android:visibility="gone"
             android:src="@drawable/send_head"/>
 
         <TextView
-            android:id="@+id/send_msg"
+            android:id="@+id/send_msg_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@+id/send_head"
+            android:layout_toEndOf="@+id/send_head_image_view"
             android:background="@drawable/send_messages"
             android:layout_gravity="center"
             android:gravity="center|start"
+            android:visibility="gone"
             android:textSize="20sp"
             android:textColor="#fff"
             android:textIsSelectable="true"/>
+
+        <ImageView
+            android:id="@+id/send_extra_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            android:src="@drawable/send_head"
+            tools:ignore="ContentDescription" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -39,28 +52,39 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:visibility="gone"
-        android:orientation="horizontal">
+        android:visibility="gone">
 
         <ImageView
-            android:id="@+id/receive_head"
+            android:id="@+id/receive_head_image_view"
             android:contentDescription="@string/image_view_receive_head"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_alignParentEnd="true"
+            android:visibility="gone"
             android:src="@drawable/receive_head"/>
 
         <TextView
-            android:id="@+id/receive_msg"
+            android:id="@+id/receive_msg_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@+id/receive_head"
+            android:layout_toStartOf="@+id/receive_head_image_view"
             android:layout_gravity="center"
             android:gravity="center|start"
+            android:visibility="gone"
             android:background="@drawable/receive_messages"
             android:textSize="20sp"
             android:textColor="#000"
-            android:textIsSelectable="true"
-            />
+            android:textIsSelectable="true"/>
+
+        <ImageView
+            android:id="@+id/receive_extra_image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:scaleType="fitEnd"
+            android:visibility="gone"
+            android:src="@drawable/receive_head"
+            tools:ignore="ContentDescription" />
     </RelativeLayout>
+
 </LinearLayout>

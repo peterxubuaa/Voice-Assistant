@@ -2,43 +2,44 @@ package com.fih.featurephone.voiceassistant.baidu.imageclassify.parsejson;
 
 import android.text.TextUtils;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduParseBaseJson;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class ParseLogoJson {
+public class ParseLogoJson extends BaiduParseBaseJson {
 
-    public static class Logo {
-        Long mLogID;
+    private static ParseLogoJson sParseLogoJson = null;
+
+    public static ParseLogoJson getInstance() {
+        if (null == sParseLogoJson) {
+            sParseLogoJson = new ParseLogoJson();
+        }
+        return sParseLogoJson;
+    }
+
+    public class Logo extends BaiduParseBaseResponse {
         int mResultNum;
         public ArrayList<Result> mResultList;
     }
 
-    public static class Result {
+    public class Result {
         Location mLocation;//位置信息（左起像素位置、上起像素位置、像素宽、像素高）
         public String mName;//识别的品牌名称
         public double mProbability;//分类结果置信度（0--1.0）
         int mType;//type=0为1千种高优商标识别结果;type=1为2万类logo库的结果；其它type为自定义logo库结果
     }
 
-    public static class Location {
-        int mLeft;
-        int mTop;
-        int mWidth;
-        int mHeight;
-    }
-
-    public static Logo parse(String result) {
+    public Logo parse(String result) {
         if (TextUtils.isEmpty(result)) return null;
 
         Logo log = new Logo();
         try {
             JSONObject jsonObject = new JSONObject(result);
-            if (!jsonObject.isNull("log_id")) {
-                log.mLogID = jsonObject.getLong("log_id");
-            }
+            baseParse(jsonObject, log);
             if (!jsonObject.isNull("result_num")) {
                 log.mResultNum = jsonObject.getInt("result_num");
             }
@@ -54,7 +55,7 @@ public class ParseLogoJson {
         return log;
     }
 
-    private static ArrayList<Result> parseResults(JSONArray jsonArray) {
+    private ArrayList<Result> parseResults(JSONArray jsonArray) {
         if (null == jsonArray) return null;
 
         ArrayList<Result> resultList = new ArrayList<>();
@@ -80,29 +81,5 @@ public class ParseLogoJson {
             e.printStackTrace();
         }
         return resultList;
-    }
-
-    private static Location parseLocation(JSONObject jsonObject) {
-        if (null == jsonObject) return null;
-        Location location = new Location();
-        try {
-            if (!jsonObject.isNull("left")) {
-                location.mLeft = jsonObject.getInt("left");
-            }
-            if (!jsonObject.isNull("top")) {
-                location.mTop = jsonObject.getInt("top");
-            }
-
-            if (!jsonObject.isNull("width")) {
-                location.mWidth = jsonObject.getInt("width");
-            }
-            if (!jsonObject.isNull("height")) {
-                location.mHeight = jsonObject.getInt("height");
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return location;
     }
 }

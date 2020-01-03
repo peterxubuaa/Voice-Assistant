@@ -1,20 +1,23 @@
 package com.fih.featurephone.voiceassistant.baidu.faceonline.model;
 
 import android.content.Context;
-import android.text.TextUtils;
-import android.util.Base64;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseAI;
+import com.fih.featurephone.voiceassistant.baidu.BaiduBaseModel;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.BaiduFaceOnlineAI;
 import com.fih.featurephone.voiceassistant.baidu.faceonline.parsejson.ParseFaceDetectJson;
+import com.fih.featurephone.voiceassistant.utils.BitmapUtils;
 import com.fih.featurephone.voiceassistant.utils.FileUtils;
-import com.fih.featurephone.voiceassistant.utils.HttpUtil;
 
-import org.json.JSONObject;
-
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FaceDetect extends BaseFaceModel {
+//https://ai.baidu.com/ai-doc/FACE/yk37c1u4t
+public class FaceDetect extends BaiduBaseModel<ParseFaceDetectJson.FaceDetect> {
     private final Map<String, String> FACE_EXPRESSION_MAP = new HashMap<String, String>() {
         {
             put("none", "不笑");
@@ -73,40 +76,30 @@ public class FaceDetect extends BaseFaceModel {
         }
     };
 
-    public FaceDetect(Context context, BaiduFaceOnlineAI.OnFaceOnlineListener listener) {
+    public FaceDetect(Context context, BaiduBaseAI.IBaiduBaseListener listener) {
         super(context, listener);
+
+        mURLRequestParamType = MAP_PARAM_TYPE;
+        mHostURL = "https://aip.baidubce.com/rest/2.0/face/v3/detect";
+        mURLRequestParamMap.put("face_field", "age,beauty,expression,face_shape,gender,glasses,landmark,landmark72,landmark150,race,quality,eye_status,emotion,face_type");
+        mURLRequestParamMap.put("image_type", "BASE64");
+        mURLRequestParamMap.put("max_face_num", 10);
+        mURLRequestParamMap.put("liveness_control", "NONE");
     }
 
-    public void request(String imageFilePath) {
-        if (null == mFaceOnlineListener) return;
+    protected ParseFaceDetectJson.FaceDetect parseJson(String json) {
+        return ParseFaceDetectJson.getInstance().parse(json);
+    }
 
-        if (!FileUtils.isFileExist(imageFilePath)) {
-            mFaceOnlineListener.onError("申请参数不合法！");
+    protected void handleResult(ParseFaceDetectJson.FaceDetect faceDetect) {
+         if (null == faceDetect.mResult || faceDetect.mResult.mFaceList.size() == 0) {
+             mBaiduBaseListener.onFinalResult("没有检测到人脸", BaiduFaceOnlineAI.FACE_DETECT_ACTION);
             return;
         }
 
-        String response = requestHostUrl(imageFilePath);
-        if (TextUtils.isEmpty(response)) {
-            mFaceOnlineListener.onError("向服务器请求检测人脸失败！");
-            return;
-        }
-
-        ParseFaceDetectJson.FaceDetect faceDetect = ParseFaceDetectJson.parse(response);
-        if (null == faceDetect) {
-            mFaceOnlineListener.onError("检测人脸失败！");
-            return;
-        }
-
-        if (faceDetect.mErrorCode != 0) {
-            mFaceOnlineListener.onError("检测人脸失败信息：" + faceDetect.mErrorMsg);
-            return;
-        }
-
-        if (null == faceDetect.mResult || faceDetect.mResult.mFaceList.size() == 0) {
-            mFaceOnlineListener.onFinalResult("没有检测到人脸", BaiduFaceOnlineAI.FACE_DETECT_ACTION);
-            return;
-        }
-
+        String faceBaseImageFilePath = mContext.getFilesDir() + File.separator + "face_detect_";
+        Bitmap inputBitmap = BitmapFactory.decodeFile(mImageFilePath);
+        int index = 1;
         StringBuilder sb = new StringBuilder();
         for (ParseFaceDetectJson.Face face : faceDetect.mResult.mFaceList) {
             sb.append("年龄：").append(face.mAge).append("\n");
@@ -119,23 +112,39 @@ public class FaceDetect extends BaseFaceModel {
             sb.append("脸型：").append(FACE_SHAPE_MAP.get(face.mFaceShape.mType)).append("\n");
             sb.append("人脸类别：").append(FACE_TYPE_MAP.get(face.mFaceType.mType)).append("\n\n");
 
-            sb.append("顺时针旋转角：").append(face.mLocation.mRotation).append("\n");
+            sb.append("顺时针旋转角：").append(face.mLocationF.mRotation).append("\n");
             sb.append("左右旋转角：").append(face.mAngle.mYaw).append("\n");
             sb.append("俯仰角度：").append(face.mAngle.mPitch).append("\n");
             sb.append("平面内旋转角：").append(face.mAngle.mRoll).append("\n");
             sb.append("左眼状态：").append(getEyeStatusDescription(face.mEyeStatus.mLeftEye)).append("\n");
             sb.append("右眼状态：").append(getEyeStatusDescription(face.mEyeStatus.mRightEye)).append("\n");
-            sb.append("左眼遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mLeftEye)).append("\n");
-            sb.append("右眼遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mRightEye)).append("\n");
-            sb.append("鼻子遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mNose)).append("\n");
-            sb.append("嘴巴遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mMouth)).append("\n");
-            sb.append("左脸颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mLeftCheek)).append("\n");
-            sb.append("右脸颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mRightCheek)).append("\n");
-            sb.append("下巴颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mChinContour)).append("\n");
+//            sb.append("左眼遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mLeftEye)).append("\n");
+//            sb.append("右眼遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mRightEye)).append("\n");
+//            sb.append("鼻子遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mNose)).append("\n");
+//            sb.append("嘴巴遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mMouth)).append("\n");
+//            sb.append("左脸颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mLeftCheek)).append("\n");
+//            sb.append("右脸颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mRightCheek)).append("\n");
+//            sb.append("下巴颊遮挡比例：").append(getOcclusionDescription(face.mQuality.mOcclusion.mChinContour)).append("\n");
             sb.append("人脸模糊程度：").append(getBlurDescription(face.mQuality.mBlur)).append("\n");
             sb.append("脸部光照程度[0~255]：").append(face.mQuality.mIllumination).append("\n");
-            sb.append("人脸完整度：").append(face.mQuality.mCompleteness == 1? "是" : "否");
-            mFaceOnlineListener.onFinalResult(sb.toString(), BaiduFaceOnlineAI.FACE_DETECT_ACTION);
+            sb.append("人脸完整度：").append(face.mQuality.mCompleteness == 1? "完整" : "残缺").append("\n");
+            sb.append("人脸置信度：").append(getFaceProbabilityDescription(face.mFaceProbability)).append(face.mFaceProbability).append("\n");
+
+            mBaiduBaseListener.onFinalResult(sb.toString(), BaiduFaceOnlineAI.FACE_DETECT_ACTION);
+            sb.delete(0, sb.length());
+
+            Rect cropRect = new Rect((int)face.mLocationF.mLeft, (int)face.mLocationF.mTop,
+                    (int)face.mLocationF.mLeft + face.mLocationF.mWidth, (int)face.mLocationF.mTop + face.mLocationF.mHeight);
+            String faceImageFilePath = faceBaseImageFilePath + index + ".jpg";
+            index++;
+            if (FileUtils.isFileExist(faceImageFilePath)) FileUtils.deleteFile(faceImageFilePath);
+            BitmapUtils.saveCropJpeg(inputBitmap, cropRect, faceImageFilePath);
+            if (cropRect.width() < 100) {//扩大人脸尺寸100pix
+                int width = 100;
+                int height = 100 * cropRect.height() / cropRect.width();
+                BitmapUtils.resizeJpegFile(faceImageFilePath, width, height, faceImageFilePath);
+            }
+            mBaiduBaseListener.onFinalResult(faceImageFilePath, BaiduFaceOnlineAI.FACE_DETECT_IMAGE_ACTION);
         }
     }
 
@@ -167,43 +176,58 @@ public class FaceDetect extends BaseFaceModel {
         }
     }
 
-    private String getOcclusionDescription(double rate) {
+    private String getFaceProbabilityDescription(double rate) {
         if (1 == rate) {
-            return "完全遮挡";
+            return "一定是人脸";
         } else if (0 == rate) {
-            return "没有遮挡";
-        } else if (rate < 0.4) {
-            return "小部分遮挡";
-        } else if (rate > 0.6) {
-            return "大部分遮挡";
+            return "不是人脸";
+        } else if (rate < 0.3) {
+            return "基本不是人脸";
+        } else if (rate > 0.7) {
+            return "基本是人脸";
         } else {
-            return "一半遮挡";
+            return "可能是人脸";
         }
     }
 
-    private String requestHostUrl(String imageFilePath) {
-        // 请求url
-        String FACE_DETECT_URL = "https://aip.baidubce.com/rest/2.0/face/v3/detect";
-        try {
-            Map<String, Object> map = new HashMap<>();
-            byte[] buf = FileUtils.readImageFile(imageFilePath);
-            String encodeString = Base64.encodeToString(buf, Base64.DEFAULT);
-//            String imgParam = URLEncoder.encode(encodeString, "UTF-8");
-            map.put("image", encodeString);
-            map.put("face_field", "age,beauty,expression,face_shape,gender,glasses,landmark,landmark150,race,quality,eye_status,emotion,face_type");
-            map.put("image_type", "BASE64");
-            map.put("max_face_num", 1);
-            map.put("liveness_control", "NONE");
+//    private String getOcclusionDescription(double rate) {
+//        if (1 == rate) {
+//            return "完全遮挡";
+//        } else if (0 == rate) {
+//            return "没有遮挡";
+//        } else if (rate < 0.4) {
+//            return "小部分遮挡";
+//        } else if (rate > 0.6) {
+//            return "大部分遮挡";
+//        } else {
+//            return "一半遮挡";
+//        }
+//    }
 
-            String jsonParam = new JSONObject(map).toString();
-
-            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
-            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
-
-            return HttpUtil.post(FACE_DETECT_URL, mAccessToken, "application/json", jsonParam);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    private String requestHostUrl(String imageFilePath) {
+//        final int MAX_FACE_NUM = 10;
+//        String FACE_DETECT_URL = "https://aip.baidubce.com/rest/2.0/face/v3/detect";// 请求url
+//        try {
+//            Map<String, Object> map = new HashMap<>();
+//            byte[] buf = FileUtils.readImageFile(imageFilePath);
+//            String encodeString = Base64.encodeToString(buf, Base64.DEFAULT);
+////            String imgParam = URLEncoder.encode(encodeString, "UTF-8");
+//            map.put("image", encodeString);
+//
+//            map.put("face_field", "age,beauty,expression,face_shape,gender,glasses,landmark,landmark150,race,quality,eye_status,emotion,face_type");
+//            map.put("image_type", "BASE64");
+//            map.put("max_face_num", MAX_FACE_NUM);
+//            map.put("liveness_control", "NONE");
+//
+//            String jsonParam = new JSONObject(map).toString();
+//
+//            // 注意这里仅为了简化编码每一次请求都去获取access_token，线上环境access_token有过期时间， 客户端可自行缓存，过期后重新获取。
+//            if (TextUtils.isEmpty(mAccessToken)) mAccessToken = getAuthToken();
+//
+//            return HttpUtil.post(FACE_DETECT_URL, mAccessToken, "application/json", jsonParam);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 }

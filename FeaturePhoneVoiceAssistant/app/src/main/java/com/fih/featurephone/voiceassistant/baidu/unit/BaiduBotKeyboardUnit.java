@@ -170,9 +170,9 @@ class BaiduBotKeyboardUnit {
         // 请求URL
         final String TALKURL = "https://aip.baidubce.com/rpc/2.0/unit/bot/chat";
         //请求的参数用map封装
-        Map<String, Object> map = new HashMap<String, Object>();
-        Map<String, Object> mapRequest = new HashMap<String, Object>();
-        Map<String, Object> mapQueryInfo = new HashMap<String, Object>();
+        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> mapRequest = new HashMap<>();
+        Map<String, Object> mapQueryInfo = new HashMap<>();
         /*
          *  技能唯一标识，在『我的技能』的技能列表中第一列数字即为bot_id
          */
