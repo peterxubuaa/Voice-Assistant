@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/number_index_text_view"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="start|center_vertical"
+        android:textSize="20sp"/>
+
+    <ImageView
+        android:id="@+id/header_image_view"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/number_index_text_view"
+        android:src="@drawable/baseline_face_white_48dp"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/user_name_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_toEndOf="@+id/header_image_view"
+        android:layout_toStartOf="@+id/delete_checkbox"
+        android:gravity="center"
+        android:textSize="20sp"/>
+
+    <CheckBox
+        android:id="@+id/delete_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:focusable="false"
+        android:checked="false"/>
+<!--    android:focusable="false"  //key point-->
+</RelativeLayout>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="transparent">#00000000</color>
+
+    <color name="buttonColor">#FF6600</color>
+    <color name="buttonBg">#016838</color>
+
+    <color name="item_selected">#FF2FCEB5</color>
+    <color name="finder_mask">#80000000</color>
+    <color name="finder_frame">#FFFFFFFF</color>
+    <color name="finder_laser">#0db8f6</color>
+</resources>

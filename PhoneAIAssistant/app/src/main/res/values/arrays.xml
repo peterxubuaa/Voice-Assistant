@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="brightness_keyword">
+        <item>亮度</item>
+        <item>屏幕</item>
+    </string-array>
+    <string-array name="brightness_down_regex">
+        <item>.*[调|降|减].*[低|小|暗].*</item>
+    </string-array>
+    <string-array name="brightness_up_regex">
+        <item>.*[调|升|增|提].*[高|大|亮].*</item>
+    </string-array>
+    <string-array name="brightness_limit_keyword">
+        <item>最</item>
+        <item>极</item>
+    </string-array>
+
+    <string-array name="launch_app_regex">
+        <item>打开(.{2,})</item>
+        <item>运行(.{2,})</item>
+        <item>启动(.{2,})</item>
+    </string-array>
+    <string-array name="launch_exit_keyword">
+        <item>退出当前应用</item>
+        <item>关闭当前应用</item>
+        <item>回到主界面</item>
+    </string-array>
+
+    <string-array name="launch_camera_image_regex">
+        <item>拍.?.?照</item>
+        <item>照.?.?相</item>
+    </string-array>
+    <string-array name="launch_camera_video_regex">
+        <item>[录|摄].?.?[像|影]</item>
+    </string-array>
+
+    <string-array name="launch_music_regex">
+        <item>[播|放|唱].*(?:音乐|歌曲|歌|曲)(.*)</item>
+    </string-array>
+
+    <string-array name="phone_regex">
+        <item>.*(?:打个|打|回个|回)电话.*</item>
+        <item>.*(?:拨|拨打|拨个)(?:号码|电话).*</item>
+    </string-array>
+
+    <string-array name="voice_volume_keyword">
+        <item>声音</item>
+        <item>音量</item>
+    </string-array>
+    <string-array name="voice_type_keyword">
+        <item>系统</item>
+        <item>音乐</item>
+        <item>铃声</item>
+        <item>通话</item>
+        <item>闹钟</item>
+        <item>通知</item>
+    </string-array>
+    <string-array name="voice_volume_down_regex">
+        <item>.*[调|降|减][低|小|轻].*(?:音量|声音).*</item>
+        <item>.*(?:音量|声音).*[调|降|减]?.*[低|小|轻].*</item>
+    </string-array>
+    <string-array name="voice_volume_up_regex">
+        <item>.*[调|提|升|增][高|大|响].*(?:音量|声音).*</item>
+        <item>.*(?:音量|声音).*[调|提|升|增]?.*[高|大|响].*</item>
+    </string-array>
+    <string-array name="voice_volume_limit_keyword">
+        <item>最</item>
+        <item>极</item>
+    </string-array>
+    <string-array name="voice_volume_switch_on_keyword">
+        <item>打开</item>
+        <item>开启</item>
+    </string-array>
+    <string-array name="voice_volume_switch_off_keyword">
+        <item>关闭</item>
+        <item>静音</item>
+    </string-array>
+
+    <string-array name="web_search_keyword">
+        <item>上网查找</item>
+        <item>上网搜索</item>
+        <item>网络查找</item>
+        <item>网络搜索</item>
+    </string-array>
+
+    <string-array name="recognize_regex">
+        <item>(.*)识别</item>
+        <item>识别(.*)</item>
+    </string-array>
+
+    <string-array name="ocr_regex">
+        <item>(.*)(?:扫描|扫一扫)</item>
+        <item>(?:扫描|扫一扫)(.*)</item>
+    </string-array>
+    <string-array name="ocr_language_item">
+        <item>中英文</item>
+        <item>汉语</item>
+        <item>英语</item>
+        <item>法语</item>
+        <item>德语</item>
+        <item>俄语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>意大利语</item>
+        <item>西班牙语</item>
+        <item>葡萄牙语</item>
+    </string-array>
+
+    <string-array name="unit_conversion_regex">
+        <item>.+(?:等于|是)(?:多少|几).+</item>
+    </string-array>
+
+    <string-array name="calculator_regex">
+        <item>.*(?:\\+|-|×|÷|开方|平方|次方|根号).*(?:等于|是)(?:多少|几)</item>
+    </string-array>
+
+    <string-array name="translate_regex">
+        <item>(.{0,4})翻译.+</item>
+    </string-array>
+
+    <string-array name="weather_keyword">
+        <item>天气</item>
+        <item>气候</item>
+        <item>气温</item>
+        <item>温度</item>
+        <item>冷不冷</item>
+        <item>热不热</item>
+        <item>感冒指数</item>
+        <item>穿衣指数</item>
+        <item>紫外线强度</item>
+    </string-array>
+    <string-array name="weather_regex">
+        <item>.*(?:有|下|刮)(?:雨|雪|霜|风|雾|云|太阳).*</item>
+        <item>.*(?:热|冷|户外运动|容易感冒|洗车|旅游|外出|出门)[吗|么]</item>
+        <item>.*穿.+衣服.*</item>
+    </string-array>
+
+    <string-array name="couplet_keyword">
+        <item>对联</item>
+        <item>春联</item>
+        <item>门联</item>
+    </string-array>
+    <string-array name="couplet_regex">
+        <item>.*(?:根据|用)(.*)[写|做].*的?[对|春|门]联</item>
+        <item>.*[写|做].*关于(.*)的?[对|春|门]联</item>
+    </string-array>
+
+    <string-array name="poem_keyword">
+        <item>诗</item>
+    </string-array>
+    <string-array name="poem_regex">
+        <item>.*(?:根据|用)(.*)[写|做].*的?诗</item>
+        <item>.*[写|做].*关于(.*)的?诗</item>
+    </string-array>
+
+    <string-array name="joke_keyword">
+        <item>笑话</item>
+        <item>段子</item>
+    </string-array>
+    <string-array name="joke_regex">
+        <item>.*[讲|说|来].*(?:笑话|段子).*</item>
+    </string-array>
+
+    <string-array name="garbage_keyword">
+        <item>垃圾</item>
+    </string-array>
+    <string-array name="garbage_regex">
+        <item>.*(?:啥|哪些|属于|是|什么).*(?:垃圾).*</item>
+        <item>.*(?:垃圾).*(?:什么|哪些|啥).*</item>
+    </string-array>
+
+    <string-array name="word_definition_keyword">
+        <item>词语</item>
+        <item>名词</item>
+        <item>动词</item>
+        <item>形容词</item>
+        <item>副词</item>
+    </string-array>
+    <string-array name="word_definition_regex">
+        <item>.*(?:词语|名词|动词|形容词|副词)(.*)[的|是|表示].*</item>
+        <item>(?:词语|名词|动词|形容词|副词)解释(.*)</item>
+        <item>(?:解释|查)(?:词语|名词|动词|形容词|副词)(.*)</item>
+    </string-array>
+
+    <string-array name="idiom_keyword">
+        <item>成语</item>
+    </string-array>
+    <string-array name="idiom_regex">
+        <item>.*(?:成语)(.*)[的|是|表示].*</item>
+        <item>(?:解释成语|成语解释)(.*)</item>
+        <item>(?:解释|查)(?:成语)(.*)</item>
+    </string-array>
+
+    <string-array name="quit_session">
+        <item>不对</item>
+        <item>瞎说</item>
+        <item>瞎回答</item>
+        <item>瞎扯淡</item>
+        <item>回答错误</item>
+        <item>回答错了</item>
+        <item>换个回答</item>
+        <item>搞没搞错</item>
+        <item>说点别的</item>
+    </string-array>
+
+    <string-array name="translate_action_start_regex">
+        <item>开始翻译(.{0,4})</item>
+        <item>(?:进入|开始)(.{0,4})翻译</item>
+    </string-array>
+    <string-array name="translate_action_stop_keyword">
+        <item>结束</item>
+        <item>退出</item>
+        <item>exit</item>
+        <item>quit</item>
+    </string-array>
+    <string-array name="translate_action_language_keyword">
+        <item>中文</item>
+        <item>汉语</item>
+        <item>英文</item>
+        <item>英语</item>
+        <item>法语</item>
+        <item>德语</item>
+        <item>俄语</item>
+        <item>日语</item>
+        <item>韩语</item>
+        <item>泰语</item>
+        <item>意大利语</item>
+        <item>西班牙语</item>
+        <item>葡萄牙语</item>
+        <item>阿拉伯语</item>
+    </string-array>
+
+    <string-array name="poem_action_start_keyword">
+        <item>开始写诗</item>
+        <item>开始做诗</item>
+    </string-array>
+    <string-array name="poem_action_stop_keyword">
+        <item>退出</item>
+        <item>结束</item>
+    </string-array>
+
+    <string-array name="couplet_action_start_keyword">
+        <item>开始写对联</item>
+    </string-array>
+    <string-array name="couplet_action_stop_keyword">
+        <item>结束</item>
+        <item>退出</item>
+    </string-array>
+
+<!--    face detect-->
+<!--    <string-array name="face_detect_emotion_enum">-->
+<!--        <item>生气</item>-->
+<!--        <item>恶心</item>-->
+<!--        <item>害怕</item>-->
+<!--        <item>高兴</item>-->
+<!--        <item>悲伤</item>-->
+<!--        <item>吃惊</item>-->
+<!--        <item>中性</item>-->
+<!--    </string-array>-->
+
+    <string-array name="face_detect_emotion">
+        <item>中性</item>
+        <item>微笑</item>
+        <item>大笑</item>
+    </string-array>
+
+    <string-array name="face_detect_race">
+        <item>黄种人</item>
+        <item>白种人</item>
+        <item>黑种人</item>
+        <item>印度人</item>
+    </string-array>
+
+    <string-array name="face_detect_glass">
+        <item>无眼镜</item>
+        <item>有眼镜</item>
+        <item>太阳镜</item>
+    </string-array>
+
+    <string-array name="face_detect_gender">
+        <item>女性</item>
+        <item>男性</item>
+        <item>小孩</item>
+    </string-array>
+
+    <string-array name="classify_image_type_item">
+        <item>通用</item>
+        <item>植物</item>
+        <item>车型</item>
+        <item>菜品</item>
+        <item>红酒</item>
+        <item>商标</item>
+        <item>动物</item>
+        <item>果蔬食材</item>
+        <item>地标</item>
+        <item>货币</item>
+<!--        <item>车辆检测</item>-->
+<!--        <item>车辆外观损伤识别</item>-->
+    </string-array>
+
+    <string-array name="face_type_item">
+        <item>人脸</item>
+    </string-array>
+</resources>
