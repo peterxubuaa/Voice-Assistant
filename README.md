@@ -1,3 +1,4 @@
-# Voice-Assistant
-Voice Assistant
-安卓手机语音助手
+# PhoneAIAssistant
+这才是用于触摸屏智能手机的语音助手
+# FeaturePhoneVoiceAssistant
+是用于智能功能手机的语音助手，只在FIH Nokia的智能功能手机上使用
